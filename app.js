@@ -1,5 +1,3 @@
-console.log('RevisedWalllet');
-
 // Framework
 var express     = require('express');
 var app         = express();
@@ -8,8 +6,8 @@ var app         = express();
 var bodyParser  = require('body-parser');
 
 // Pages
-var mongoose    = require('./mongoose.js');
-var user        = require('./user.js');
+var mongoose    = require('./config/mongoose.js');
+var user        = require('./routes/user.js');
 
 // Middleware
 app.use(bodyParser.json());

@@ -1,6 +1,5 @@
-console.log('user');
 // Pages
-var schema      = require('./schema.js');
+var schema      = require('../models/userSchema.js');
 
 // Functions
 
