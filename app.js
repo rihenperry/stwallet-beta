@@ -28,9 +28,10 @@ app.get('/', function(req,res){
 app.post('/register', user.register);
 app.post('/delete', user.delete);
 app.post('/update', user.update);
-app.post('/update', user.update);
 
 // Server Connectivity
 app.listen('5000',function(){
     console.log('Connected To Server');
 })
+
+console.log('Swanand');
