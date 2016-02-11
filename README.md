@@ -4,8 +4,11 @@ This README would normally document whatever steps are necessary to get your app
 
 ### What is this repository for? ###
 
+searchtrade wallet mongo Api
+
 * Quick summary
-npm install
+
+   ** npm install**
 
 * Version
 0.0.01
