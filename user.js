@@ -1,3 +1,4 @@
+console.log('user');
 // Pages
 var schema      = require('./schema.js');
 
