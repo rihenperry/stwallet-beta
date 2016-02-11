@@ -35,6 +35,3 @@ app.listen('5000',function(){
     console.log('Connected To Server');
 
 })
-
-console.log('Swanand');
-console.log('Prashant');
