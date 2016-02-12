@@ -24,9 +24,9 @@ app.get('/', function(req,res){
     res.send('Hello Revised Wallet');
 });
 
-app.post('/register', user.register);
-app.post('/delete', user.delete);
-app.post('/update', user.update);
+/*============================== User Related API ==================================*/
+app.post('/secure/register', user.secureRegister);
+
 
 // Server Connectivity
 app.listen('5000',function(){
