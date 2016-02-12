@@ -35,6 +35,7 @@ function validateEmail(email)
 }
 
 //========================= Export Functions ========================= //
+
 /* Register User */
 module.exports.secureRegister = function(req, res){
    
@@ -264,7 +265,7 @@ module.exports.secureRegister = function(req, res){
                         }
                         
                         console.log('Saved SuccessFully');
-                        sendResponse(req, res, 200, -1, "SuccessFully Registered");
+                        sendResponse(req, res, 200, -1, "Success");
                     });
                     
                 })
@@ -277,45 +278,120 @@ module.exports.secureRegister = function(req, res){
 }
 
 
-
-
-
-
-
-
-
-
-
-
-/* Delete */
-module.exports.delete = function(req, res){
-    var email = req.body.email;
-    var name = req.body.name;
+/* Set User Details */
+module.exports.setUserDetails = function(req, res){
     
-    schema.findOneAndRemove({$and:[{name:name},{email:email}]}, function(err){
-		if(err)
-		{
-			return err;
-		}
-		console.log('User Deleted!');
-		res.send('Deleted Successfully');
-	});
-}
+    console.log('Page Name : user.js');
+	console.log('API Name : setUserDetails');
+	console.log('Set User Details API Hitted');
+	console.log('Parameters Receiving..');
+    
+    var email           = req.body.email;
+	var first_name      = req.body.first_name;
+	var last_name       = req.body.last_name;
+	var gender          = req.body.gender;
+	var address1        = req.body.address1;
+	var address2        = req.body.address2;
+	var country         = req.body.country;
+	var state           = req.body.state;
+	var zip             = req.body.zip;
+	var city            = req.body.city;
+	var mobile_number   = req.body.mobile_number;
+    //var publicKey          = req.body.publicKey;
+    //var signature          = req.body.signature;
+    
+    console.log('Email : '+email);
+    console.log('First Name : '+first_name);
+    console.log('Last Name : '+last_name);
+    console.log('Gender : '+gender);
+    console.log('Address1 : '+address1);
+    console.log('Address2 : '+address2);
+    console.log('Country : '+country);
+    console.log('State : '+state);
+    console.log('Zip : '+zip);
+    console.log('City : '+city);
+    console.log('Mobile Number : '+mobile_number);
+    //console.log('Public Key : '+publicKey);
+    //console.log('Signature : '+signature);
+    
+    // Validate Public Key
+	//if(!(validateParameter(publicKey, 'Public Key')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
 
-/* Edit */
-module.exports.update = function(req, res){
+	// Validate Signature
+	//if(!(validateParameter(signature, 'Signature')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
     
-    var name = req.body.name;
-    var email = req.body.email;
-    var changedName = req.body.changedName;
+    // Valiadte Mobile Number
+	if(mobile_number!="" && isNaN(mobile_number))
+	{
+		console.log('Invalid Mobile');
+		sendResponse(req, res, 200, 8, "Incorrect Mobile");
+		return;
+	}
     
-    schema.findOneAndUpdate({$and:[{name:name},{email:email}]}, {name:changedName}, function(err, user) {
+    var creationTime= Date.now();
+    
+    // Updated Info JSON
+    var updatedInfo ={
+        
+        first_name: first_name,   					// First Name
+        last_name: last_name,       			   	// Last Name
+        mobile_number: mobile_number,				// Mobile Number
+        lastLogin: creationTime,                   	// Last login time
+        lastUpdated: creationTime,                  // Last update time
+        address1: address1,							// Address1 of User
+        address2: address2,							// Address2 of User
+        gender: gender,								// Gender
+        country: country,							// Country
+        state: state,								// State
+        zip: zip,									// Zip
+        city: city									// City
+        
+    }
+    
+    // Find and Update User
+    schema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+        
         if(err)
-		{
-			return err;
-		}
-		console.log('User Updated!');
-		res.send('Updated Successfully');
-    });
-
+        {
+            console.log(err);
+            return err;
+        }
+        
+        if(result==null || result=="") // Email Not Found
+        {
+            console.log(email+" Not Registered");
+            sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+            return;
+        }
+        
+        else
+        {
+            console.log('Details Successfully Updated');
+            sendResponse(req, res, 200, -1, 'Success');
+        }
+        
+    })
+    
 }

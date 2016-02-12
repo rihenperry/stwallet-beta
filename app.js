@@ -25,17 +25,14 @@ app.get('/', function(req,res){
     res.send('Hello Revised Wallet');
 });
 
-
-// app.post('/register', user.register);
-app.post('/delete', user.delete);
-app.post('/update', user.update);
+/*============================== Device Related API ==================================*/
+app.post('/api/register', device.deviceRegister);
 app.post('/api/getPvtKey', device.getPvtKey);
 
 /*============================== User Related API ==================================*/
 app.post('/secure/register', user.secureRegister);
+app.post('/secure/setUserDetails', user.setUserDetails);
 
-app.post('/register', device.deviceRegister);
-	
 // Server Connectivity
 app.listen('5000',function(){
     console.log('Connected To Server');

@@ -9,16 +9,15 @@ var key       = 'a@45_hash';
 token.defaults.secret= 'webwallet';
 token.defaults.timeStep= 1 * 60 * 60; // 1h in seconds form
 
-
+// Random Value Generator Function
 module.exports.hashIt = function (data){
-    //var sha= crypto.createHash('sha256');
+    
     var sha = crypto.createHash('sha1');
     sha.update(data+"",'ascii');
     return sha.digest('hex');
 };
 
 module.exports.generate = function(data) {
-  //console.log('This function calls');
   return token.generate(data.toString());
 };
 
