@@ -31,11 +31,10 @@ app.get('/', function (req, res) {
 
 /*============================== Device Related API ==================================*/
 app.post('/api/register', device.deviceRegister);
-<<<<<<< HEAD
+
 // app.post('/api/getPvtKey', device.getPvtKey);
-=======
+
 //app.post('/api/getPvtKey', device.getPvtKey);
->>>>>>> ff6c272aeaa6cd4cf692109a8beb8b9df138d196
 
 /*============================== User Related API ==================================*/
 app.post('/secure/register', user.secureRegister);                  // User Register API
