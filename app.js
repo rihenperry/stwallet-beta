@@ -27,7 +27,7 @@ app.get('/', function(req,res){
 
 /*============================== Device Related API ==================================*/
 app.post('/api/register', device.deviceRegister);
-app.post('/api/getPvtKey', device.getPvtKey);
+// app.post('/api/getPvtKey', device.getPvtKey);
 
 /*============================== User Related API ==================================*/
 app.post('/secure/register', user.secureRegister);

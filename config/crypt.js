@@ -34,7 +34,8 @@ module.exports.createKeyPair = function(text, cb) {
   hmac.end(text, function () {
     hash = hmac.read();
     //...do something with the hash...
-    //console.log(hash);
+    console.log('signture');
+    console.log(hash);
     
     cb(hash);
   });
@@ -56,7 +57,8 @@ module.exports.encryptMessage = function(text, k, cb) {
   hmac.end(text, function () {
     hash = hmac.read();
     //...do something with the hash...
-    //console.log(hash);
+    // console.log('Signture');
+    // console.log(hash);
     
     cb(hash);
   });
