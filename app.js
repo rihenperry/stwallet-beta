@@ -7,8 +7,8 @@ var bodyParser  = require('body-parser');
 
 // Pages
 var mongoose    = require('./config/mongoose.js');
-var user        = require('./routes/user.js');
-var device        = require('./routes/device.js');
+var user        = require('./api/user.js');
+var device        = require('./api/device.js');
 
 // Middleware
 app.use(bodyParser.json());
