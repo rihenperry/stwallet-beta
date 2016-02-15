@@ -34,8 +34,7 @@ module.exports.createKeyPair = function(text, cb) {
   hmac.end(text, function () {
     hash = hmac.read();
     //...do something with the hash...
-    console.log('signture');
-    console.log(hash);
+    // console.log(hash);
     
     cb(hash);
   });
@@ -44,35 +43,19 @@ module.exports.createKeyPair = function(text, cb) {
 };
 
 module.exports.encryptMessage = function(text, k, cb) {
-  console.log("encrypting "+text);
-  
-  var hash;
-  
-  var hmac = crypto.createHmac(algorithm, k);
-  // readout format:
-  hmac.setEncoding('hex');
-  //or also commonly: hmac.setEncoding('base64');
-
-  // callback is attached as listener to stream's finish event:
-  hmac.end(text, function () {
-      hash = hmac.read();
-      //...do something with the hash...
-      // console.log('Signture');
-      // console.log(hash);
-      
-      var hash;
-      var hmac = crypto.createHmac(algorithm, k);
-      // readout format:
-      hmac.setEncoding('hex');
-      //or also commonly: hmac.setEncoding('base64');
-      // callback is attached as listener to stream's finish event:
-      hmac.end(text, function () {
-          hash = hmac.read();
-          //...do something with the hash...
-          //console.log(hash);
-          cb(hash);
-      });
-
+    
+    var hash;
+    var hmac = crypto.createHmac(algorithm, k);
+    // readout format:
+    hmac.setEncoding('hex');
+    //or also commonly: hmac.setEncoding('base64');
+    // callback is attached as listener to stream's finish event:
+    hmac.end(text, function () {
+        hash = hmac.read();
+        //...do something with the hash...
+        console.log('signture');
+        console.log(hash);
+        cb(hash);
     });
 
 };

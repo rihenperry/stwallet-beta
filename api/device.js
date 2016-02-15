@@ -27,8 +27,9 @@ function validateParameter(parameter, name){
 	return true;
 }
 
-//========================= Export Functions ========================= //
 
+//========================= Export Functions ========================= //
+/* Device Register*/
 module.exports.deviceRegister = function(req, res){
 
 	console.log('Page Name: Device.js');
@@ -39,8 +40,8 @@ module.exports.deviceRegister = function(req, res){
 	var deviceInfo = req.body.deviceInfo;
 	// var publicKey = req.body.publicKey;
 	// var signature = req.body.signature;
-	var publicKey = 'd03c98795d924e0af468cdfb83a89cb08b5a7888b97101afbb8b8e37a897d12c';
-	var signature = '70e5bdd0e946b51249fb580de0c23382485e6db0e9d6616c1d0148a4107cd8d15b50dc8da8cc98984d567b70ed1a05e62f11f5f3fce37a6cdccef47ca9dde7f1';
+	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
+	var signature = 'b7e835a2e7ad371e90167c5e9ce2410371d076943c0f716c9b6a91effa5b36bd709b445892a3c009c67caba9790675b484a3311e0e28ea4aab29143bdabddf99';
 
 	// console.log(deviceInfo);
 	console.log('Public Key : '+publicKey);
@@ -60,8 +61,7 @@ module.exports.deviceRegister = function(req, res){
 		return;
 	}
 
-	// var ObjectId = require('mongoose').Types.ObjectId; 
-	var query = {'_id': '56bf035a9c25ed401a471a14'}
+	var query = {'publicKey': publicKey};
 
 	deviceSchema.find(query, function(err, result){
 
@@ -143,16 +143,17 @@ module.exports.deviceRegister = function(req, res){
 				var hashID = crypt.hashIt(key);
 				
 				console.log('id: '+hashID);
-					deviceSchema.find({'_id': hashID}, function(err, result){
+						
+					deviceSchema.find({'publicKey': hashID}, function(err, result){
 
-						console.log('Device Information :'+retVal1);
+						console.log('Device Information :'+result);
 			
 						crypt.createKeyPair(deviceInfo.Device_ID, function(hashKeyVal) {
 					  
-							if (retVal1[0] == null || typeof retVal1[0] == 'undefined')   
+							if (result[0] == null || typeof result[0] == 'undefined')   
 							{
 								// For New Device
-								deviceInfo._id = hashID;
+								deviceInfo.publicKey = hashID;
 				  
 								deviceInfo.privateKey = hashKeyVal;
 								deviceInfo.creationTime = Date.now();
@@ -161,9 +162,7 @@ module.exports.deviceRegister = function(req, res){
 
 								// Save Device Info
 								deviceInfoData.save(deviceInfo, function(err){
-								
-									console.log('Device Info Successfully Saved..');
-						  
+														  
 									if (err)
 									{
 										console.log(err);
@@ -171,6 +170,8 @@ module.exports.deviceRegister = function(req, res){
 									}  
 									else
 									{
+
+										console.log('Device Info Successfully Saved..');
 										console.log("Public Key : "+hashID+" Private Key : "+hashKeyVal);
 										sendResponse(req, res, 200, -1, {"publicKey": hashID, "privateKey": hashKeyVal});
 									}
@@ -182,7 +183,7 @@ module.exports.deviceRegister = function(req, res){
 							else 
 							{
 								// For Old Devices
-								deviceInfo._id = hashID;
+								deviceInfo.publicKey = hashID;
 								deviceInfo.privateKey = hashKeyVal;
 								deviceInfo.creationTime = Date.now();
 						
@@ -194,6 +195,7 @@ module.exports.deviceRegister = function(req, res){
 						
 						})
 
+
 					});
 
 			});
@@ -204,10 +206,12 @@ module.exports.deviceRegister = function(req, res){
 
 module.exports.getPvtKey = function(req, res){
 
-	var pubKey = req.body.pubKey;
+	var pubKey = req.body.pubKey; //Device public key
 	var publicKey = req.body.publicKey;
-	var signature = req.body.signature;
-	
+	// var signature = req.body.signature;
+	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa'; //keyword public key
+	// var pubKey = '705d07596a332c903b552cf9b5ced80d6aeb6a7b';
+	var signature = 'ff065230713974094506bc718e429ed1a86354e1c15ee0b19db06a84c2961c9f292b43924280cb233142ba730ed5ef7633c3ff0d8a1d8791ff6f9072294cd80d';
 	console.log('Device PubKey : '+pubKey);
 	console.log('Public Key : '+publicKey);
 	console.log('Signature : '+signature);
@@ -233,20 +237,20 @@ module.exports.getPvtKey = function(req, res){
 		return;
 	}
 
-	var query = {'_id': publicKey};		// For Authentication
+	var query = {'publicKey': publicKey};		// For Authentication
 	
 	// Finding Server
 	deviceSchema.find(query, function(err, result){
 		
 		// Error In Finding Server
-		if (!retVal[0])
+		if (!result[0])
 		{
 			console.log('no such server');
 			sendResponse(req, res, 200, 13, 'Server is not registered');
 			return;
 		}
 		
-		var privateKey = retVal[0].privateKey;
+		var privateKey = result[0].privateKey;
 		var txt = 'pubKey='+pubKey+'&publicKey='+publicKey;
 		
 		// Checking Signature (Signature Match)
@@ -260,19 +264,19 @@ module.exports.getPvtKey = function(req, res){
 				return;
 			}
 			
-			var newQuery = {'_id': pubKey};
+			var newQuery = {'publicKey': pubKey};
 			
 			deviceSchema.find(newQuery, function(err, result){
-			
+			console.log(result);
 				// Error In Finding Server
-				if (!retVals[0])
+				if (!result[0])
 				{
 					console.log('Device Not Registered');
 					sendResponse(req, res, 200, 13, 'Device Not Registered');
 					return;
 				}
 			
-				var pvtKey = retVals[0].privateKey;
+				var pvtKey = result[0].privateKey;
 				console.log('Private Key : '+pvtKey);
 				sendResponse(req, res, 200, -1, pvtKey);
 			
@@ -283,3 +287,4 @@ module.exports.getPvtKey = function(req, res){
 	})
 
 }
+
