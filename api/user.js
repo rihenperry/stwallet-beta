@@ -3,11 +3,14 @@
 "use strict";
 
 // Pages
-var schema          = require('../models/userSchema.js');
-var deviceSchema    = require('../models/deviceInfoSchema.js')
-var crypt           = require('../config/crypt.js');
+var userSchema      = require('../models/userSchema.js');       // User Schema
+var deviceSchema    = require('../models/deviceInfoSchema.js')  // DeviceInfo Schema
+var crypt           = require('../config/crypt.js');            // Crypt/Signature Related Functionality
+var mailer          = require('../config/mail.js');             // Mail Functionality
+
 
 //========================= Page Functions ========================= //
+
 // Response Function
 function sendResponse(req, res, status, errCode, errMsg) {
     
@@ -37,9 +40,72 @@ function validateEmail(email) {
 	return re.test(email);
 }
 
-//========================= Export Functions ========================= //
+// Verification Email Function on Signup(Register)
+function sendVerificationEmail(accountInfo, flag){
+	
+	var vhash = encodeURIComponent(crypt.generate(accountInfo._id));
 
-/* Register User */
+	if(flag == '2') // Wallet 
+	{
+		var url= protocol+"://scoinz.com/presaleWallet/wallet/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&errcode=15";
+	}
+	else // Web
+	{
+		var url= protocol+"://searchtrade.com/keywords/views/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
+	}
+	
+	var text= '<div style="border:solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hello '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>Your SearchTrade account has been created.</p><p>Please click <a href="'+url+'">Here</a> to verify your email address or copy/paste the link below into your browser.</p><p>'+url+'</p></div></div></div></div>';
+
+	// Setup E-mail Data With Unicode Symbols
+	var mailOptions= {
+		from: 'Search Trade <donotreply@searchtrade.com>', 	// Sender address
+		to: accountInfo.email, 								// List of Receivers
+		subject: "Search Trade: Email Verification", 		// Subject line
+		text: text,											// Text
+		html: text
+	};
+
+	if(flag != '3')
+	{
+		mailer.sendmail(mailOptions);
+	}
+  
+}
+
+// Send Reset Password Link to User Email Address
+function sendRestEmail(accountInfo, flag){
+  
+	var vhash = encodeURIComponent(crypt.generate(accountInfo._id));
+  
+	if(flag == '1') // For Web
+	{
+		var url= protocol+"://searchtrade.com/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
+	}
+  
+	if(flag == '2')	// For Wallet
+	{
+		var url= protocol+"://scoinz.com/presaleWallet/wallet/resetpass.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
+	}
+  
+	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>You have requested to Change your SearchTrade account password.</p><p>Please click <a href="'+url+'">Here</a> to reset your password.</p><p>OR</p><p>Copy Link Address below in your web browser</p><p>'+url+'</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div>';
+
+	// Setup E-mail data with unicode symbols
+	var mailOptions= {
+		from: 'Search Trade <donotreply@searchtrade.com>', 	// Sender address
+		to: accountInfo.email, 								// List of Receivers
+		subject: "Search Trade : Reset your password", 		// Subject line
+		text: text,											// Text
+		html: text
+	};
+	
+	mailer.sendmail(mailOptions);
+}
+
+
+/* Export Fuctions */
+
+/*============================= Register User =============================*/
+
 module.exports.secureRegister = function (req, res) {
    
     console.log('Page Name : user.js');
@@ -152,14 +218,17 @@ module.exports.secureRegister = function (req, res) {
 		return;
 	}
     
+    
     // Find Existance of User
-    schema.find({email:email},function(err, result){
+    userSchema.find({email:email},function(err, result){
         
         if(err)
         {
             console.log(err);
             return err;
         }
+        
+        console.log('Result : '+result);
         
         if(result.length>0) // Already Exists
         {
@@ -173,7 +242,7 @@ module.exports.secureRegister = function (req, res) {
             accountID = crypt.hashIt(email);
             var referred_person_code = referral;
             
-            schema.find({my_referral_id:referred_person_code},function(err, result){
+            userSchema.find({my_referral_id:referred_person_code},function(err, result){
                 
                 if(err)
                 {
@@ -228,7 +297,7 @@ module.exports.secureRegister = function (req, res) {
                 
                 refcode = refcode.toLowerCase();	// Convert Referral Code to LOWER CASE
                 
-                schema.find({my_referral_id:{$regex:refcode}},function(err, result){
+                userSchema.find({my_referral_id:{$regex:refcode}},function(err, result){
                         
                     if(err)
                     {
@@ -247,7 +316,7 @@ module.exports.secureRegister = function (req, res) {
                     }
                     
                     // Making Object of myInfo
-                    var myInfo = new schema({
+                    var myInfo = new userSchema({
                         _id: accountID,
                         first_name : first_name,
                         last_name : last_name,
@@ -269,8 +338,10 @@ module.exports.secureRegister = function (req, res) {
                             return err;
                         }
                         
+                        sendVerificationEmail(accountInfo, flag);   // Send Email to Registered Email Address For Account Verification
                         console.log('Saved SuccessFully');
                         sendResponse(req, res, 200, -1, "Success");
+                        
                     });
                     
                 })
@@ -283,7 +354,335 @@ module.exports.secureRegister = function (req, res) {
 }
 
 
-/* Set User Details */
+/*============================= Verify =============================*/
+
+module.exports.verifyAccount = function(req, res){
+    
+    console.log('Page Name : user.js');
+	console.log('API Name : verifyAccount');
+	console.log('Verify Account API Hitted');
+	console.log('Parameters Receiving..');
+    
+    var auth       = req.body.auth;
+	var email      = req.body.email;
+    //var publicKey   = req.body.publicKey;
+	//var signature   = req.body.signature;
+	
+	console.log('Email : '+email);
+	console.log('Auth : '+auth);
+    //console.log('Public Key : '+publicKey);
+	//console.log('Signature : '+signature);
+  
+	auth=auth.replace(/\ /g,'+');
+    
+    // Validate Public Key
+	//if(!(validateParameter(publicKey, 'Public Key')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+
+	// Validate Signature
+	//if(!(validateParameter(signature, 'Signature')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+    
+    userSchema.find({email:email},function(err, result){
+        
+        if(err)
+        {
+            console.log(err);
+            return err;
+        }
+        
+        if(result==null || result=="") // Email Not Found
+        {
+            console.log(email+" Not Registered");
+            sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+            return;
+        }
+        
+        else
+        {
+            var tokenTest= crypt.token.verify(emailresults[0]._id, auth);
+        
+            if (tokenTest== 2)
+            {
+                console.log('Token is Expired');
+                sendResponse(req, res, 200, 10, "Link expired");
+                return;
+            }
+
+            // Token is Invalid
+            else if (tokenTest== 0)
+            {
+                console.log('Token is Invalid');
+                sendResponse(req, res, 200, 11, "Invalid link");
+                return;
+            }
+
+            // Token is Valid
+            else if (tokenTest == 1)
+            {
+                console.log('Token is Valid');
+            }
+
+            // Unknown Token Output
+            else
+            {
+                console.log('Unknown Token Output');
+                sendResponse(req, res, 200, 11, "Invalid link");
+                return;
+            } 
+            
+            if(result[0].active==1)
+            {
+                console.log('Account Already Activated');
+				sendResponse(req, res, 200, 37, "Account is Already Activated");
+            }
+            
+            else
+            {
+                userSchema.findOneAndUpdate({email:email},{$set:{active:1}}, function(err, result){
+                    
+                    if(err)
+                    {
+                        console.log(err);
+                        return err;
+                    }
+
+                    if(result==null || result=="") // Email Not Found
+                    {
+                        console.log('Error In Activation');
+                        sendResponse(req, res, 200, 5, 'Database Error');
+                        return;
+                    }
+                    
+                    else
+                    {
+                        console.log('Total Active Users Successfully Updated');
+                        sendResponse(req, res, 200, -1, "Success");
+                    }
+                    
+                })
+            }
+            
+        }
+        
+    })
+    
+}
+
+/*============================= Secure Login =============================*/
+
+module.exports.secureLogin = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : secureLogin');
+	console.log('Secure Login API Hitted');
+	console.log('Parameters Receiving..');
+    
+    var email       = req.body.email;
+	var password    = req.body.password;
+	//var publicKey   = req.body.publicKey;
+	//var signature   = req.body.signature;
+    
+    console.log('Email : '+email);
+	console.log('Password : '+password);
+	//console.log('Public Key : '+publicKey);
+	//console.log('Signature : '+signature);
+    
+	// Validate Public Key
+	//if(!(validateParameter(publicKey, 'Public Key')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+
+	// Validate Signature
+	//if(!(validateParameter(signature, 'Signature')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+	
+	// Validate Password
+	if(!(validateParameter(password, 'Password')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+    
+    userSchema.find({email:email},function(err, result){
+        
+        if(err)
+        {
+            console.log(err);
+            return err;
+        }
+        
+        if(result==null || result=="") // Email Not Found
+        {
+            console.log(email+" Not Registered");
+            sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+            return;
+        }
+        
+        else
+        {
+            var hashpass = crypt.hashIt((result[0].salt)+password);
+            
+            if(hashpass === result[0].password)
+            {
+                if (!result[0].active)
+                {
+                    console.log('Account is Not Active');
+                    sendResponse(req, res, 200, 3, "Account is not active");
+                    return;
+                }
+                
+                var currentTIme = Date.now();
+                
+                userSchema.findOneAndUpdate({email:email},{$set:{lastLogin:currentTIme}, $inc:{noOfLogins:1}}, function(err, result){
+                    
+                    if(err)
+                    {
+                        console.log(err);
+                        return err;
+                    }
+                    
+                    if(result==null || result=="") // Email Not Found
+                    {
+                        console.log('Error In Login');
+                        sendResponse(req, res, 200, 5, 'Datbase Error');
+                        return;
+                    }
+                    
+                    else
+                    {   
+                        console.log('Successfully Login');
+                        sendResponse(req, res, 200, -1, "Success");
+                        return;
+                    }
+                    
+                })
+                
+            }
+            
+            else
+            {
+                console.log('Email Password Combination is Incorrect');
+                sendResponse(req, res, 200, 6, 'Email/password is incorrect');
+                return;
+            }
+            
+        }
+        
+    })
+    
+    
+}
+
+
+/*============================= Get Details =============================*/
+
+module.exports.getDetails = function(req, res) {
+    
+    console.log('Page Name : user .js');
+	console.log('API Name : getDetails');
+	console.log('Get Details API Hitted');
+	console.log('Parameters Receiving..');
+    
+    var email       = req.body.email;
+	//var publicKey   = req.body.publicKey;
+	//var signature   = req.body.signature;
+
+	console.log('Email : '+email);
+	//console.log('Public Key : '+publicKey);
+	//console.log('Signature : '+signature);
+    
+    // Validate Public Key
+	//if(!(validateParameter(publicKey, 'Public Key')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+
+	// Validate Signature
+	//if(!(validateParameter(signature, 'Signature')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+    
+    userSchema.find({email:email},function(err, result){
+        
+        if(err)
+        {
+            console.log(err);
+            return err;
+        }
+        
+        if(result == null || result == undefined || result == "")
+        {
+            console.log(email+" Not Registered");
+            sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+            return;
+        }
+        
+        sendResponse(req, res, 200, -1, result[0]);
+        return;
+        
+    })
+}
+
+
+/*============================= Set User Details =============================*/
+
 module.exports.setUserDetails = function(req, res){
     
     console.log('Page Name : user.js');
@@ -376,7 +775,7 @@ module.exports.setUserDetails = function(req, res){
     }
     
     // Find and Update User
-    schema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+    userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
         
         if(err)
         {
@@ -402,7 +801,8 @@ module.exports.setUserDetails = function(req, res){
 }
 
 
-/* Currency Preference */
+/*============================= Currency Preference =============================*/
+
 module.exports.currencyPrefrence = function(req, res) {
     
     console.log('Page Name : user.js');
@@ -415,7 +815,7 @@ module.exports.currencyPrefrence = function(req, res) {
     var publicKey       = req.body.publicKey;
     var signature       = req.body.signature;
         
-    var creationTime    = Date.now();
+    var currentTime    = Date.now();
     
     console.log('Email : ' + email);
     console.log('Currency Code : ' + currency_code);
@@ -453,13 +853,13 @@ module.exports.currencyPrefrence = function(req, res) {
     // Updated User's Currency Preference JSON
     var updatedInfo ={
         
-        lastLogin: creationTime,                   	// Last login time
-        lastUpdated: creationTime,                  // Last update time
+        lastLogin: currentTime,                   	// Last login time
+        lastUpdated: currentTime,                   // Last update time
         currencyPreference: currency_code			// Currency Code
     }
     
     // Find and Update User's Currency Preference
-    schema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+    userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
         
         if (err)
         {
@@ -484,7 +884,93 @@ module.exports.currencyPrefrence = function(req, res) {
 }
 
 
-/* Change Password */
+/*============================= Forget Password =============================*/
+
+exports.secureForgotPassword = function(req, res) {
+
+    console.log('Page Name : user.js');
+    console.log('API Name : secureForgotPassword');
+	console.log('Secure Forgot Password API Accessed');
+    console.log('Parameters Receiving..');  
+	
+	var email          = req.body.email;
+	var flag           = req.body.flag;
+    //var publicKey      = req.body.publicKey;
+    //var signature      = '123456';
+    
+    console.log('Email : ' + email);
+    console.log('Flag : '+flag);
+    //console.log('Public Key : ' + publicKey);
+    //console.log('Signature : ' + signature);
+    
+    // Validate Public Key
+	//if(!(validateParameter(publicKey, 'Public Key')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+
+	// Validate Signature
+	//if(!(validateParameter(signature, 'Signature')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+    
+    // Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+    
+    
+    userSchema.find({email:email},function(err, result){
+        
+        if(err)
+        {
+            console.log(err);
+            return err;
+        }
+        
+        if(result == "" || result == null || result == undefined)
+        {
+            console.log(email+" Not Registered");
+            sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+            return;
+        }
+        
+        else
+        {
+            if(result[0].active)
+            {
+                sendRestEmail(result[0], flag); // Send Reset Password Link 
+                sendResponse(req, res, 200, -1, "Success");
+                return;
+            }
+            
+            else
+            {
+                console.log('User Account is Not Active');
+                sendResponse(req, res, 200, 3, "Account is not active");
+                return;
+            }
+        }
+        
+    })
+  
+}
+
+
+/*============================= Change Password =============================*/
+
 module.exports.changePassword = function (req, res) {
     
     console.log('Page Name : user.js');
@@ -507,11 +993,11 @@ module.exports.changePassword = function (req, res) {
     //console.log('Signature : ' + signature);
     
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
+	//if(!(validateParameter(publicKey, 'Public Key')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
 
 	// Validate Signature
 	//if(!(validateParameter(signature, 'Signature')))
@@ -541,13 +1027,15 @@ module.exports.changePassword = function (req, res) {
 		return;
 	}
     
-//    deviceSchema.find({_id:publicKey}, function (err, result){
+//    deviceSchema.find({publicKey:publicKey}, function (err, result){
 //    
 //        if(err)
 //        {
 //            console.log(err);
 //            return err;
 //        }
+//        
+//        console.log('Result : '+result);
 //        
 //        if(result.length == 0) // DoesNot Exists
 //        {
@@ -558,7 +1046,7 @@ module.exports.changePassword = function (req, res) {
 //        
 //        var privateKey = result[0].privateKey;
 //        
-//        var text = 'email='+email+'&old_password='+old_pass+'&new_password='+new_pass+'&confirm_new_password='+confirm_new_pass+'&publicKey='+req.body.publicKey;
+//        var text = 'email='+email+'&old_password='+old_pass+'&new_password='+new_pass+'&confirm_new_password='+confirm_new_pass+'&publicKey='+publicKey;
 //        
 //        crypt.validateSignature(txt, signature, privateKey, function(isValid){
 //            
@@ -571,7 +1059,7 @@ module.exports.changePassword = function (req, res) {
 //			}
         
             // Find Existance of User
-            schema.find({email:email},function(err, result){
+            userSchema.find({email:email},function(err, result){
 
                 if(err)
                 {
@@ -623,7 +1111,7 @@ module.exports.changePassword = function (req, res) {
                 }
 
                 var salt = '';
-                var creationTime = Date.now();
+                var currentTime = Date.now();
 
                 // Generating Salt
                 var chars = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -637,12 +1125,12 @@ module.exports.changePassword = function (req, res) {
                 var updatedInfo = {
                     password: password,                        	// Salted Hash of the password
                     salt:salt,									// Salt (Random Generated Value)
-                    lastLogin: creationTime,                   	// Last Login Time
-                    lastUpdated: creationTime,                	// Last Update Time
+                    lastLogin: currentTime,                   	// Last Login Time
+                    lastUpdated: currentTime,                	// Last Update Time
                 };
 
                 // Find and Update User's Currency Preference
-                schema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+                userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
 
                     if (err)
                     {
@@ -659,7 +1147,7 @@ module.exports.changePassword = function (req, res) {
 
                     else
                     {
-                        console.log('Currency Preference Successfully Updated');
+                        console.log('Password Changed Successfully');
                         sendResponse(req, res, 200, -1, 'Success');
                     }
 
@@ -673,3 +1161,162 @@ module.exports.changePassword = function (req, res) {
     
 }
 
+
+/*============================= Set App Id =============================*/
+
+module.exports.setAppId = function (req, res) {
+    
+    console.log('Page Name : user.js');
+	console.log('API Name : setAppId');
+	console.log('Set App API Hitted');
+	console.log('Parameters Receiving..');
+    
+    var email       = req.body.email;
+    var appId       = req.body.appId;
+    //var publicKey   = req.body.publicKey;
+    //var signature   = '123456';
+    
+    console.log('Email : ' + email);
+    console.log('App Id : ' + appId);
+    //console.log('Public Key : ' + publicKey);
+    //console.log('Signature : ' + signature);
+
+    // Validate Public Key
+	//if(!(validateParameter(publicKey, 'Public Key')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+
+	// Validate Signature
+	//if(!(validateParameter(signature, 'Signature')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+    
+    // Validate App Id
+	if(!(validateParameter(appId, 'App ID')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+    
+    var currentTime = Date.now();
+    
+    var updatedInfo = {
+        
+        default_search_appId: appId,                // App Id
+        lastLogin: currentTime,                   	// Last Login Time
+        lastUpdated: currentTime,                	// Last Update Time
+    };
+    
+    // Find and Update User's App Id
+    userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+        
+        if (err)
+        {
+            console.log(err);
+            return err;
+        }
+        
+        if (result==null || result=="") // Email Not Found
+        {
+            console.log(email+" Not Registered");
+            sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+            return;
+        }
+        
+        else
+        {
+            console.log('App Id Successfully Setted');
+            sendResponse(req, res, 200, -1, 'Success');
+        }
+        
+    })
+    
+}
+
+
+/*============================= Get App Id =============================*/
+
+module.exports.getAppId = function (req, res) {
+    
+    console.log('Page Name : user.js');
+	console.log('API Name : getAppId');
+	console.log('Get App API Hitted');
+	console.log('Parameters Receiving..');
+    
+    var email       = req.body.email;
+    //var publicKey   = req.body.publicKey;
+    //var signature   = '123456';
+    
+    console.log('Email : ' + email);
+    //console.log('Public Key : ' + publicKey);
+    //console.log('Signature : ' + signature);
+
+    // Validate Public Key
+	//if(!(validateParameter(publicKey, 'Public Key')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+
+	// Validate Signature
+	//if(!(validateParameter(signature, 'Signature')))
+	//{
+	//	sendResponse(req, res, 200, 1, "Mandatory field not found");
+	//	return;
+	//}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+
+    userSchema.find({email:email},{default_search_appId:1},function(err, result){
+
+        if(err)
+        {
+            console.log(err);
+            return err;
+        }
+        
+        if (result==null || result=="") // Email Not Found
+        {
+            console.log(email+" Not Registered");
+            sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+            return;
+        }
+
+        else
+        {
+            console.log('App Id : '+result[0].default_search_appId);
+            sendResponse(req, res, 200, -1, result[0].default_search_appId);
+        }
+    
+    })
+}
