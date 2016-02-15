@@ -31,19 +31,22 @@ app.get('/', function (req, res) {
 });
 
 /*============================== Device Related API ==================================*/
-app.post('/api/register', device.deviceRegister);					// Device Register API
-app.post('/api/getPvtKey', device.getPvtKey);						// Get Private Key API
+app.post('/api/register', device.deviceRegister);					  // Device Register API
+app.post('/api/getPvtKey', device.getPvtKey);						  // Get Private Key API
 
 
 /*============================== User Related API ==================================*/
-app.post('/secure/register', user.secureRegister);                  // User Register API
-app.post('/secure/setUserDetails', user.setUserDetails);            // Set User Details API
-app.post('/secure/currencyPrefrence', user.currencyPrefrence);      // Currency Preference API
-app.post('/secure/changePassword', user.changePassword);			// Change Password API
+app.post('/secure/register', user.secureRegister);                     // User Register API
+app.post('/secure/setUserDetails', user.setUserDetails);               // Set User Details API
+app.post('/secure/currencyPrefrence', user.currencyPrefrence);         // Currency Preference API
+app.post('/secure/changePassword', user.changePassword);			   // Change Password API
 
 
 /*============================== Pool Related API ==================================*/
-app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);	// Add To Keyword Income API
+app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);	    // Add To Keyword Income API
+app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);	// Deduct From Keyword Income API
+app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutlow);		// Add To Cashback OutFlow API
+app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);	// Deduct From Cashback OutFlow API
 
 
 // Server Connectivity
