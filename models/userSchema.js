@@ -21,7 +21,7 @@ var userDetails = mongoose.Schema({
     salt:String,								                    // Random Generated Value (Salt)
     lastLogin: {type:Number, default:0},                            // Last login time
     lastUpdated: {type:Number, default:0},             	            // Last update time
-    active: {type:Number, default:0},                    			// When an account is created, best practices dictate we set it inactive and make the user verify the account
+    active: {type:Number, default:0},                    			// Set To 0 Unless User Verify Email
     address1: {type:String, default:''},							// Address1 of User
     address2: {type:String, default:''},							// Address2 of User
     profile_pic:{type:String, default:'Default_profile_image.PNG'}, // User Profile Pic
