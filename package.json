@@ -12,6 +12,8 @@
     "body-parser": "^1.14.2",
     "express": "^4.13.4",
     "mongoose": "^4.4.0",
+    "node-inspector": "^0.12.6",
+    "nodemon": "^1.8.1",
     "token": "0.0.0"
   }
 }

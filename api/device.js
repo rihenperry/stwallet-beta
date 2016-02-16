@@ -288,3 +288,17 @@ module.exports.getPvtKey = function(req, res){
 
 }
 
+var serverCheck = function(query, cb){
+
+	deviceSchema.find(query, function(err, res){
+
+		if (err)
+		{
+			cb(false);
+		}
+
+		cb(res[0]);
+
+	});
+
+}
