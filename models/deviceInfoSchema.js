@@ -1,8 +1,13 @@
+/*global require, module, console */
+/*jslint node: true */
+"use strict";
+
 /*Mongoose Packeage*/
 var mongoose = require('mongoose');
 
 /*Schema*/
 var deviceSchema = mongoose.Schema({
+
     publicKey : String,
     Device_Type : String,
     Device_Platform : String,

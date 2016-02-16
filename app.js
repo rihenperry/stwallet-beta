@@ -31,18 +31,27 @@ app.get('/', function (req, res) {
 });
 
 /*============================== Device Related API ==================================*/
-app.post('/api/register', device.deviceRegister);					  // Device Register API
-app.post('/api/getPvtKey', device.getPvtKey);						  // Get Private Key API
+
+app.post('/api/register', device.deviceRegister);					// Device Register API
+app.post('/api/getPvtKey', device.getPvtKey);						// Get Private Key API
 
 
 /*============================== User Related API ==================================*/
-app.post('/secure/register', user.secureRegister);                     // User Register API
-app.post('/secure/setUserDetails', user.setUserDetails);               // Set User Details API
-app.post('/secure/currencyPrefrence', user.currencyPrefrence);         // Currency Preference API
-app.post('/secure/changePassword', user.changePassword);			   // Change Password API
+
+app.post('/secure/register', user.secureRegister);                  // User Register API
+app.post('/verify', user.verifyAccount);							// Verify Email API
+app.post('/secure/login', user.secureLogin);						// Login API
+app.post('/userdetails', user.getDetails);							// Get Details API
+app.post('/secure/setUserDetails', user.setUserDetails);            // Set User Details API
+app.post('/secure/currencyPrefrence', user.currencyPrefrence);      // Currency Preference API
+app.post('/secure/forgotPassword', user.secureForgotPassword);      // Forgot Password API
+app.post('/secure/changePassword', user.changePassword);			// Change Password API
+app.post('/secure/setAppId', user.setAppId);                        // Set App Id API
+app.post('/secure/getAppId', user.getAppId);                        // Get USer's App Id
 
 
 /*============================== Pool Related API ==================================*/
+
 app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);	    // Add To Keyword Income API
 app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);	// Deduct From Keyword Income API
 app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutlow);		// Add To Cashback OutFlow API

@@ -1,13 +1,17 @@
+/*global require, module, console */
+/*jslint node: true */
+"use strict";
+
 // Packages
 var mongoose 	= require('mongoose');			// For Mongoose 
 
 // Schema
-var userDetails = mongoose.Schema({	
+var userDetails = mongoose.Schema({
 	
-    _id: String,                      	                            // Key used for matching in the DB
-    first_name: String,   		                                    // First Name of User
-    last_name: String,     			                                // Last Name of User
-    email: String,                          	                    // Email of User
+    _id: String,                                                    // Key used for matching in the DB
+    first_name: String,                                             // First Name of User
+    last_name: String,                                              // Last Name of User
+    email: String,                                                  // Email of User
     password: String,                    	                        // Salted Hash Password
     mobile_number: {type:Number, default:''},		                // Mobile Number
     ref_email: {type:String, default:''},		                    // Reference Person Email
@@ -27,8 +31,8 @@ var userDetails = mongoose.Schema({
     deposit: {type:Number, default:0},							    // Balance of User
     sales: {type:Number, default:0},								// Sales Amount
     cashback: {type:Number, default:0},							    // Cashback Amount
-    affiliate_earning :{type:Number, default:0},					// Affiliate Earning Amount
-    approved_withdrawals :{type:Number, default:0},				    // Approved Withdrawals Amount
+    affiliate_earning : {type:Number, default:0},					// Affiliate Earning Amount
+    approved_withdrawals : {type:Number, default:0},                // Approved Withdrawals Amount
     blocked_for_pending_withdrawals: {type:Number, default:0},	    // Blocked For Pending Approval Amount
     trade_fees: {type:Number, default:0},							// Trading Amount
     purchases: {type:Number, default:0},							// Purchase Amount
@@ -50,7 +54,7 @@ var userDetails = mongoose.Schema({
     city: {type:String, default:''},								// City
     currencyPreference: {type:String, default:'USD/US Dollar'}      // Currency Prefference,
 
-},{ versionKey: false });
+}, { versionKey: false });
 
 // Model
 var user = mongoose.model('user', userDetails);
