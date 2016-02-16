@@ -15,7 +15,7 @@ var mailer          = require('../config/mail.js');             // Mail Function
 // Response Function
 function sendResponse(req, res, status, errCode, errMsg) {
     
-    var d = Date.now();
+    var d = Date();
     console.log(status + " " + errCode + " " + errMsg + " " + d);
     res.status(status).send({
 		errCode: errCode,
@@ -516,6 +516,90 @@ module.exports.verifyAccount = function(req, res){
     
 }
 
+
+/*============================= Resend Verification Link =============================*/
+
+exports.secureResendVerification = function(req, res) {
+
+	console.log('Page Name : user.js');
+	console.log('API Name : secureResendVerification');
+	console.log('Secure Resend Verification API Accessed');
+	console.log('Parameters Receiving..');
+    
+    var email       = req.body.email;
+    var flag        = req.body.flag;
+	var publicKey   = req.body.publicKey;
+	var signature   = req.body.signature;
+
+    console.log('Email : '+email);
+	console.log('Flag : '+flag);
+	console.log('Public Key : '+publicKey);
+	console.log('Signature : '+signature);
+    
+	// Validate Public Key
+	if(!(validateParameter(publicKey, 'Public Key')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(validateParameter(signature, 'Signature')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+    
+    var query = {publicKey:publicKey};
+    var text  = 'email='+email+'&flag='+flag+'&publicKey='+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
+
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+        
+        userSchema.find({email:email},function(err, result){
+            
+            if(err)
+            {
+                console.log(err);
+                return err;
+            }
+            
+            if(result[0]==null || result[0]==undefined || result[0]=="")
+            {
+                console.log(email+' Is Not Registered');
+                sendResponse(req, res, 200, 4, "There is no user registered with that email address.");
+                return;
+            }
+            
+            console.log('User Found');
+            sendVerificationEmail(result[0], flag);
+            sendResponse(req, res, 200, -1, "Success");
+            
+        })
+ 
+    })
+    
+}
+    
 /*============================= Secure Login =============================*/
 
 module.exports.secureLogin = function(req, res){
@@ -1060,7 +1144,199 @@ exports.secureForgotPassword = function(req, res) {
   
 }
 
+/*============================= Reset Password =============================*/
 
+module.exports.resetpassword = function(req, res) {
+
+	console.log('Page Name : user.js');
+	console.log('API Name : resetpassword');
+	console.log("Reset Password API Hitted");
+	console.log('Parameter Receiving..');
+
+    var auth                = req.body.auth;
+	var email               = req.body.email;
+	var password            = req.body.password;
+	var confirm_password    = req.body.confirm_password;
+    var publicKey           = req.body.publicKey;
+    var signature           = 'cb2aa4b29c505fe181863a6';
+    
+    console.log('Email : '+email);
+	console.log('Authentication : '+auth);
+	console.log('New Password : '+password);
+	console.log('Confirm Password : '+confirm_password);
+    console.log('Public Key : ' + publicKey);
+    console.log('Signature : ' + signature);
+    
+    // Validate Public Key
+	if(!(validateParameter(publicKey, 'Public Key')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(validateParameter(signature, 'Signature')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+    
+    // Validate Authentication
+    if(!(validateParameter(auth, 'Authentication')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+    
+    // Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+	
+	// Validate Password
+	if (password === 'undefined' || confirm_password === 'undefined')
+	{
+		console.log('Passwords Cannot be Blank');
+		sendResponse(req, res, 200, 1, "Mandatory Field Not Found");
+		return;
+	}
+	
+	if (password.length < 6)
+	{
+		console.log('Your password should be of minimum six characters');
+		sendResponse(req, res, 200, 6, "Your password should be of minimum six characters");
+		return;
+	} 
+
+	// Validate Both Password Match 
+	if (password !== confirm_password)
+	{
+		console.log('Password And Confirm Password are Mismatched');
+		sendResponse(req, res, 200, 6, "Both password entries must be identical.");
+		return;
+	}	
+    
+    auth=auth.replace(/\ /g,'+');
+    
+    var query = {publicKey:publicKey};
+    var text  = 'email='+email+'&auth='+auth+'&password='+password+'&confirm_password='+confirm_password+'&publicKey='+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+    
+        userSchema.find({email:email},function(err, result){
+
+            if(err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if(result == "" || result == null || result == undefined)
+            {
+                console.log(email+" Not Registered");
+                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+            
+            else
+            {
+                var tokenTest = crypt.token.verify((result[0]._id).toString(), auth.toString());
+                
+                // Token Expired
+                if (tokenTest == 2)
+                {
+                    console.log('Reset Password Token is Expired');
+                    sendResponse(req, res, 200, 10, 'Token is expired');
+                    return;
+                }
+
+                // Invalid Token 
+                else if (tokenTest == 0)
+                {
+                    console.log('Token is Invalid');
+                    sendResponse(req, res, 200, 11, 'Token is Invalid');
+                    return;
+                }
+
+                // Valid Token
+                else if (tokenTest == 1)
+                {
+                    console.log('Token is Valid');
+                }
+
+                // Unknown Token
+                else
+                {
+                    console.log('Unknown Token Output');
+                    sendResponse(req, res, 200, 50, 'Unkown Token Error');
+                    return;
+                }
+                
+                // Generated Salt
+                var chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+                var sat   = '';
+                for(var i = 12; i > 0; --i) 
+                {
+                    salt += chars[Math.round(Math.random() * (chars.length - 1))];
+                }
+                
+                var hashpass = crypt.hashIt(salt+password);
+                var currentTime = Date.now();
+                
+                var updatedInfo = {
+                    password: hashpass,         // Salted Hash of the password
+                    salt:salt,					// Salt (Random Generated Value)
+                    lastLogin: currentTime,     // Last Login Time
+                    lastUpdated: currentTime    // Last Update Time
+                };
+                
+                // Find and Update User's Currency Preference
+                userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+
+                    if (err)
+                    {
+                        console.log(err);
+                        return err;
+                    }
+
+                    if (result==null || result=="") // Email Not Found
+                    {
+                        console.log(email+" Not Registered");
+                        sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                        return;
+                    }
+
+                    else
+                    {
+                        console.log('Password Resetted Successfully');
+                        sendResponse(req, res, 200, -1, 'Success');
+                    }
+
+                })
+                
+            }
+            
+        })
+        
+    })
+    
+}
+    
 /*============================= Change Password =============================*/
 
 module.exports.changePassword = function (req, res) {
@@ -1198,7 +1474,7 @@ module.exports.changePassword = function (req, res) {
                 password: password,                        	// Salted Hash of the password
                 salt:salt,									// Salt (Random Generated Value)
                 lastLogin: currentTime,                   	// Last Login Time
-                lastUpdated: currentTime,                	// Last Update Time
+                lastUpdated: currentTime                	// Last Update Time
             };
 
             // Find and Update User's Currency Preference
@@ -1303,7 +1579,7 @@ module.exports.setAppId = function (req, res) {
 
             default_search_appId: appId,                // App Id
             lastLogin: currentTime,                   	// Last Login Time
-            lastUpdated: currentTime,                	// Last Update Time
+            lastUpdated: currentTime                	// Last Update Time
         };
 
         // Find and Update User's App Id
