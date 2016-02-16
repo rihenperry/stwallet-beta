@@ -14,6 +14,7 @@ var mongoose    = require('./config/mongoose.js');
 var user        = require('./api/user.js');
 var device      = require('./api/device.js');
 var pool      	= require("./api/pool");  	// Get Pool API
+var W_transaction =  require("./api/transaction");
 
 // Middleware
 app.use(bodyParser.json());
@@ -57,6 +58,12 @@ app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);	// Deduc
 app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutlow);		// Add To Cashback OutFlow API
 app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);	// Deduct From Cashback OutFlow API
 app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);  // Add To Affiliate OutFlow API
+
+
+/*============================== Transactions Related API ==================================*/
+
+app.post('/secure/insertUserTransaction', W_transaction.insertUserTransaction);							// Insert User Transaction API
+
 
 
 // Server Connectivity
