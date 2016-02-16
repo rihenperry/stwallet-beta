@@ -1,13 +1,19 @@
-var poolSchema	 = require('../models/poolSchema.js');
-var deviceSchema = require('../models/deviceInfoSchema.js');
+/*global require, module, console */
+/*jslint node: true */
+"use strict";
 
-var crypt = require("../config/crypt");			// Crypt Connectivity.
+//Pages
+var poolSchema	  	= require('../models/poolSchema.js');
+var deviceSchema 	= require('../models/deviceInfoSchema.js');
+
+var crypt 			= require("../config/crypt");			// Crypt Connectivity.
+var master          = require('../config/masterfunc.js');       // Master Functions
 
 //========================= Page Functions ========================= //
 // Response Function
 function sendResponse(req, res, status, errCode, errMsg) {
 
-	var d = Date.now();
+	var d = Date();
 	console.log(status +" "+ errCode +" "+ errMsg + " " + d);
 	res.status(status).send({
 		errCode: errCode, 
@@ -27,6 +33,7 @@ function validateParameter(parameter, name){
 	}
 
 	return true;
+
 }
 
 var validate = function(req, res){
@@ -56,11 +63,13 @@ var validate = function(req, res){
 	{
 		console.log('Invalid Amount');
 		sendResponse(req, res, 200, 8, "Incorrect Amount");
-		return;
+		return false;
 	}
 	
 	return true;
+
 }
+
 //========================= Export Functions ========================= //
 /*Add to Keyword Income*/
 module.exports.addTokwdIncome = function (req, res){
@@ -75,41 +84,28 @@ module.exports.addTokwdIncome = function (req, res){
 	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
+	var text = 'amount='+amount+'&publicKey='+publicKey;
 
 	var reqParam = [amount, publicKey, signature];
 
-	validate(reqParam, res);
-	
-	console.log('Parameters are not valid');
-	
+	if(!validate(reqParam, res))
+	{
+
+		console.log('Parameters are  not valid');
+		return;
+	}
+
 	var query = {'publicKey': publicKey};
 
 	// Find Server
-	deviceSchema.find(query, function(err, retVal){
-
-		// Error In Finding Server
-		if (err)
-		{
-			console.log('no such server');
-			sendResponse(req, res, 200, 13, 'Server is not registered');
-			return;
-		}
-		
-		// Server Successfully Found
-		var privateKey = retVal[0].privateKey;
-		var txt = 'amount='+amount+'&publicKey='+publicKey;
-		
-		// Signature Match
-		crypt.validateSignature(txt, signature, privateKey, function(isValid){
-		
-			// Signature Not Matched
-			if (!isValid)
-			{
-				console.log('Invalid Signature');
-				sendResponse(req, res, 200, 14, 'Invalid Signature');
-				return;
-			}
-			
+	master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+	
 			console.log('Credit Keyword Amount : '+amount)
 			
     		var query = { $inc: {'total_kwd_purchase_income': parseFloat(amount) }};
@@ -134,10 +130,8 @@ module.exports.addTokwdIncome = function (req, res){
 				
 			})
 			
-		});
-		
 	});
-	
+			
 }
 
 /*Deduct from Keyword Income*/
@@ -153,10 +147,16 @@ module.exports.deductFromkwdIncome = function (req, res){
 	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
+	var txt = 'amount='+amount+'&publicKey='+publicKey;
 
 	var reqParam = [amount, publicKey, signature];
 
-	validate(reqParam, res);
+	if(!validate(reqParam, res))
+	{
+
+		console.log('Parameters are  not valid');
+		return;
+	}
 	
 	console.log('Parameters are not valid');
 	
@@ -229,41 +229,30 @@ module.exports.addTocashbackOutlow = function (req, res){
 	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
+	var text = 'amount='+amount+'&publicKey='+publicKey;
 
 	var reqParam = [amount, publicKey, signature];
+	
+	if(!validate(reqParam, res))
+	{
 
-	validate(reqParam, res);
+		console.log('Parameters are  not valid');
+		return;
+	}
 	
 	console.log('Parameters are not valid');
 	
 	var query = {'publicKey': publicKey};
 	
 	// Find Server
-	deviceSchema.find(query, function(err, retVal){
-
-		// Error In Finding Server
-		if (!retVal[0])
-		{
-			console.log('No Such Server');
-			sendResponse(req, res, 200, 13, 'Server is not registered');
-			return;
-		}
-		
-		// Server Successfully Found
-		var privateKey = retVal[0].privateKey;
-		var txt = 'amount='+amount+'&publicKey='+publicKey;
-		
-		// Signature Match
-		crypt.validateSignature(txt, signature, privateKey, function(isValid){
-		
-			// Signature Not Matched
-			if (!isValid)
-			{
-				console.log('Invalid Signature');
-				sendResponse(req, res, 200, 14, 'Invalid Signature');
-				return;
-			}
-			
+	master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+	
 			console.log('Cashback Amount : '+amount);
 			var query = { $inc: {'total_cashback_outflow': parseFloat(amount) }};
 
@@ -285,7 +274,6 @@ module.exports.addTocashbackOutlow = function (req, res){
 				}
 			});
 			
-		});
 		
 	});
 
@@ -304,47 +292,28 @@ module.exports.deductcashbackOutflow = function (req, res){
 	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	
+	var text = 'amount='+amount+'&publicKey='+publicKey;
 	var reqParam = [amount, publicKey, signature];
+	
+	if(!validate(reqParam, res))
+	{
 
-	validate(reqParam, res);
+		console.log('Parameters are  not valid');
+		return;
+	}
 	
 	console.log('Parameters are not valid');
-	
+
 	var query = {'publicKey': publicKey};
-	
 	// Find Server
-	deviceSchema.find(query, function(err, retVal){
-
-		if (err) 
-		{
-			console.log('Database Error');
-			sendResponse(req, res, 200, 5, "Database Error");
-		};
-
-		// Error In Finding Server
-		if (!retVal[0])
-		{
-			console.log('No Such Server');
-			sendResponse(req, res, 200, 13, 'Server is not registered');
-			return;
-		}
-		
-		// Server Successfully Found
-		var privateKey = retVal[0].privateKey;
-		var txt = 'amount='+amount+'&publicKey='+publicKey;
-		
-		// Signature Match
-		crypt.validateSignature(txt, signature, privateKey, function(isValid){
-		
-			// Signature Not Matched
-			if (!isValid)
-			{
-				console.log('Invalid Signature');
-				sendResponse(req, res, 200, 14, 'Invalid Signature');
-				return;
-			}
-			
+    master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+	
 			console.log('Cashback Amount : '+amount);
 
 			var query = { $inc: {'total_cashback_outflow': -parseFloat(amount) }};
@@ -367,10 +336,8 @@ module.exports.deductcashbackOutflow = function (req, res){
 				}
 			})
 			
-		});
-		
 	});
-
+		
 }
 
 /*Add to Affiliate Outflow*/
@@ -383,67 +350,58 @@ module.exports.addToaffiliateOutflow = function (req, res){
 	
 	var amount = req.body.amount;
 	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659da';
+	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	
+	var text = 'amount='+amount+'&publicKey='+publicKey;
+
 	var reqParam = [amount, publicKey, signature];
 
-	validate(reqParam, res);
+	var text = 'amount='+amount+'&publicKey='+publicKey;
 	
-	console.log('Parameters are not valid');
+	if(!validate(reqParam, res))
+	{
 
+		console.log('Parameters are  not valid');
+		return;
+	}
+	
+	console.log('Parameters are valid');
+
+	var query = {'publicKey': publicKey};
 	// Find Server
-	// deviceSchema.find(query, function(err, retVal){
-	// console.log(retVal);
-	// console.log(err);
-	// 	// Error In Finding Server
-	// 	if (!retVal[0])
-	// 	{
-	// 		console.log('No Such Server');
-	// 		sendResponse(req, res, 200, 13, 'Server is Not Registered');
-	// 		return;
-	// 	}
-		
-	// 	// Server Successfully Found
-	// 	var privateKey = retVal[0].privateKey;
-	// 	var txt = 'amount='+amount+'&publicKey='+publicKey;
-		
-	// 	// Signature Match
-	// 	crypt.validateSignature(txt, signature, privateKey, function(isValid){
-		
-	// 		// Signature Not Matched
-	// 		if (!isValid)
-	// 		{
-	// 			console.log('Invalid Signature');
-	// 			sendResponse(req, res, 200, 14, 'Invalid Signature');
-	// 			return;
-	// 		}
+    master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+	
+			console.log('Affiliate Pool Amount : '+amount);
 			
-	// 		console.log('Affiliate Pool Amount : '+amount);
-			
-	// 		var query = { $inc: {'total_affiliate_outflow': parseFloat(amount)}}
+			var query = { $inc: {'total_affiliate_outflow': parseFloat(amount)}}
 
-	// 		// Update Pool Affiliate Amount Function
-	// 		poolSchema.findOneAndUpdate({}, query, function(err, retVal){
-	// 			// Successfully Updated
-	// 			if(retVal)
-	// 			{
-	// 				console.log('Added Affiliate Amount '+amount+' To Pool Successfully');
-	// 				sendResponse(req, res, 200, -1, "Success");
-	// 			}
+			// Update Pool Affiliate Amount Function
+			poolSchema.findOneAndUpdate({}, query, function(err, retVal){
+
+				// Successfully Updated
+				if(retVal)
+				{
+					console.log('Added Affiliate Amount '+amount+' To Pool Successfully');
+					sendResponse(req, res, 200, -1, "Success");
+				}
 				
-	// 			// Error In Updating Pool Affiliate Amount
-	// 			else
-	// 			{
-	// 				console.log('Database Error');
-	// 				sendResponse(req, res, 200, 5, "Database Error");
-	// 			}
-	// 		});
+				// Error In Updating Pool Affiliate Amount
+				else
+				{
+					console.log('Database Error');
+					sendResponse(req, res, 200, 5, "Database Error");
+				}
 			
-	// 	});
-		
-	// });
+			});
+			
+	});
 
 }
 
