@@ -29,7 +29,38 @@ function validateParameter(parameter, name){
 	return true;
 }
 
+var validate = function(req, res){
 
+	console.log('Parameters Receiving..');
+	
+	console.log('Amount: '+req[0]);
+	console.log('PublicKey: '+req[1]);
+	console.log('Signature: '+req[2]);
+
+	// Validate Public Key
+	if(!(validateParameter(req[1], 'Public Key')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(validateParameter(req[2], 'Signature')))
+	{
+		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Amount Validation
+	if(req[0]=="" || isNaN(req[0]))
+	{
+		console.log('Invalid Amount');
+		sendResponse(req, res, 200, 8, "Incorrect Amount");
+		return;
+	}
+	
+	return true;
+}
 //========================= Export Functions ========================= //
 /*Add to Keyword Income*/
 module.exports.addTokwdIncome = function (req, res){
@@ -45,31 +76,11 @@ module.exports.addTokwdIncome = function (req, res){
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
 
-	console.log('Amount: '+amount);
-	console.log('PublicKey: '+publicKey);
-	console.log('Signature: '+signature);
+	var reqParam = [amount, publicKey, signature];
+
+	validate(reqParam, res);
 	
-	// Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Amount Verification
-	if(amount=="" || isNaN(amount))
-	{
-		console.log('Invalid Amount');
-		sendResponse(req, res, 200, 8, "Incorrect Amount");
-		return;
-	}
+	console.log('Parameters are not valid');
 	
 	var query = {'publicKey': publicKey};
 
@@ -143,31 +154,11 @@ module.exports.deductFromkwdIncome = function (req, res){
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
 
-	console.log('Amount: '+amount);
-	console.log('PublicKey: '+publicKey);
-	console.log('Signature: '+signature);
+	var reqParam = [amount, publicKey, signature];
 
-	// Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Amount
-	if(amount=="" || isNaN(amount))
-	{
-		console.log('Invalid Amount');
-		sendResponse(req, res, 200, 8, "Incorrect Amount");
-		return;
-	}
+	validate(reqParam, res);
+	
+	console.log('Parameters are not valid');
 	
 	var query = {'publicKey': publicKey};
 
@@ -239,31 +230,11 @@ module.exports.addTocashbackOutlow = function (req, res){
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
 
-	console.log('Amount: '+amount);
-	console.log('PublicKey: '+publicKey);
-	console.log('Signature: '+signature);
+	var reqParam = [amount, publicKey, signature];
 
-	// Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Amount
-	if(amount=="" || isNaN(amount))
-	{
-		console.log('Invalid Amount');
-		sendResponse(req, res, 200, 8, "Incorrect Amount");
-		return;
-	}
+	validate(reqParam, res);
+	
+	console.log('Parameters are not valid');
 	
 	var query = {'publicKey': publicKey};
 	
@@ -334,31 +305,11 @@ module.exports.deductcashbackOutflow = function (req, res){
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
 	
-	console.log('Amount: '+amount);
-	console.log('PublicKey: '+publicKey);
-	console.log('Signature: '+signature);
+	var reqParam = [amount, publicKey, signature];
 
-	// Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Amount Validation
-	if(amount=="" || isNaN(amount))
-	{
-		console.log('Invalid Amount');
-		sendResponse(req, res, 200, 8, "Incorrect Amount");
-		return;
-	}
+	validate(reqParam, res);
+	
+	console.log('Parameters are not valid');
 	
 	var query = {'publicKey': publicKey};
 	
@@ -422,80 +373,30 @@ module.exports.deductcashbackOutflow = function (req, res){
 
 }
 
-// module.exports.serverCheck = function(query, retVal){
-
-// 	deviceSchema.find(query, function(err, retVal){
-		
-// 		if (err)
-// 		{
-// 			console.log('Database Error');
-// 			sendResponse(req, res, 200, 5, "Database Error");
-// 			return;
-// 		}
-
-// 		// Error In Finding Server
-// 		if (!retVal[0])
-// 		{
-// 			console.log('No Such Server');
-// 			sendResponse(req, res, 200, 13, 'Server is Not Registered');
-// 			return;
-// 		}
-// 	});
-
-// }
-
-
 /*Add to Affiliate Outflow*/
 module.exports.addToaffiliateOutflow = function (req, res){
 
 	console.log('Page Name: Pool.js');
 	console.log('API Name : addToaffiliateOutflow');
 	console.log('Add To Affiliate Outflow API Hitted');
-	console.log('Parameters Receiving..');
+	
 	
 	var amount = req.body.amount;
 	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
+	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659da';
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
 	
-	console.log('Amount: '+amount);
-	console.log('PublicKey: '+publicKey);
-	console.log('Signature: '+signature);
+	var reqParam = [amount, publicKey, signature];
 
-	// Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
-	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Amount Validation
-	if(amount=="" || isNaN(amount))
-	{
-		console.log('Invalid Amount');
-		sendResponse(req, res, 200, 8, "Incorrect Amount");
-		return;
-	}
+	validate(reqParam, res);
 	
-	var query = {'publicKey': publicKey};
-	
+	console.log('Parameters are not valid');
+
 	// Find Server
 	// deviceSchema.find(query, function(err, retVal){
-		
-	// 	if (err)
-	// 	{
-	// 		console.log('Database Error');
-	// 		sendResponse(req, res, 200, 5, "Database Error");
-	// 	}
-
+	// console.log(retVal);
+	// console.log(err);
 	// 	// Error In Finding Server
 	// 	if (!retVal[0])
 	// 	{
@@ -503,60 +404,46 @@ module.exports.addToaffiliateOutflow = function (req, res){
 	// 		sendResponse(req, res, 200, 13, 'Server is Not Registered');
 	// 		return;
 	// 	}
-
-		serverCheck(query, function(retVal){
-
-			if(!retVal)
-			{
-				console.log('Server Not Found');
-				return;
-			}
-
-			console.log(retVal);
-
-			console.log('Server Found');
-
-		});
-		// serverCheck(query, function(){
-		// 	console.log('checked server')
-		// });
-		// Server Successfully Found
-		// var privateKey = retVal[0].privateKey;
-		// var txt = 'amount='+amount+'&publicKey='+publicKey;
 		
-		// // Signature Match
-		// crypt.validateSignature(txt, signature, privateKey, function(isValid){
+	// 	// Server Successfully Found
+	// 	var privateKey = retVal[0].privateKey;
+	// 	var txt = 'amount='+amount+'&publicKey='+publicKey;
 		
-		// 	// Signature Not Matched
-		// 	if (!isValid)
-		// 	{
-		// 		console.log('Invalid Signature');
-		// 		sendResponse(req, res, 200, 14, 'Invalid Signature');
-		// 		return;
-		// 	}
+	// 	// Signature Match
+	// 	crypt.validateSignature(txt, signature, privateKey, function(isValid){
+		
+	// 		// Signature Not Matched
+	// 		if (!isValid)
+	// 		{
+	// 			console.log('Invalid Signature');
+	// 			sendResponse(req, res, 200, 14, 'Invalid Signature');
+	// 			return;
+	// 		}
 			
-		// 	console.log('Affiliate Pool Amount : '+amount);
+	// 		console.log('Affiliate Pool Amount : '+amount);
 			
-		// 	// Update Pool Affiliate Amount Function
-		// 	db.updatepoolaffiliate(parseFloat(amount), function(retVal){
+	// 		var query = { $inc: {'total_affiliate_outflow': parseFloat(amount)}}
+
+	// 		// Update Pool Affiliate Amount Function
+	// 		poolSchema.findOneAndUpdate({}, query, function(err, retVal){
+	// 			// Successfully Updated
+	// 			if(retVal)
+	// 			{
+	// 				console.log('Added Affiliate Amount '+amount+' To Pool Successfully');
+	// 				sendResponse(req, res, 200, -1, "Success");
+	// 			}
 				
-		// 		// Successfully Updated
-		// 		if(retVal)
-		// 		{
-		// 			console.log('Added Affiliate Amount '+amount+' To Pool Successfully');
-		// 			sendResponse(req, res, 200, -1, "Success");
-		// 		}
-				
-		// 		// Error In Updating Pool Affiliate Amount
-		// 		else
-		// 		{
-		// 			console.log('Database Error');
-		// 			sendResponse(req, res, 200, 5, "Database Error");
-		// 		}
-		// 	});
+	// 			// Error In Updating Pool Affiliate Amount
+	// 			else
+	// 			{
+	// 				console.log('Database Error');
+	// 				sendResponse(req, res, 200, 5, "Database Error");
+	// 			}
+	// 		});
 			
-		// });
+	// 	});
 		
 	// });
 
 }
+
