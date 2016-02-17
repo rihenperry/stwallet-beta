@@ -23,7 +23,7 @@ module.exports.sendResponse = function(req, res, status, errCode, errMsg) {
 }
 
 // Parameter Validation Function
-module.exports.validateParameter =   function(parameter, name){
+module.exports.validateParameter = function(parameter, name){
     
     if(parameter === undefined || parameter.length<=0)
     {
@@ -34,6 +34,7 @@ module.exports.validateParameter =   function(parameter, name){
     return true;
 }
 
+var validate = module.exports.validateParameter;
 
 /* Master Export Fuctions */
 
@@ -90,12 +91,10 @@ module.exports.secureAuth = function(query, text, signature, cb){
 
  };
 
-
-
- // user.js validate master function
+var secureAuth = module.exports.secureAuth;
 
  // For User Accounting API's Only
-module.exports.validation =   function(req, cb){
+module.exports.validation  = function(req, cb){
     
     var email       = req.body.email;
     var amount      = req.body.amount;
@@ -108,7 +107,7 @@ module.exports.validation =   function(req, cb){
     console.log('Signature : '+signature);
     
     // Validate Public Key
-    if(!(validateParameter(publicKey, 'Public Key'))){
+    if(!(validate(publicKey, 'Public Key'))){
         var retVal = [{
             "message" : "Mandatory field not found",
             "errCode" : 1,
@@ -119,7 +118,7 @@ module.exports.validation =   function(req, cb){
     }
 
     // Validate Signature
-    if(!(validateParameter(signature, 'Signature'))){
+    if(!(validate(signature, 'Signature'))){
         var retVal = [{
             "message" : "Mandatory field not found",
             "errCode" : 1,
@@ -130,7 +129,7 @@ module.exports.validation =   function(req, cb){
     }
     
     // Validate Email
-    if(!(validateParameter(email, 'Email'))){
+    if(!(validate(email, 'Email'))){
         var retVal = [{
             "message" : "Mandatory field not found",
             "errCode" : 1,
@@ -140,7 +139,7 @@ module.exports.validation =   function(req, cb){
         return;
     }
 
-    if(!(validateEmail(email))){
+    if(!(validate(email))){
         console.log('Incorrect Email Format');
         var retVal = [{
             "message" : "Incorrect email id format",
@@ -164,6 +163,7 @@ module.exports.validation =   function(req, cb){
     }
     var query = {publicKey:publicKey};
     var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
+    
     secureAuth(query, text, signature, function (result){
         if(result[0].error == 'false'){
             result[0].email  = email;
