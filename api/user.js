@@ -4,7 +4,6 @@
 
 // Pages
 var userSchema      = require('../models/userSchema.js');       // User Schema
-var deviceSchema    = require('../models/deviceInfoSchema.js')  // DeviceInfo Schema
 var master          = require('../config/masterfunc.js');       // Master Functions
 var crypt           = require('../config/crypt.js');            // Crypt/Signature Related Functionality
 var mailer          = require('../config/mail.js');             // Mail Functionality
@@ -81,8 +80,7 @@ function sendRestEmail(accountInfo, flag){
 
 
 // Send Email as Notification that Password is Changed Successfully
-function changePassEmail(accountInfo)
-{
+function changePassEmail(accountInfo){
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
   
 	// Setup e-mail data with unicode symbols
@@ -98,8 +96,7 @@ function changePassEmail(accountInfo)
 }
 
 // Send Email as Notification that Password is Resetted Successfully
-function resettedConfirmation(accountInfo)
-{
+function resettedConfirmation(accountInfo){
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
   
     // Setup e-mail data with unicode symbols
@@ -113,101 +110,6 @@ function resettedConfirmation(accountInfo)
 	
 	mailer.sendmail(mailOptions);
 }
-
-
-// For User Accounting API's Only
-var validation = function(req, cb){
-    
-    var email       = req.body.email;
-	var amount      = req.body.amount;
-	var publicKey   = req.body.publicKey;
-	var signature   = req.body.signature;
-    
-    console.log('Email :'+email);
-	console.log('Amount : '+amount);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
-    
-    // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
-	{
-        var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
-
-	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
-	{
-        var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
-	
-	// Validate Email
-	if(!(validateParameter(email, 'Email')))
-	{
-        var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
-
-	if(!(validateEmail(email))) 
-	{
-		console.log('Incorrect Email Format');
-        var retVal = [{
-            "message" : "Incorrect email id format",
-            "errCode" : 7,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-    }
-	
-	// Validate Keyword Income
-	if(amount.length<=0 && isNaN(amount))
-	{
-		console.log('Amount is Invalid');
-        var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
-    
-    var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
-    
-    master.secureAuth(query, text, signature, function (result){
-        
-        if(result[0].error == 'false')
-        {
-            result[0].email  = email;
-            result[0].amount = amount;
-            cb(result);
-            return;
-        }
-        
-        cb(result);
-    })
-}
-
-
-
 
 /* Export Fuctions */
 
@@ -1459,7 +1361,7 @@ module.exports.changePassword = function (req, res) {
 	var new_pass            = req.body.new_password;
     var confirm_new_pass    = req.body.confirm_new_password;
     var publicKey           = req.body.publicKey;
-    var signature           = 'cb2aa4b29c505fe181863a679796c7ce9a859e4fe064ac603cd907fcec35b2e7da0365ee37cb4e125fdce58aa5ad90fce69ff4236939e1c3577ee64f840934cc';
+    var signature           = '7c481e0f2991a5189d10fb94b26e66fc32a3e0ec0626d7bc31de3e0f070ba2da198d7ba09c55bb4f26b55491f6e956549da22e4ad2cbf60678c05786ec116583';
     
     console.log('Email : ' + email);
     console.log('Old Password : ' + old_pass);
@@ -1807,7 +1709,7 @@ module.exports.getAppId = function (req, res) {
 
 /* Accounting API */
 
-/*============================= Add Total Keyword Income =============================*/
+/*============================= Credit User Amount =============================*/
 
 module.exports.creditUserAmount = function(req, res){
     
@@ -1816,16 +1718,18 @@ module.exports.creditUserAmount = function(req, res){
 	console.log('Credit User Amount API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
-            sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
             return;
         }
         
-        // Find and Update User's App Id
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:retVal[0].amount}},function(err, result){
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Deposit
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
 
             if (err)
             {
@@ -1836,18 +1740,1229 @@ module.exports.creditUserAmount = function(req, res){
             if (result==null || result=="") // Email Not Found
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
-                console.log('App Id Successfully Setted');
-                sendResponse(req, res, 200, -1, 'Success');
+                console.log('Amount '+amount+' Successfully Deposited To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
             }
 
         })
         
     })
   
+}
+
+/*============================= Deduct User Amount =============================*/
+
+module.exports.deductUserAmount = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductUserAmount')
+	console.log('Deduct User Amount API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Deposit
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Purchase =============================*/
+
+module.exports.addPurchases = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addPurchases')
+	console.log('Add Purchase API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Purchases
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Purchase Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Purchases =============================*/
+
+module.exports.deductPurchases = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductPurchases');
+	console.log('Deduct Purchase API Hitted');
+	console.log('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Purchases
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Purchase Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Cashback =============================*/
+
+module.exports.addCashback = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addCashback')
+	console.log('Add Cashback API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Cashback
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Cashback Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Cashback =============================*/
+
+module.exports.deductCashback = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductPurchases');
+	console.log('Deduct Cashback API Hitted');
+	console.log('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Cashback
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Cashback Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Affiliate Earning =============================*/
+
+module.exports.addAffEarning = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addAffEarning')
+	console.log('Add Affiliate Earning API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Affiliate Earning
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Affiliate Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Affiliate Earning =============================*/
+
+module.exports.deductAffEarning = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductAffEarning');
+	console.log('Deduct Affiliate Earning API Hitted');
+	console.log('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Affiliate Earning
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Affiliate Earning Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Sales =============================*/
+
+module.exports.addSales = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addSales')
+	console.log('Add Sales API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Sales
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Sales Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Sales =============================*/
+
+module.exports.deductSales = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductSales');
+	console.log('Deduct Sales API Hitted');
+	console.log('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Sales
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Sales Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Trade =============================*/
+
+module.exports.addTrade = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addTrade')
+	console.log('Add Trade API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Trade
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Trade Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Trade =============================*/
+
+module.exports.deductTrade = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductTrade');
+	console.log('Deduct Trade API Hitted');
+	console.log('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Trade
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Trade Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Total Keyword Income =============================*/
+
+module.exports.addTotalKeywordIncome = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addTotalKeywordIncome')
+	console.log('Add Total Keyword Income API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Total Keyword Income
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Total Keyword Income Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Total Keyword Income =============================*/
+
+module.exports.deductTotalKeywordIncome = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductTotalKeywordIncome');
+	console.log('Deduct Total Keyword Income API Hitted');
+	console.log('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Total Keyword Income
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Total Keyword Income Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Blocked Pending Withdrawals =============================*/
+
+module.exports.addBlockedPendingWithdrawals = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addBlockedPendingWithdrawals')
+	console.log('Add Blocked Pending Withdrawals API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Blocked Pending Withdrawals
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Blocked Pending Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Blocked Pending Withdrawals =============================*/
+
+module.exports.deductBlockedPendingWithdrawals = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductTotalKeywordIncome');
+	console.log('Deduct Blocked Pending Withdrawals API Hitted');
+	console.log('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Blocked Pending Withdrawals
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Blocked Pending Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Approved Withdrawals =============================*/
+
+module.exports.addApprovedWithdrawals = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addApprovedWithdrawals')
+	console.log('Add Approved Withdrawals API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Approved Withdrawals
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Approved Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Approved Withdrawals =============================*/
+
+module.exports.deductApprovedWithdrawals = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductApprovedWithdrawals');
+	console.log('Deduct Blocked Pending Withdrawals API Hitted');
+	console.log('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Approved Withdrawals
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Approved Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Total App Income =============================*/
+
+module.exports.addTotalAppIncome = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addTotalAppIncome')
+	console.log('Add Total App Income API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Total App Income
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_app_income:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Total App Income Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= First Buy Status =============================*/
+
+module.exports.firstBuy = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : firstBuy')
+	console.log('First Buy Status API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's First Buy Status
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_app_income:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Successfully Updated First Buy Status of '+retVal[0].email+' To '+amount);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Add Blocked For Bids =============================*/
+
+module.exports.addBlockedForBids = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : addBlockedForBids')
+	console.log('Add Blocked For Bids API Hitted');
+	console.log('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Blocked For Bids
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Blocked For Bids '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Blocked For Bids =============================*/
+
+module.exports.deductBlockedForBids = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : deductBlockedForBids');
+	console.log('Deduct Blocked For Bids API Hitted');
+	console.log('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Blocked For Bids
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('Blocked For Bids '+amount+' Successfully Deducted From '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+/*============================= Reject Blocked Bids =============================*/
+
+module.exports.rejectBlockedBids = function(req, res){
+	
+	console.log('Page Name : user.js');
+	console.log('API Name : rejectBlockedBids')
+	console.log('Reject Blocked Bids API Hitted');
+	console.log('Parameter Receiving..');
+	
+	// Require Modules
+	var http = require('http');
+	var https = require('https');
+	var async = require('async');
+	
+	// Storing Parameters
+	var reject_bids_json = req.body.reject_bids_json;  
+	var publicKey = req.body.publicKey;
+	var signature = req.body.signature;
+	var json = '';
+	var length = '';
+	var value = '';
+	var emailValue = '';
+
+	console.log('Json File : '+reject_bids_json);
+	
+	// Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	if(reject_bids_json == "" && reject_bids_json == null)
+	{
+		console.log('Reject Bids Json Missing');
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	var options = {
+		host: 'searchtrade.com',
+		path: '/keywords/active_bids/'+reject_bids_json+'.json'
+	};  	
+	
+    var query = {publicKey:publicKey};
+    var txt = 'reject_bids_json='+reject_bids_json+'&publicKey='+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
+        
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+
+        async.series([
+
+            // Function For Phase 1
+            function (callback)
+            {
+                //Collecting Data From Json File;
+                https.get(options, function(res){
+
+                    // Receiving Data In Chunk
+                    res.on('data', function(chunk){
+
+                        console.log('Chunk Started');
+
+                        json = chunk.toString();
+                        json = json.replace(/\[/g,"");
+                        json = json.replace(/\]/g,"");
+                        json = json.replace(/\\/g,"");
+                        json = json.split(",");
+
+                    });
+
+                    // After Receiving All Data Calling callback Function
+                    res.on('end', function(){
+
+                        callback();
+
+                    });
+
+                })
+            },
+
+
+            // Function For Phase 2
+            // Holding Return Bid Functionality 
+            function (callback)
+            {
+                length = json.length;
+
+                // Loop To Fetch Records From Received Json File Data
+                for(var i=0; i<length; i++)
+                {
+                    var singleJson = json[i].split("/"); 	
+
+                    var bidRetEmail = singleJson[1];		// Storing Email 
+
+                    var bidRetAmount = singleJson[3];		// Storing Amount
+
+                    var commission = singleJson[4];			// Storing Comision
+
+                    var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
+
+                    console.log(totalAmount);
+
+                    var query = {"email": bidRetEmail};
+
+                    // Updating Blocked Bid Amount
+                    userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:-totalAmount}},function(val){
+
+                        // Error In Updating Blocked Bids
+                        if(!val)
+                        {
+                            value = i;
+                            emailValue = bidRetEmail;
+                            callback();
+                        }
+
+                        else
+                        {
+                            if(value == length-i)
+                            {
+                                value = "Success";
+                                callback();
+                            }
+                        }
+
+                    });
+                }
+            },
+
+
+            // Function For Phase 3
+            // Depends On Results of Phase 2
+            // Holding Cancel Bid Functionality in 'else' part
+            function callback()
+            {
+                // Return Bid Functionality of Phase 2 Successfully Done
+                if(value == "Success")
+                {
+                    master.sendResponse(req, res, 200, -1, "Success");
+                }
+
+                // Error Returning Bid Functionality of Phase 2 
+                else
+                {
+                    console.log('Error In Updating Blocked Bids At:'+value+' For Email: '+bidRetEmail);
+
+                    for(var j=0; j<value; j++)
+                    {
+                        var singleJson = json[j].split("/"); 	
+
+                        var bidRetEmail = singleJson[1];		// Storing Email 
+
+                        var bidRetAmount = singleJson[3];		// Storing Amount
+
+                        var commission = singleJson[4];			// Storing Comision
+
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
+
+                        var query = {"email": bidRetEmail};
+
+                        // Updating Blocked Bid Amount
+                        userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:totalAmount}},function(val){
+
+                            // Error In Updating Blocked Bids
+                            if(!val)
+                            {
+                                value = i;
+                                emailValue = bidRetEmail;
+                                callback();
+                            }
+
+                            else
+                            {
+                                if(value == length-i)
+                                {
+                                    value = "Success";
+                                    callback();
+                                }
+                            }
+
+                        });
+                    }
+                }
+
+            },
+
+
+            // Function For Phase 4
+            // Depends On Results of Phase 3
+            // Holding Cancel Bid Functionality in 'else' part
+            function callback()
+            {
+                //console.log(value);
+
+                if(value == "Success")
+                {
+                    console.log('Cancelled All Reject Bids Successfully');
+                    master.sendResponse(req, res, 200, 5, "Database Error");
+                }
+
+                else
+                {
+                    console.log('Error In Cancellation At:'+value+' For Email: '+bidRetEmail);
+                    master.sendResponse(req, res, 200, 5, "Database Error");
+                }
+            }
+
+        ])
+            
+    })
 }

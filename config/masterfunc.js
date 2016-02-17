@@ -23,7 +23,7 @@ module.exports.sendResponse = function(req, res, status, errCode, errMsg) {
 }
 
 // Parameter Validation Function
-module.exports.validateParameter =   function(parameter, name){
+module.exports.validateParameter = function(parameter, name){
     
     if(parameter === undefined || parameter.length<=0)
     {
@@ -34,6 +34,7 @@ module.exports.validateParameter =   function(parameter, name){
     return true;
 }
 
+var validate = module.exports.validateParameter;
 
 /* Master Export Fuctions */
 
@@ -89,3 +90,91 @@ module.exports.secureAuth = function(query, text, signature, cb){
     })
 
  };
+
+var secureAuth = module.exports.secureAuth;
+
+
+/*============================= Validation Parameter function For User Accounting and Search Page API =============================*/
+
+ // For User Accounting API's Only
+module.exports.validation  = function(req, cb){
+    
+    var email       = req.body.email;
+    var amount      = req.body.amount;
+    var publicKey   = req.body.publicKey;
+    var signature   = req.body.signature;
+    
+    console.log('Email :'+email);
+    console.log('Amount : '+amount);
+    console.log('Public Key : '+publicKey);
+    console.log('Signature : '+signature);
+    
+    // Validate Public Key
+    if(!(validate(publicKey, 'Public Key'))){
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+        cb(retVal);
+        return;
+    }
+
+    // Validate Signature
+    if(!(validate(signature, 'Signature'))){
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+        cb(retVal);
+        return;
+    }
+    
+    // Validate Email
+    if(!(validate(email, 'Email'))){
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+        cb(retVal);
+        return;
+    }
+
+    if(!(validate(email))){
+        console.log('Incorrect Email Format');
+        var retVal = [{
+            "message" : "Incorrect email id format",
+            "errCode" : 7,
+            "error" : "true"
+        }];
+        cb(retVal);
+        return;
+    }
+    
+    // Validate Keyword Income
+    if(amount.length<=0 && isNaN(amount)){
+        console.log('Amount is Invalid');
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+        cb(retVal);
+        return;
+    }
+    var query = {publicKey:publicKey};
+    var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
+    
+    secureAuth(query, text, signature, function (result){
+        if(result[0].error == 'false'){
+            result[0].email  = email;
+            result[0].amount = amount;
+            cb(result);
+            return;
+        }
+        cb(result);
+    })
+}
+
