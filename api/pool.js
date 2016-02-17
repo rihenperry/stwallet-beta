@@ -10,63 +10,75 @@ var crypt 			= require("../config/crypt");			// Crypt Connectivity.
 var master          = require('../config/masterfunc.js');       // Master Functions
 
 // //========================= Page Functions ========================= //
-// // Response Function
-// function sendResponse(req, res, status, errCode, errMsg) {
 
-// 	var d = Date();
-// 	console.log(status +" "+ errCode +" "+ errMsg + " " + d);
-// 	res.status(status).send({
-// 		errCode: errCode, 
-// 		errMsg: errMsg,
-// 		dbDate: d
-// 	});
-	
-// }
-
-// // Parameter Validation	Function
-// function validateParameter(parameter, name){
-    
-// 	if(parameter === undefined || parameter.length<=0)
-// 	{
-// 		console.log(name+' Is Missing');
-// 		return false;
-// 	}
-
-// 	return true;
-
-// }
-
-var validate = function(req, res){
+var poolvalidate = function(req, cb){
 
 	console.log('Parameters Receiving..');
 	
-	console.log('Amount	   : '+req[0]);
-	console.log('PublicKey  : '+req[1]);
-	console.log('Signature  : '+req[2]);
+	var amount = req.body.amount;
+	// var publicKey = req.body.publicKey;
+	var publicKey = '';
+	// var signature = req.body.signature;
+	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
+	var text = 'amount='+amount+'&publicKey='+publicKey;	
+	var reqParam = [amount, publicKey, signature];
+	var query = {'publicKey': publicKey};
+
+	console.log('Amount	   : '+amount);
+	console.log('PublicKey  : '+publicKey);
+	console.log('Signature  : '+signature);
 
 	// Validate Public Key
-	if(!(master.validateParameter(req[1], 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
 		return;
 	}
 
 	// Validate Signature
-	if(!(master.validateParameter(req[2], 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
 		return;
 	}
 
 	// Amount Validation
-	if(req[0]=="" || isNaN(req[0]))
+	if(amount=="" || isNaN(amount))
 	{
 		console.log('Invalid Amount');
-		master.sendResponse(req, res, 200, 8, "Incorrect Amount");
-		return false;
+		var retVal = [{
+            "message" : "Incorrect Amount",
+            "errCode" : 8,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
 	}
-	
-	return true;
+
+	master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true'){
+
+			cb(result);
+        }
+
+        else{
+            result[0].amount = amount;
+            cb(result);
+            return;
+        }
+
+    });
 
 }
 
@@ -78,23 +90,16 @@ module.exports.addTokwdIncome = function (req, res){
 	console.log('API Name : addTokwdIncome');
 	console.log('Add To Keyword Income API Hitted');
 	
-	var amount = req.body.amount;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	var text = 'amount='+amount+'&publicKey='+publicKey;
+	
 
-	var reqParam = [amount, publicKey, signature];
 
-	if(!validate(reqParam, res))
+	if(!poolvalidate(reqParam, res))
 	{
 
 		console.log('Parameters are  not valid');
 		return;
 	}
 
-	var query = {'publicKey': publicKey};
 
 	// Find Server
 	master.secureAuth(query, text, signature, function (result){
@@ -140,16 +145,9 @@ module.exports.deductFromkwdIncome = function (req, res){
 	console.log('API Name : deductFromkwdIncome');
 	console.log('Deduct From Keyword Income API Hitted');
 
-	var amount = req.body.amount;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	var txt = 'amount='+amount+'&publicKey='+publicKey;
+	
 
-	var reqParam = [amount, publicKey, signature];
-
-	if(!validate(reqParam, res))
+	if(!poolvalidate(reqParam, res))
 	{
 
 		console.log('Parameters are  not valid');
@@ -158,7 +156,6 @@ module.exports.deductFromkwdIncome = function (req, res){
 	
 	console.log('Parameters are not valid');
 	
-	var query = {'publicKey': publicKey};
 
 	// Find Server
 	deviceSchema.find(query, function(err, retVal){
@@ -221,16 +218,10 @@ module.exports.addTocashbackOutflow = function (req, res){
 	console.log('API Name : addTocashbackOutlow');
 	console.log('Add To Cashback Outflow API Hitted');
 	
-	var amount = req.body.amount;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	var text = 'amount='+amount+'&publicKey='+publicKey;
-
-	var reqParam = [amount, publicKey, signature];
 	
-	if(!validate(reqParam, res))
+
+	
+	if(!poolvalidate(reqParam, res))
 	{
 
 		console.log('Parameters are  not valid');
@@ -239,7 +230,6 @@ module.exports.addTocashbackOutflow = function (req, res){
 	
 	console.log('Parameters are not valid');
 	
-	var query = {'publicKey': publicKey};
 	
 	// Find Server
 	master.secureAuth(query, text, signature, function (result){
@@ -283,15 +273,9 @@ module.exports.deductcashbackOutflow = function (req, res){
 	console.log('API Name : deductcashbackOutflow');
 	console.log('Deduct From Cashback Outflow API Hitted');
 	
-	var amount = req.body.amount;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	var text = 'amount='+amount+'&publicKey='+publicKey;
-	var reqParam = [amount, publicKey, signature];
 	
-	if(!validate(reqParam, res))
+	
+	if(!poolvalidate(reqParam, res))
 	{
 
 		console.log('Parameters are  not valid');
@@ -300,7 +284,6 @@ module.exports.deductcashbackOutflow = function (req, res){
 	
 	console.log('Parameters are not valid');
 
-	var query = {'publicKey': publicKey};
 	// Find Server
     master.secureAuth(query, text, signature, function (result){
          
@@ -343,18 +326,12 @@ module.exports.addToaffiliateOutflow = function (req, res){
 	console.log('API Name : addToaffiliateOutflow');
 	console.log('Add To Affiliate Outflow API Hitted');
 	
-	var amount = req.body.amount;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	var text = 'amount='+amount+'&publicKey='+publicKey;
-
-	var reqParam = [amount, publicKey, signature];
-
-	var text = 'amount='+amount+'&publicKey='+publicKey;
 	
-	if(!validate(reqParam, res))
+
+
+	
+	
+	if(!poolvalidate(reqParam, res))
 	{
 
 		console.log('Parameters are  not valid');
@@ -363,7 +340,6 @@ module.exports.addToaffiliateOutflow = function (req, res){
 	
 	console.log('Parameters are valid');
 
-	var query = {'publicKey': publicKey};
 	// Find Server
     master.secureAuth(query, text, signature, function (result){
          
@@ -407,24 +383,17 @@ module.exports.increaseTotalFeesEarning = function (req, res){
 	console.log('API Name : increaseTotalFeesEarning');
 	console.log('Increase Total Fees Earning API Hitted');
 	
-	var amount = req.body.amount;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	var text = 'amount='+amount+'&publicKey='+publicKey;
+	
 
-	var reqParam = [amount, publicKey, signature];
 
 	
-	if(!validate(reqParam, res))
+	if(!poolvalidate(reqParam, res))
 	{
 
 		console.log('Parameters are  not valid');
 		return;
 	}
 	
-	var query = {'publicKey': publicKey};
 	
 	// Find Server
 	master.secureAuth(query, text, signature, function (result){
@@ -458,7 +427,6 @@ module.exports.increaseTotalFeesEarning = function (req, res){
 			
 	});
 		
-	
 }
 
 /*Decrese Total Fees Earning*/
@@ -468,23 +436,16 @@ module.exports.decreaseTotalFeesEarning = function (req, res){
 	console.log('API Name : decreaseTotalFeesEarning');
 	console.log('Decrease Total Fees Earning API Hitted');
 
-	var amount = req.body.amount;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	var text = 'amount='+amount+'&publicKey='+publicKey;
+	
 
-	var reqParam = [amount, publicKey, signature];
 
-	if(!validate(reqParam, res))
+	if(!poolvalidate(reqParam, res))
 	{
 
 		console.log('Parameters are  not valid');
 		return;
 	}
 	
-	var query = {'publicKey': publicKey};
 	
 	// Find Server
 	master.secureAuth(query, text, signature, function (result){
@@ -516,8 +477,7 @@ module.exports.decreaseTotalFeesEarning = function (req, res){
 				}
 			})
 			
-	});
-		
+	});		
 	
 }
 
@@ -546,4 +506,49 @@ module.exports.getPoolStats = function (req, res){
 		}
 	})
 	
+}
+
+/*Add to Total Keyword Owner Payout*/
+module.exports.addTotalKeywordOwnerPayout = function (req, res){
+
+	console.log('Page Name: Pool.js');
+	console.log('API Name : addTotalKeywordOwnerPayout');
+	console.log('Add Total Keyword Owner Payout API Hitted');
+	
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+
+		console.log('Credit Keyword Owner Payout Amount : '+retVal.amount);
+
+			// Update Pool Fees Income Function
+			poolSchema.findOneAndUpdate({}, {$inc:{"total_kwd_owner_payout":retVal.amount}}, function(err, retVals){
+					
+				// Successfully Updated
+				if(err){
+					console.log(err);
+					return(err);
+				}
+
+				if(retVals){
+					console.log('Credited Keyword Owner Payout Amount '+retVal.amount+' To Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else{
+					console.log('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+
+			});
+
+	});
+
 }

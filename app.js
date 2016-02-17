@@ -73,6 +73,8 @@ app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);          //
 app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);        // Deduct From Cashback OutFlow API
 app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);        // Add To Affiliate OutFlow API
 app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);  // Increase Total Fees Earning API
+app.post('/secure/addTotalKeywordOwnerPayout', pool.addTotalKeywordOwnerPayout);				// Add Total Keyword Owner Payout API
+
 app.post('/secure/getPoolStats', pool.getPoolStats);						  // Get All Feilds From Pool Table
 
 

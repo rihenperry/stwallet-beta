@@ -18,4 +18,4 @@ var poolSchema = mongoose.Schema({
     totalActiveUsers :              {type: Number}
 });
 
-module.exports = mongoose.model('poolstats', poolSchema);
+module.exports = mongoose.model('poolstat', poolSchema);
