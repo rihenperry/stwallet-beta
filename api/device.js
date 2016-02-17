@@ -1,31 +1,6 @@
 var deviceSchema = require('../models/deviceInfoSchema.js');
 var crypt = require("../config/crypt");			// Crypt Connectivity.
-
-//========================= Page Functions ========================= //
-// Response Function
-function sendResponse(req, res, status, errCode, errMsg) {
-
-	var d = Date.now();
-	console.log(status +" "+ errCode +" "+ errMsg + " " + d);
-	res.status(status).send({
-		errCode: errCode, 
-		errMsg: errMsg,
-		dbDate: d
-	});
-	
-}
-
-// Parameter Validation	Function
-function validateParameter(parameter, name){
-    
-	if(parameter === undefined || parameter.length<=0)
-	{
-		console.log(name+' Is Missing');
-		return false;
-	}
-
-	return true;
-}
+var master          = require('../config/masterfunc.js');       // Master Functions
 
 
 //========================= Export Functions ========================= //
@@ -48,16 +23,16 @@ module.exports.deviceRegister = function(req, res){
 	console.log('Signature : '+signature);
 
 	// Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
@@ -69,7 +44,7 @@ module.exports.deviceRegister = function(req, res){
 		if (err)
 		{
 			console.log('no such server');
-			sendResponse(req, res, 200, 13, 'Server is not registered');
+			master.sendResponse(req, res, 200, 13, 'Server is not registered');
 			return;
 		}
 
@@ -87,7 +62,7 @@ module.exports.deviceRegister = function(req, res){
 				if (!isValid)
 				{
 					console.log('Invalid Signature');
-					sendResponse(req, res, 200, 14, 'Invalid Signature');
+					master.sendResponse(req, res, 200, 14, 'Invalid Signature');
 					return;
 				}	
 
@@ -118,7 +93,7 @@ module.exports.deviceRegister = function(req, res){
 				else 
 				{
 					console.log('Device IP and Device Id Both Are Missing');
-					sendResponse(req, res, 200, 1, "Mandatory Input Not Found");
+					master.sendResponse(req, res, 200, 1, "Mandatory Input Not Found");
 					return;
 				}
 				
@@ -166,14 +141,14 @@ module.exports.deviceRegister = function(req, res){
 									if (err)
 									{
 										console.log(err);
-										sendResponse(req, res, 200, 5, "Database Error Timeout Detected");
+										master.sendResponse(req, res, 200, 5, "Database Error Timeout Detected");
 									}  
 									else
 									{
 
 										console.log('Device Info Successfully Saved..');
 										console.log("Public Key : "+hashID+" Private Key : "+hashKeyVal);
-										sendResponse(req, res, 200, -1, {"publicKey": hashID, "privateKey": hashKeyVal});
+										master.sendResponse(req, res, 200, -1, {"publicKey": hashID, "privateKey": hashKeyVal});
 									}
 								
 								});
@@ -189,7 +164,7 @@ module.exports.deviceRegister = function(req, res){
 						
 								console.log('Existing Server');
 								console.log("Public Key : "+hashID+" Private Key : "+hashKeyVal)
-								sendResponse(req, res, 200, -1, {"publicKey": hashID, "privateKey": hashKeyVal});
+								master.sendResponse(req, res, 200, -1, {"publicKey": hashID, "privateKey": hashKeyVal});
 					  
 							}
 						
@@ -217,23 +192,23 @@ module.exports.getPvtKey = function(req, res){
 	console.log('Signature : '+signature);
 	
 	// Validate Publickey For PrivateKey Access
-	if(!(validateParameter(pubKey, 'DevicePubKey')))
+	if(!(master.validateParameter(pubKey, 'DevicePubKey')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
@@ -246,7 +221,7 @@ module.exports.getPvtKey = function(req, res){
 		if (!result[0])
 		{
 			console.log('no such server');
-			sendResponse(req, res, 200, 13, 'Server is not registered');
+			master.sendResponse(req, res, 200, 13, 'Server is not registered');
 			return;
 		}
 		
@@ -260,7 +235,7 @@ module.exports.getPvtKey = function(req, res){
 			if (!isValid)
 			{
 				console.log('Invalid Signature');
-				sendResponse(req, res, 200, 14, 'Invalid Signature');
+				master.sendResponse(req, res, 200, 14, 'Invalid Signature');
 				return;
 			}
 			
@@ -272,13 +247,13 @@ module.exports.getPvtKey = function(req, res){
 				if (!result[0])
 				{
 					console.log('Device Not Registered');
-					sendResponse(req, res, 200, 13, 'Device Not Registered');
+					master.sendResponse(req, res, 200, 13, 'Device Not Registered');
 					return;
 				}
 			
 				var pvtKey = result[0].privateKey;
 				console.log('Private Key : '+pvtKey);
-				sendResponse(req, res, 200, -1, pvtKey);
+				master.sendResponse(req, res, 200, -1, pvtKey);
 			
 			})
 			
