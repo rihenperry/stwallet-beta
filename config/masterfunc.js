@@ -93,6 +93,9 @@ module.exports.secureAuth = function(query, text, signature, cb){
 
 var secureAuth = module.exports.secureAuth;
 
+
+/*============================= Validation Parameter function For User Accounting and Search Page API =============================*/
+
  // For User Accounting API's Only
 module.exports.validation  = function(req, cb){
     
