@@ -9,52 +9,52 @@ var deviceSchema 	= require('../models/deviceInfoSchema.js');
 var crypt 			= require("../config/crypt");			// Crypt Connectivity.
 var master          = require('../config/masterfunc.js');       // Master Functions
 
-//========================= Page Functions ========================= //
-// Response Function
-function sendResponse(req, res, status, errCode, errMsg) {
+// //========================= Page Functions ========================= //
+// // Response Function
+// function sendResponse(req, res, status, errCode, errMsg) {
 
-	var d = Date();
-	console.log(status +" "+ errCode +" "+ errMsg + " " + d);
-	res.status(status).send({
-		errCode: errCode, 
-		errMsg: errMsg,
-		dbDate: d
-	});
+// 	var d = Date();
+// 	console.log(status +" "+ errCode +" "+ errMsg + " " + d);
+// 	res.status(status).send({
+// 		errCode: errCode, 
+// 		errMsg: errMsg,
+// 		dbDate: d
+// 	});
 	
-}
+// }
 
-// Parameter Validation	Function
-function validateParameter(parameter, name){
+// // Parameter Validation	Function
+// function validateParameter(parameter, name){
     
-	if(parameter === undefined || parameter.length<=0)
-	{
-		console.log(name+' Is Missing');
-		return false;
-	}
+// 	if(parameter === undefined || parameter.length<=0)
+// 	{
+// 		console.log(name+' Is Missing');
+// 		return false;
+// 	}
 
-	return true;
+// 	return true;
 
-}
+// }
 
 var validate = function(req, res){
 
 	console.log('Parameters Receiving..');
 	
-	console.log('Amount: '+req[0]);
-	console.log('PublicKey: '+req[1]);
-	console.log('Signature: '+req[2]);
+	console.log('Amount	   : '+req[0]);
+	console.log('PublicKey  : '+req[1]);
+	console.log('Signature  : '+req[2]);
 
 	// Validate Public Key
-	if(!(validateParameter(req[1], 'Public Key')))
+	if(!(master.validateParameter(req[1], 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(req[2], 'Signature')))
+	if(!(master.validateParameter(req[2], 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
@@ -62,7 +62,7 @@ var validate = function(req, res){
 	if(req[0]=="" || isNaN(req[0]))
 	{
 		console.log('Invalid Amount');
-		sendResponse(req, res, 200, 8, "Incorrect Amount");
+		master.sendResponse(req, res, 200, 8, "Incorrect Amount");
 		return false;
 	}
 	
@@ -101,7 +101,7 @@ module.exports.addTokwdIncome = function (req, res){
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
 	
@@ -116,7 +116,7 @@ module.exports.addTokwdIncome = function (req, res){
 				if (err)
 				{
 					console.log('Database Error');
-					sendResponse(req, res, 200, 5, "Database Error");
+					master.sendResponse(req, res, 200, 5, "Database Error");
 					return;
 				}
 
@@ -124,7 +124,7 @@ module.exports.addTokwdIncome = function (req, res){
 				if(retVal)
 				{
 					console.log('Credited Keyword Income Amount '+amount+' To Pool Successfully');
-					sendResponse(req, res, 200, -1, "Success");
+					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
 			})
@@ -167,7 +167,7 @@ module.exports.deductFromkwdIncome = function (req, res){
 		if (!retVal[0])
 		{
 			console.log('No Such Server');
-			sendResponse(req, res, 200, 13, 'Server is not registered');
+			master.sendResponse(req, res, 200, 13, 'Server is not registered');
 			return;
 		}
 		
@@ -182,7 +182,7 @@ module.exports.deductFromkwdIncome = function (req, res){
 			if (!isValid)
 			{
 				console.log('Invalid Signature');
-				sendResponse(req, res, 200, 14, 'Invalid Signature');
+				master.sendResponse(req, res, 200, 14, 'Invalid Signature');
 				return;
 			}
 			
@@ -197,14 +197,14 @@ module.exports.deductFromkwdIncome = function (req, res){
 				if(retVal)
 				{
 					console.log('Deducted Keyword Income Amount '+amount+' From Pool Successfully');
-					sendResponse(req, res, 200, -1, "Success");
+					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
 				// Error In Updating Database
 				else
 				{
 					console.log('Database Error');
-					sendResponse(req, res, 200, 5, "Database Error");
+					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
 			})
 			
@@ -215,7 +215,7 @@ module.exports.deductFromkwdIncome = function (req, res){
 }
 
 /*Add To Cashback Outflow*/
-module.exports.addTocashbackOutlow = function (req, res){
+module.exports.addTocashbackOutflow = function (req, res){
 	
 	console.log('Page Name: Pool.js');
 	console.log('API Name : addTocashbackOutlow');
@@ -246,7 +246,7 @@ module.exports.addTocashbackOutlow = function (req, res){
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
 	
@@ -260,14 +260,14 @@ module.exports.addTocashbackOutlow = function (req, res){
 				if(retVal)
 				{
 					console.log('Added Cashback Amount '+amount+' To Pool Successfully');
-					sendResponse(req, res, 200, -1, "Success");
+					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
 				// Error In Updating Pool Cashback
 				else
 				{
 					console.log('Database Error');
-					sendResponse(req, res, 200, 5, "Database Error");
+					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
 			});
 			
@@ -306,7 +306,7 @@ module.exports.deductcashbackOutflow = function (req, res){
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
 	
@@ -321,14 +321,14 @@ module.exports.deductcashbackOutflow = function (req, res){
 				if(retVal)
 				{
 					console.log('Deducted Cashback Amount '+amount+' From Pool Successfully');
-					sendResponse(req, res, 200, -1, "Success");
+					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
 				// Error In Updating Pool Cashback
 				else
 				{
 					console.log('Database Error');
-					sendResponse(req, res, 200, 5, "Database Error");
+					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
 			})
 			
@@ -369,7 +369,7 @@ module.exports.addToaffiliateOutflow = function (req, res){
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
 	
@@ -384,14 +384,14 @@ module.exports.addToaffiliateOutflow = function (req, res){
 				if(retVal)
 				{
 					console.log('Added Affiliate Amount '+amount+' To Pool Successfully');
-					sendResponse(req, res, 200, -1, "Success");
+					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
 				// Error In Updating Pool Affiliate Amount
 				else
 				{
 					console.log('Database Error');
-					sendResponse(req, res, 200, 5, "Database Error");
+					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
 			
 			});
@@ -431,7 +431,7 @@ module.exports.increaseTotalFeesEarning = function (req, res){
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
 			console.log('Added Fees Amount : '+amount);
@@ -445,18 +445,105 @@ module.exports.increaseTotalFeesEarning = function (req, res){
 				if(!retVal)
 				{
 					console.log('Added Fees Amount '+amount+' To Pool Successfully');
-					sendResponse(req, res, 200, -1, "Success");
+					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
 				// Error In Updating Pool Fees
 				else
 				{
 					console.log('Database Error');
-					sendResponse(req, res, 200, 5, "Database Error");
+					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
 			})
 			
 	});
 		
+	
+}
+
+/*Decrese Total Fees Earning*/
+module.exports.decreaseTotalFeesEarning = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : decreaseTotalFeesEarning');
+	console.log('Decrease Total Fees Earning API Hitted');
+
+	var amount = req.body.amount;
+	// var publicKey = req.body.publicKey;
+	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
+	// var signature = req.body.signature;
+	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
+	var text = 'amount='+amount+'&publicKey='+publicKey;
+
+	var reqParam = [amount, publicKey, signature];
+
+	if(!validate(reqParam, res))
+	{
+
+		console.log('Parameters are  not valid');
+		return;
+	}
+	
+	var query = {'publicKey': publicKey};
+	
+	// Find Server
+	master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+	
+			console.log('Deduct Fees Amount : '+amount);
+			
+			var query = { $inc: {'total_fees_earning': -parseFloat(amount)}};
+
+			// // Update Pool Fees Income Function
+			poolSchema.findOneAndUpdate({}, query, function(retVal){
+				
+				// Successfully Updated
+				if(retVal)
+				{
+					console.log('Deducted Fees Amount '+amount+' From Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Pool Fees
+				else
+				{
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+			})
+			
+	});
+		
+	
+}
+
+/*Get Pool Stats*/
+module.exports.getPoolStats = function (req, res){
+	
+	console.log('Get Pool Status API Hitted');
+	
+	var value = true;
+	
+	// Get Pool Results Function
+	poolSchema.find({}, function(err, retVal){
+		
+		// Successfully Updated
+		if(retVal[0])
+		{
+			console.log('Pool Status:');
+			console.log(retVal);
+			master.sendResponse(req, res, 200, -1, retVal[0]);
+		}
+		
+		// Error In Updating Pool Fees
+		else
+		{
+			master.sendResponse(req, res, 200, 5, "Database Error");
+		}
+	})
 	
 }

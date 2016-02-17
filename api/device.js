@@ -36,6 +36,47 @@ module.exports.deviceRegister = function(req, res){
 		return;
 	}
 
+	if(!(master.validateParameter(deviceInfo, 'deviceInfo')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Checking Device ID in Device Info
+	if ('Device_ID' in deviceInfo && deviceInfo.Device_ID.length > 0 && deviceInfo.IP != NULL) 
+	{
+		console.log('Device ID Found');
+		key = deviceInfo.Device_ID;
+
+		if (!('Device_Type' in deviceInfo))
+		{
+			deviceInfo.Device_Type = "Mobile";
+		}
+	} 
+	
+	// Checking IP In Device Info
+	else if ('IP' in deviceInfo && deviceInfo.IP != null) 
+	{
+		if (deviceInfo.IP.length > 0) {
+
+			console.log('IP found '+deviceInfo.IP);	
+			key = deviceInfo.IP;
+
+			if (!('Device_Type' in deviceInfo))
+			{
+				deviceInfo.Device_Type = "Server";
+			}
+		}
+		
+	} 
+	
+	else 
+	{
+		console.log('Device IP and Device Id Both Are Missing');
+		master.sendResponse(req, res, 200, 1, "Mandatory Input Not Found");
+		return;
+	}
+
 	var query = {'publicKey': publicKey};
 
 	deviceSchema.find(query, function(err, result){
@@ -65,37 +106,6 @@ module.exports.deviceRegister = function(req, res){
 					master.sendResponse(req, res, 200, 14, 'Invalid Signature');
 					return;
 				}	
-
-				// Checking Device ID in Device Info
-				if ('Device_ID' in deviceInfo && deviceInfo.Device_ID.length > 0) 
-				{
-					console.log('Device ID Found');
-					key = deviceInfo.Device_ID;
-
-					if (!('Device_Type' in deviceInfo))
-					{
-						deviceInfo.Device_Type = "Mobile";
-					}
-				} 
-				
-				// Checking IP In Device Info
-				else if ('IP' in deviceInfo && deviceInfo.IP.length > 0) 
-				{
-					console.log('IP found '+deviceInfo.IP);	
-					key = deviceInfo.IP;
-
-					if (!('Device_Type' in deviceInfo))
-					{
-						deviceInfo.Device_Type = "Server";
-					}
-				} 
-				
-				else 
-				{
-					console.log('Device IP and Device Id Both Are Missing');
-					master.sendResponse(req, res, 200, 1, "Mandatory Input Not Found");
-					return;
-				}
 				
 				if ('Device_Type' in deviceInfo)
 				{
@@ -260,20 +270,5 @@ module.exports.getPvtKey = function(req, res){
 		})
 		
 	})
-
-}
-
-var serverCheck = function(query, cb){
-
-	deviceSchema.find(query, function(err, res){
-
-		if (err)
-		{
-			cb(false);
-		}
-
-		cb(res[0]);
-
-	});
 
 }
