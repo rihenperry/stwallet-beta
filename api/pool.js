@@ -40,9 +40,9 @@ var validate = function(req, res){
 
 	console.log('Parameters Receiving..');
 	
-	console.log('Amount: '+req[0]);
-	console.log('PublicKey: '+req[1]);
-	console.log('Signature: '+req[2]);
+	console.log('Amount	   : '+req[0]);
+	console.log('PublicKey  : '+req[1]);
+	console.log('Signature  : '+req[2]);
 
 	// Validate Public Key
 	if(!(validateParameter(req[1], 'Public Key')))
@@ -494,45 +494,56 @@ module.exports.decreaseTotalFeesEarning = function (req, res){
             sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
-				
-		// Server Successfully Found
-		var privateKey = result[0].privateKey;
-		var txt = 'amount='+amount+'&publicKey='+publicKey;
-		
-		// Signature Match
-		crypt.validateSignature(txt, signature, privateKey, function(err, isValid){
-		console.log(err);
-			// Signature Not Matched
-			if (!isValid)
-			{
-				console.log('Invalid Signature');
-				sendResponse(req, res, 200, 14, 'Invalid Signature');
-				return;
-			}
+	
+			console.log('Deduct Fees Amount : '+amount);
 			
-			// console.log('Deduct Fees Amount : '+amount);
-			
-			// var query = { $inc: {'total_fees_earning': -parseFloat(amount)}};
+			var query = { $inc: {'total_fees_earning': -parseFloat(amount)}};
 
 			// // Update Pool Fees Income Function
-			// poolSchema.findOneAndUpdate({}, query, function(retVal){
+			poolSchema.findOneAndUpdate({}, query, function(retVal){
 				
-			// 	// Successfully Updated
-			// 	if(retVal)
-			// 	{
-			// 		console.log('Deducted Fees Amount '+amount+' From Pool Successfully');
-			// 		sendResponse(req, res, 200, -1, "Success");
-			// 	}
+				// Successfully Updated
+				if(retVal)
+				{
+					console.log('Deducted Fees Amount '+amount+' From Pool Successfully');
+					sendResponse(req, res, 200, -1, "Success");
+				}
 				
-			// 	// Error In Updating Pool Fees
-			// 	else
-			// 	{
-			// 		sendResponse(req, res, 200, 5, "Database Error");
-			// 	}
-			// })
+				// Error In Updating Pool Fees
+				else
+				{
+					sendResponse(req, res, 200, 5, "Database Error");
+				}
+			})
 			
-		});
-		
 	});
+		
+	
+}
+
+/*Get Pool Stats*/
+module.exports.getPoolStats = function (req, res){
+	
+	console.log('Get Pool Status API Hitted');
+	
+	var value = true;
+	
+	// Get Pool Results Function
+	poolSchema.find({}, function(err, retVal){
+		
+		// Successfully Updated
+		if(retVal[0])
+		{
+			console.log('Pool Status:');
+			console.log(retVal);
+			sendResponse(req, res, 200, -1, retVal[0]);
+		}
+		
+		// Error In Updating Pool Fees
+		else
+		{
+			sendResponse(req, res, 200, 5, "Database Error");
+		}
+	})
 	
 }
