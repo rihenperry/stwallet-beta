@@ -10,11 +10,12 @@ var app         = express();
 var bodyParser  = require('body-parser');
 
 // Pages
-var mongoose    = require('./config/mongoose.js');
-var user        = require('./api/user.js');
-var device      = require('./api/device.js');
+var mongoose    = require('./config/mongoose.js');          // Moongoose
+var user        = require('./api/user.js');                 // User API
+var device      = require('./api/device.js');               // Device API
+var search      = require('./api/search.js');               // Search API
 var pool        = require('./api/pool');                    // Get Pool API
-var W_transaction =  require("./api/transaction");
+var W_transaction =  require("./api/transaction");          // Transaction API
 
 // Middleware
 app.use(bodyParser.json());
@@ -33,8 +34,8 @@ app.get('/', function (req, res) {
 
 /*============================== Device Related API ==================================*/
 
-app.post('/api/register', device.deviceRegister);					// Device Register API
-app.post('/api/getPvtKey', device.getPvtKey);						// Get Private Key API
+app.post('/api/register', device.deviceRegister);					                            // Device Register API
+app.post('/api/getPvtKey', device.getPvtKey);						                            // Get Private Key API
 
 
 /*============================== User Related API ==================================*/
@@ -98,13 +99,14 @@ app.post('/secure/getPoolStats', pool.getPoolStats);						                    //
 
 /*============================== Transactions Related API ==================================*/
 
-app.post('/secure/insertUserTransaction', W_transaction.insertUserTransaction);	 // Insert User Transaction API
+app.post('/secure/insertUserTransaction', W_transaction.insertUserTransaction);	                // Insert User Transaction API
 
 
 /*============================== Search Related API ==================================*/
 
 app.post('/secure/search/addSearchEarning', search.addSearchEarning);                           // Add Keyword Search Earning For User API
 app.post('/secure/search/deductSearchEarning', search.deductSearchEarning);                     // Deduct Keyword Search Earning For User API
+app.post('/secure/search/deductQualifiedSearches', search.deductQualifiedSearches);				// Deduct Qualified Searches For User API 
 
 
 
