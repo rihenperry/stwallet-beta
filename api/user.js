@@ -81,8 +81,7 @@ function sendRestEmail(accountInfo, flag){
 
 
 // Send Email as Notification that Password is Changed Successfully
-function changePassEmail(accountInfo)
-{
+function changePassEmail(accountInfo){
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
   
 	// Setup e-mail data with unicode symbols
@@ -98,8 +97,7 @@ function changePassEmail(accountInfo)
 }
 
 // Send Email as Notification that Password is Resetted Successfully
-function resettedConfirmation(accountInfo)
-{
+function resettedConfirmation(accountInfo){
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
   
     // Setup e-mail data with unicode symbols
@@ -116,95 +114,86 @@ function resettedConfirmation(accountInfo)
 
 
 // For User Accounting API's Only
-var validation = function(req, cb){
+// var validation = function(req, cb){
     
-    var email       = req.body.email;
-	var amount      = req.body.amount;
-	var publicKey   = req.body.publicKey;
-	var signature   = req.body.signature;
+//     var email       = req.body.email;
+// 	var amount      = req.body.amount;
+// 	var publicKey   = req.body.publicKey;
+// 	var signature   = req.body.signature;
     
-    console.log('Email :'+email);
-	console.log('Amount : '+amount);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+//     console.log('Email :'+email);
+// 	console.log('Amount : '+amount);
+// 	console.log('Public Key : '+publicKey);
+// 	console.log('Signature : '+signature);
     
-    // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
-	{
-        var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
+//     // Validate Public Key
+// 	if(!(validateParameter(publicKey, 'Public Key'))){
+//         var retVal = [{
+//             "message" : "Mandatory field not found",
+//             "errCode" : 1,
+//             "error" : "true"
+//         }];
+// 		cb(retVal);
+// 		return;
+// 	}
 
-	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
-	{
-        var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
+// 	// Validate Signature
+// 	if(!(validateParameter(signature, 'Signature'))){
+//         var retVal = [{
+//             "message" : "Mandatory field not found",
+//             "errCode" : 1,
+//             "error" : "true"
+//         }];
+// 		cb(retVal);
+// 		return;
+// 	}
 	
-	// Validate Email
-	if(!(validateParameter(email, 'Email')))
-	{
-        var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
+// 	// Validate Email
+// 	if(!(validateParameter(email, 'Email'))){
+//         var retVal = [{
+//             "message" : "Mandatory field not found",
+//             "errCode" : 1,
+//             "error" : "true"
+//         }];
+// 		cb(retVal);
+// 		return;
+// 	}
 
-	if(!(validateEmail(email))) 
-	{
-		console.log('Incorrect Email Format');
-        var retVal = [{
-            "message" : "Incorrect email id format",
-            "errCode" : 7,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-    }
+// 	if(!(validateEmail(email))){
+// 		console.log('Incorrect Email Format');
+//         var retVal = [{
+//             "message" : "Incorrect email id format",
+//             "errCode" : 7,
+//             "error" : "true"
+//         }];
+// 		cb(retVal);
+// 		return;
+//     }
 	
-	// Validate Keyword Income
-	if(amount.length<=0 && isNaN(amount))
-	{
-		console.log('Amount is Invalid');
-        var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
+// 	// Validate Keyword Income
+// 	if(amount.length<=0 && isNaN(amount)){
+// 		console.log('Amount is Invalid');
+//         var retVal = [{
+//             "message" : "Mandatory field not found",
+//             "errCode" : 1,
+//             "error" : "true"
+//         }];
+// 		cb(retVal);
+// 		return;
+// 	}
     
-    var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
-    
-    master.secureAuth(query, text, signature, function (result){
-        
-        if(result[0].error == 'false')
-        {
-            result[0].email  = email;
-            result[0].amount = amount;
-            cb(result);
-            return;
-        }
-        
-        cb(result);
-    })
-}
+//     var query = {publicKey:publicKey};
+//     var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
+//     master.secureAuth(query, text, signature, function (result){
+//         if(result[0].error == 'false'){
+//             result[0].email  = email;
+//             result[0].amount = amount;
+//             cb(result);
+//             return;
+//         }
+//         cb(result);
+//     })
+// }
 
 /* Export Fuctions */
 
@@ -1813,7 +1802,7 @@ module.exports.creditUserAmount = function(req, res){
 	console.log('Credit User Amount API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -1853,14 +1842,14 @@ module.exports.creditUserAmount = function(req, res){
 
 /*============================= Deduct User Amount =============================*/
 
-module.exports.deductAmount = function(req, res){
+module.exports.deductUserAmount = function(req, res){
     
 	console.log('Page Name : user.js');
-	console.log('API Name : deductAmount')
+	console.log('API Name : deductUserAmount')
 	console.log('Deduct User Amount API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -1907,7 +1896,7 @@ module.exports.addPurchases = function(req, res){
 	console.log('Add Purchase API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -1954,7 +1943,7 @@ module.exports.deductPurchases = function(req, res){
 	console.log('Deduct Purchase API Hitted');
 	console.log('Parameter Receiving..');
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2001,7 +1990,7 @@ module.exports.addCashback = function(req, res){
 	console.log('Add Cashback API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2048,7 +2037,7 @@ module.exports.deductCashback = function(req, res){
 	console.log('Deduct Cashback API Hitted');
 	console.log('Parameter Receiving..');
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2095,7 +2084,7 @@ module.exports.addAffEarning = function(req, res){
 	console.log('Add Affiliate Earning API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2142,7 +2131,7 @@ module.exports.deductAffEarning = function(req, res){
 	console.log('Deduct Affiliate Earning API Hitted');
 	console.log('Parameter Receiving..');
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2189,7 +2178,7 @@ module.exports.addSales = function(req, res){
 	console.log('Add Sales API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2236,7 +2225,7 @@ module.exports.deductSales = function(req, res){
 	console.log('Deduct Sales API Hitted');
 	console.log('Parameter Receiving..');
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2283,7 +2272,7 @@ module.exports.addTrade = function(req, res){
 	console.log('Add Trade API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2330,7 +2319,7 @@ module.exports.deductTrade = function(req, res){
 	console.log('Deduct Trade API Hitted');
 	console.log('Parameter Receiving..');
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2377,7 +2366,7 @@ module.exports.addTotalKeywordIncome = function(req, res){
 	console.log('Add Total Keyword Income API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2424,7 +2413,7 @@ module.exports.deductTotalKeywordIncome = function(req, res){
 	console.log('Deduct Total Keyword Income API Hitted');
 	console.log('Parameter Receiving..');
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2471,7 +2460,7 @@ module.exports.addBlockedPendingWithdrawals = function(req, res){
 	console.log('Add Blocked Pending Withdrawals API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2518,7 +2507,7 @@ module.exports.deductBlockedPendingWithdrawals = function(req, res){
 	console.log('Deduct Blocked Pending Withdrawals API Hitted');
 	console.log('Parameter Receiving..');
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2565,7 +2554,7 @@ module.exports.addApprovedWithdrawals = function(req, res){
 	console.log('Add Approved Withdrawals API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2605,14 +2594,14 @@ module.exports.addApprovedWithdrawals = function(req, res){
 
 /*============================= Deduct Approved Withdrawals =============================*/
 
-module.exports.deductBlockedPendingWithdrawals = function(req, res){
+module.exports.deductApprovedWithdrawals = function(req, res){
     
 	console.log('Page Name : user.js');
-	console.log('API Name : deductTotalKeywordIncome');
+	console.log('API Name : deductApprovedWithdrawals');
 	console.log('Deduct Blocked Pending Withdrawals API Hitted');
 	console.log('Parameter Receiving..');
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2659,7 +2648,7 @@ module.exports.addTotalAppIncome = function(req, res){
 	console.log('Add Total App Income API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2706,7 +2695,7 @@ module.exports.firstBuy = function(req, res){
 	console.log('First Buy Status API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2753,7 +2742,7 @@ module.exports.addBlockedForBids = function(req, res){
 	console.log('Add Blocked For Bids API Hitted');
 	console.log('Parameter Receiving..')
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
@@ -2800,7 +2789,7 @@ module.exports.deductBlockedForBids = function(req, res){
 	console.log('Deduct Blocked For Bids API Hitted');
 	console.log('Parameter Receiving..');
     
-    validation(req, function(retVal){
+    master.validation(req, function(retVal){
         
         if(retVal[0].error == true || retVal[0].error == 'true')
         {
