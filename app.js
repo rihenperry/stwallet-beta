@@ -13,7 +13,7 @@ var bodyParser  = require('body-parser');
 var mongoose    = require('./config/mongoose.js');
 var user        = require('./api/user.js');
 var device      = require('./api/device.js');
-var pool        = require('./api/pool');  	// Get Pool API
+var pool        = require('./api/pool');                    // Get Pool API
 var W_transaction =  require("./api/transaction");
 
 // Middleware
@@ -40,22 +40,42 @@ app.post('/api/getPvtKey', device.getPvtKey);						// Get Private Key API
 /*============================== User Related API ==================================*/
 
 // Profile Related API
-app.post('/secure/register', user.secureRegister);                  // User Register API
-app.post('/verify', user.verifyAccount);							// Verify Email API
-app.post('/secure/reverify', user.secureResendVerification);        // Resend Verification Link API
-app.post('/secure/login', user.secureLogin);						// Login API
-app.post('/userdetails', user.getDetails);							// Get Details API
-app.post('/secure/setUserDetails', user.setUserDetails);            // Set User Details API
-app.post('/secure/currencyPrefrence', user.currencyPrefrence);      // Currency Preference API
-app.post('/secure/forgotPassword', user.secureForgotPassword);      // Forgot Password API
-app.post('/secure/resetpassword', user.resetpassword);				// Reset New Password API
-app.post('/secure/changePassword', user.changePassword);			// Change Password API
-app.post('/secure/setAppId', user.setAppId);                        // Set App Id API
-app.post('/secure/getAppId', user.getAppId);                        // Get USer's App Id
+app.post('/secure/register', user.secureRegister);                                              // User Register API
+app.post('/verify', user.verifyAccount);							                            // Verify Email API
+app.post('/secure/reverify', user.secureResendVerification);                                    // Resend Verification Link API
+app.post('/secure/login', user.secureLogin);						                            // Login API
+app.post('/userdetails', user.getDetails);							                            // Get Details API
+app.post('/secure/setUserDetails', user.setUserDetails);                                        // Set User Details API
+app.post('/secure/currencyPrefrence', user.currencyPrefrence);                                  // Currency Preference API
+app.post('/secure/forgotPassword', user.secureForgotPassword);                                  // Forgot Password API
+app.post('/secure/resetpassword', user.resetpassword);				                            // Reset New Password API
+app.post('/secure/changePassword', user.changePassword);			                            // Change Password API
+app.post('/secure/setAppId', user.setAppId);                                                    // Set App Id API
+app.post('/secure/getAppId', user.getAppId);                                                    // Get USer's App Id
 
 // Account Related API
-app.post('/secure/creditAmount', user.creditUserAmount);			// Credit User Amount API
-//app.post('/secure/deductAmount', user.deductUserAmount);			// Deduct User Amount API
+app.post('/secure/creditAmount', user.creditUserAmount);			                            // Credit User Amount API
+app.post('/secure/deductAmount', user.deductUserAmount);                                        // Deduct User Amount API
+app.post('/secure/addPurchases', user.addPurchases);                                            // Add Purchases To User Account API
+app.post('/secure/deductPurchases', user.deductPurchases);			                            // Deduct Purchases From User Account API
+app.post('/secure/addCashback', user.addCashback);					                            // Add Cashback To User Account API
+app.post('/secure/deductCashback', user.deductCashback);                                        // Deduct Cashback From User Account API
+app.post('/secure/addAffEarning', user.addAffEarning);                                          // Add Affiliate Earning To User Account API
+app.post('/secure/deductAffEarning', user.deductAffEarning);                                    // Deduct Affiliate Earning From User Account API
+app.post('/secure/addSales', user.addSales);						                            // Add Sale To User Account API
+app.post('/secure/deductSales', user.deductSales);					                            // Deduct Sale From User Account API
+app.post('/secure/addTrade', user.addTrade);						                            // Add Trade To User Account API
+app.post('/secure/deductTrade', user.deductTrade);					                            // Deduct Trade From User Account API
+app.post('/secure/addTotalKeywordIncome', user.addTotalKeywordIncome);                          // Add User Total Keyword Income API
+app.post('/secure/deductTotalKeywordIncome', user.deductTotalKeywordIncome);                    // Deduct User Total Keyword Income API
+app.post('/secure/addBlockedPendingWithdrawals', user.addBlockedPendingWithdrawals);			// Add Bloked Pending Withdrawals To User Account API
+app.post('/secure/deductBlockedPendingWithdrawals', user.deductBlockedPendingWithdrawals);		// Deduct Bloked Pending Withdrawals From User Account API
+app.post('/secure/addApprovedWithdrawals', user.addApprovedWithdrawals);						// Add Approved Withdrawal To User Account API
+app.post('/secure/deductApprovedWithdrawals', user.deductApprovedWithdrawals);					// Deduct Approved Withdrawal From User Account API
+app.post('/secure/addTotalAppIncome', user.addTotalAppIncome);                                  // Add User Total App Income API
+app.post('/secure/firstBuy', user.firstBuy);													// FirstBuy API
+app.post('/secure/addBlockedForBids', user.addBlockedForBids);									// Add Blocked For Bids API
+app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// Deduct Blocked Bids API
 
 
 /*============================== Pool Related API ==================================*/
