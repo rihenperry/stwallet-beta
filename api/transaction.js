@@ -51,4 +51,7 @@ module.exports.insertUserTransaction = function(req, res){
 	console.log('Public Key :'+publicKey);
 	console.log('Signature :'+signature);
 
+
+	
+
 };

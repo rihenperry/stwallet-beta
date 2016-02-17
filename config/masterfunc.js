@@ -7,6 +7,34 @@ var deviceSchema    = require('../models/deviceInfoSchema.js')  // DeviceInfo Sc
 var crypt           = require('./crypt.js');                    // Crypt/Signature Related Functionality
 
 
+
+//========================= Page Functions ========================= //
+// Response Function
+module.exports.sendResponse = function(req, res, status, errCode, errMsg) {
+
+    var d = Date.now();
+    console.log(status +" "+ errCode +" "+ errMsg + " " + d);
+    res.status(status).send({
+        errCode: errCode, 
+        errMsg: errMsg,
+        dbDate: d
+    });
+    
+}
+
+// Parameter Validation Function
+module.exports.validateParameter =   function(parameter, name){
+    
+    if(parameter === undefined || parameter.length<=0)
+    {
+        console.log(name+' Is Missing');
+        return false;
+    }
+
+    return true;
+}
+
+
 /* Master Export Fuctions */
 
 /*============================= Find Server and Signature Validation =============================*/

@@ -77,7 +77,6 @@ module.exports.addTokwdIncome = function (req, res){
 	console.log('Page Name: Pool.js');
 	console.log('API Name : addTokwdIncome');
 	console.log('Add To Keyword Income API Hitted');
-	console.log('Parameters Receiving..');
 	
 	var amount = req.body.amount;
 	// var publicKey = req.body.publicKey;
@@ -140,7 +139,6 @@ module.exports.deductFromkwdIncome = function (req, res){
 	console.log('Page Name: Pool.js');
 	console.log('API Name : deductFromkwdIncome');
 	console.log('Deduct From Keyword Income API Hitted');
-	console.log('Parameters Receiving..');
 
 	var amount = req.body.amount;
 	// var publicKey = req.body.publicKey;
@@ -222,7 +220,6 @@ module.exports.addTocashbackOutlow = function (req, res){
 	console.log('Page Name: Pool.js');
 	console.log('API Name : addTocashbackOutlow');
 	console.log('Add To Cashback Outflow API Hitted');
-	console.log('Parameters Receiving..');
 	
 	var amount = req.body.amount;
 	// var publicKey = req.body.publicKey;
@@ -285,7 +282,6 @@ module.exports.deductcashbackOutflow = function (req, res){
 	console.log('Page Name: Pool.js');
 	console.log('API Name : deductcashbackOutflow');
 	console.log('Deduct From Cashback Outflow API Hitted');
-	console.log('Parameters Receiving..');
 	
 	var amount = req.body.amount;
 	// var publicKey = req.body.publicKey;
@@ -347,7 +343,6 @@ module.exports.addToaffiliateOutflow = function (req, res){
 	console.log('API Name : addToaffiliateOutflow');
 	console.log('Add To Affiliate Outflow API Hitted');
 	
-	
 	var amount = req.body.amount;
 	// var publicKey = req.body.publicKey;
 	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
@@ -405,3 +400,63 @@ module.exports.addToaffiliateOutflow = function (req, res){
 
 }
 
+/*Increase Total Fees Earning*/
+module.exports.increaseTotalFeesEarning = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : increaseTotalFeesEarning');
+	console.log('Increase Total Fees Earning API Hitted');
+	
+	var amount = req.body.amount;
+	// var publicKey = req.body.publicKey;
+	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
+	// var signature = req.body.signature;
+	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
+	var text = 'amount='+amount+'&publicKey='+publicKey;
+
+	var reqParam = [amount, publicKey, signature];
+
+	
+	if(!validate(reqParam, res))
+	{
+
+		console.log('Parameters are  not valid');
+		return;
+	}
+	
+	var query = {'publicKey': publicKey};
+	
+	// Find Server
+	master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+			console.log('Added Fees Amount : '+amount);
+			
+			var query = { $inc: {'total_fees_earning': parseFloat(amount)}};
+
+			// Update Pool Fees Income Function
+			poolSchema.findOneAndUpdate({}, query, function(retVal){
+			
+				// Successfully Updated
+				if(!retVal)
+				{
+					console.log('Added Fees Amount '+amount+' To Pool Successfully');
+					sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Pool Fees
+				else
+				{
+					console.log('Database Error');
+					sendResponse(req, res, 200, 5, "Database Error");
+				}
+			})
+			
+	});
+		
+	
+}
