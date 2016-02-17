@@ -12,29 +12,6 @@ var mailer          = require('../config/mail.js');             // Mail Function
 
 //========================= Page Functions ========================= //
 
-// Response Function
-function sendResponse(req, res, status, errCode, errMsg) {
-    
-    var d = Date();
-    console.log(status + " " + errCode + " " + errMsg + " " + d);
-    res.status(status).send({
-		errCode: errCode,
-		errMsg: errMsg,
-		dbDate: d
-    });
-}
-
-// Parameter Validation	Function
-function validateParameter(parameter, name) {
-    
-	if (parameter === undefined || parameter.length <= 0) {
-		console.log(name + ' Is Missing');
-		return false;
-	}
-
-	return true;
-}
-
 // Email Validation
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
@@ -103,6 +80,135 @@ function sendRestEmail(accountInfo, flag){
 }
 
 
+// Send Email as Notification that Password is Changed Successfully
+function changePassEmail(accountInfo)
+{
+	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
+  
+	// Setup e-mail data with unicode symbols
+	var mailOptions = {
+		from: 'Search Trade <donotreply@searchtrade.com>', 		// Sender address
+		to: accountInfo.email, 									// List of Receivers
+		subject: "Search Trade: Password Change Confirmation", 	// Subject line
+		text: text,												// Text
+		html: text
+	  };
+
+	mailer.sendmail(mailOptions);
+}
+
+// Send Email as Notification that Password is Resetted Successfully
+function resettedConfirmation(accountInfo)
+{
+	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
+  
+    // Setup e-mail data with unicode symbols
+	var mailOptions = {
+		from: 'Search Trade <donotreply@searchtrade.com>', 		// Sender address
+		to: accountInfo.email, 								// list of receivers
+		subject: "Search Trade: Password Reset Confirmation", 	// Subject line
+		text: text,												// Text
+		html: text
+    };
+	
+	mailer.sendmail(mailOptions);
+}
+
+
+// For User Accounting API's Only
+var validation = function(req, cb){
+    
+    var email       = req.body.email;
+	var amount      = req.body.amount;
+	var publicKey   = req.body.publicKey;
+	var signature   = req.body.signature;
+    
+    console.log('Email :'+email);
+	console.log('Amount : '+amount);
+	console.log('Public Key : '+publicKey);
+	console.log('Signature : '+signature);
+    
+    // Validate Public Key
+	if(!(validateParameter(publicKey, 'Public Key')))
+	{
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+	}
+
+	// Validate Signature
+	if(!(validateParameter(signature, 'Signature')))
+	{
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+	}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+        var retVal = [{
+            "message" : "Incorrect email id format",
+            "errCode" : 7,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+    }
+	
+	// Validate Keyword Income
+	if(amount.length<=0 && isNaN(amount))
+	{
+		console.log('Amount is Invalid');
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+	}
+    
+    var query = {publicKey:publicKey};
+    var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
+        
+        if(result[0].error == 'false')
+        {
+            result[0].email  = email;
+            result[0].amount = amount;
+            cb(result);
+            return;
+        }
+        
+        cb(result);
+    })
+}
+
+
+
+
 /* Export Fuctions */
 
 /*============================= Register User =============================*/
@@ -147,30 +253,30 @@ module.exports.secureRegister = function (req, res) {
     console.log('Signature : '+signature);
     
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if (!(validateParameter(email, 'Email')))
+	if (!(master.validateParameter(email, 'Email')))
     {
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if (!(validateEmail(email)))
     {
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
     
@@ -178,7 +284,7 @@ module.exports.secureRegister = function (req, res) {
 	if(password == "" || password == null || confirm_password == "" || confirm_password == null)
 	{
 		console.log('Any of Password Field is Missing');
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
@@ -187,7 +293,7 @@ module.exports.secureRegister = function (req, res) {
 		if(password.length<6)
 		{
 			console.log('Your Password Is Less Than Six Characters');
-			sendResponse(req, res, 200, 20, "Your password should be of minimum six characters");
+			master.sendResponse(req, res, 200, 20, "Your password should be of minimum six characters");
 			return;   
 		}
 		
@@ -207,7 +313,7 @@ module.exports.secureRegister = function (req, res) {
 	else
 	{
 		console.log('Passwords Are Not Matching');
-		sendResponse(req, res, 200, 6, "Incorrect Email/password");
+		master.sendResponse(req, res, 200, 6, "Incorrect Email/password");
 		return;
 	}
 	
@@ -215,7 +321,7 @@ module.exports.secureRegister = function (req, res) {
 	if(country == "Select Country")
 	{
 		console.log('Country Not Selected');
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
     
@@ -226,7 +332,7 @@ module.exports.secureRegister = function (req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -244,7 +350,7 @@ module.exports.secureRegister = function (req, res) {
             if(result.length>0) // Already Exists
             {
                 console.log(email+" Already exists");
-                sendResponse(req, res, 200, 2, "Email already in use");
+                master.sendResponse(req, res, 200, 2, "Email already in use");
                 return;
             }
 
@@ -274,7 +380,7 @@ module.exports.secureRegister = function (req, res) {
                         else // Wrong Refferal
                         {
                             console.log('Wrong Affiliate Ref Code Entered');
-                            sendResponse(req, res, 200, 18, "Wrong Affiliate Reference");
+                            master.sendResponse(req, res, 200, 18, "Wrong Affiliate Reference");
                             return;
                         }
                     }
@@ -352,7 +458,7 @@ module.exports.secureRegister = function (req, res) {
 
                             sendVerificationEmail(accountInfo, flag);   // Send Email to Registered Email Address For Account Verification
                             console.log('Saved SuccessFully');
-                            sendResponse(req, res, 200, -1, "Success");
+                            master.sendResponse(req, res, 200, -1, "Success");
 
                         });
 
@@ -390,30 +496,30 @@ module.exports.verifyAccount = function(req, res){
 	auth=auth.replace(/\ /g,'+');
     
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
     
@@ -424,7 +530,7 @@ module.exports.verifyAccount = function(req, res){
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -439,7 +545,7 @@ module.exports.verifyAccount = function(req, res){
             if(result==null || result=="") // Email Not Found
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
@@ -450,7 +556,7 @@ module.exports.verifyAccount = function(req, res){
                 if (tokenTest== 2)
                 {
                     console.log('Token is Expired');
-                    sendResponse(req, res, 200, 10, "Link expired");
+                    master.sendResponse(req, res, 200, 10, "Link expired");
                     return;
                 }
 
@@ -458,7 +564,7 @@ module.exports.verifyAccount = function(req, res){
                 else if (tokenTest== 0)
                 {
                     console.log('Token is Invalid');
-                    sendResponse(req, res, 200, 11, "Invalid link");
+                    master.sendResponse(req, res, 200, 11, "Invalid link");
                     return;
                 }
 
@@ -472,14 +578,14 @@ module.exports.verifyAccount = function(req, res){
                 else
                 {
                     console.log('Unknown Token Output');
-                    sendResponse(req, res, 200, 11, "Invalid link");
+                    master.sendResponse(req, res, 200, 11, "Invalid link");
                     return;
                 } 
 
                 if(result[0].active==1)
                 {
                     console.log('Account Already Activated');
-                    sendResponse(req, res, 200, 37, "Account is Already Activated");
+                    master.sendResponse(req, res, 200, 37, "Account is Already Activated");
                 }
 
                 else
@@ -495,14 +601,14 @@ module.exports.verifyAccount = function(req, res){
                         if(result==null || result=="") // Email Not Found
                         {
                             console.log('Error In Activation');
-                            sendResponse(req, res, 200, 5, 'Database Error');
+                            master.sendResponse(req, res, 200, 5, 'Database Error');
                             return;
                         }
 
                         else
                         {
                             console.log('Total Active Users Successfully Updated');
-                            sendResponse(req, res, 200, -1, "Success");
+                            master.sendResponse(req, res, 200, -1, "Success");
                         }
 
                     })
@@ -537,30 +643,30 @@ exports.secureResendVerification = function(req, res) {
 	console.log('Signature : '+signature);
     
 	// Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
     
@@ -571,7 +677,7 @@ exports.secureResendVerification = function(req, res) {
 
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
         
@@ -586,13 +692,13 @@ exports.secureResendVerification = function(req, res) {
             if(result[0]==null || result[0]==undefined || result[0]=="")
             {
                 console.log(email+' Is Not Registered');
-                sendResponse(req, res, 200, 4, "There is no user registered with that email address.");
+                master.sendResponse(req, res, 200, 4, "There is no user registered with that email address.");
                 return;
             }
             
             console.log('User Found');
             sendVerificationEmail(result[0], flag);
-            sendResponse(req, res, 200, -1, "Success");
+            master.sendResponse(req, res, 200, -1, "Success");
             
         })
  
@@ -620,37 +726,37 @@ module.exports.secureLogin = function(req, res){
 	console.log('Signature : '+signature);
     
 	// Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
 	
 	// Validate Password
-	if(!(validateParameter(password, 'Password')))
+	if(!(master.validateParameter(password, 'Password')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
     
@@ -661,7 +767,7 @@ module.exports.secureLogin = function(req, res){
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -676,7 +782,7 @@ module.exports.secureLogin = function(req, res){
             if(result==null || result=="") // Email Not Found
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
@@ -689,7 +795,7 @@ module.exports.secureLogin = function(req, res){
                     if (!result[0].active)
                     {
                         console.log('Account is Not Active');
-                        sendResponse(req, res, 200, 3, "Account is not active");
+                        master.sendResponse(req, res, 200, 3, "Account is not active");
                         return;
                     }
 
@@ -706,14 +812,14 @@ module.exports.secureLogin = function(req, res){
                         if(result==null || result=="") // Email Not Found
                         {
                             console.log('Error In Login');
-                            sendResponse(req, res, 200, 5, 'Datbase Error');
+                            master.sendResponse(req, res, 200, 5, 'Datbase Error');
                             return;
                         }
 
                         else
                         {   
                             console.log('Successfully Login');
-                            sendResponse(req, res, 200, -1, "Success");
+                            master.sendResponse(req, res, 200, -1, "Success");
                             return;
                         }
 
@@ -724,7 +830,7 @@ module.exports.secureLogin = function(req, res){
                 else
                 {
                     console.log('Email Password Combination is Incorrect');
-                    sendResponse(req, res, 200, 6, 'Email/password is incorrect');
+                    master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
                     return;
                 }
 
@@ -755,30 +861,30 @@ module.exports.getDetails = function(req, res) {
 	console.log('Signature : '+signature);
     
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
     
@@ -789,7 +895,7 @@ module.exports.getDetails = function(req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -804,11 +910,11 @@ module.exports.getDetails = function(req, res) {
             if(result == null || result == undefined || result == "")
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            sendResponse(req, res, 200, -1, result[0]);
+            master.sendResponse(req, res, 200, -1, result[0]);
             return;
 
         })
@@ -856,30 +962,30 @@ module.exports.setUserDetails = function(req, res){
     console.log('Signature : '+signature);
     
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
     
@@ -887,7 +993,7 @@ module.exports.setUserDetails = function(req, res){
 	if(mobile_number!="" && isNaN(mobile_number))
 	{
 		console.log('Invalid Mobile');
-		sendResponse(req, res, 200, 8, "Incorrect Mobile");
+		master.sendResponse(req, res, 200, 8, "Incorrect Mobile");
 		return;
 	}
     
@@ -898,7 +1004,7 @@ module.exports.setUserDetails = function(req, res){
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -934,14 +1040,14 @@ module.exports.setUserDetails = function(req, res){
             if(result==null || result=="") // Email Not Found
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
                 console.log('Details Successfully Updated');
-                sendResponse(req, res, 200, -1, 'Success');
+                master.sendResponse(req, res, 200, -1, 'Success');
             }
 
         })
@@ -973,30 +1079,30 @@ module.exports.currencyPrefrence = function(req, res) {
     console.log('Signature : ' + signature);
 
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
     
@@ -1007,7 +1113,7 @@ module.exports.currencyPrefrence = function(req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -1031,14 +1137,14 @@ module.exports.currencyPrefrence = function(req, res) {
             if (result==null || result=="") // Email Not Found
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
                 console.log('Currency Preference Successfully Updated');
-                sendResponse(req, res, 200, -1, 'Success');
+                master.sendResponse(req, res, 200, -1, 'Success');
             }
 
         })
@@ -1068,30 +1174,30 @@ exports.secureForgotPassword = function(req, res) {
     console.log('Signature : ' + signature);
     
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
     
     // Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
     
@@ -1102,7 +1208,7 @@ exports.secureForgotPassword = function(req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -1117,7 +1223,7 @@ exports.secureForgotPassword = function(req, res) {
             if(result == "" || result == null || result == undefined)
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
@@ -1126,14 +1232,14 @@ exports.secureForgotPassword = function(req, res) {
                 if(result[0].active)
                 {
                     sendRestEmail(result[0], flag); // Send Reset Password Link 
-                    sendResponse(req, res, 200, -1, "Success");
+                    master.sendResponse(req, res, 200, -1, "Success");
                     return;
                 }
 
                 else
                 {
                     console.log('User Account is Not Active');
-                    sendResponse(req, res, 200, 3, "Account is not active");
+                    master.sendResponse(req, res, 200, 3, "Account is not active");
                     return;
                 }
             }
@@ -1168,37 +1274,37 @@ module.exports.resetpassword = function(req, res) {
     console.log('Signature : ' + signature);
     
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
     
     // Validate Authentication
-    if(!(validateParameter(auth, 'Authentication')))
+    if(!(master.validateParameter(auth, 'Authentication')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
     
     // Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
 	
@@ -1206,14 +1312,14 @@ module.exports.resetpassword = function(req, res) {
 	if (password === 'undefined' || confirm_password === 'undefined')
 	{
 		console.log('Passwords Cannot be Blank');
-		sendResponse(req, res, 200, 1, "Mandatory Field Not Found");
+		master.sendResponse(req, res, 200, 1, "Mandatory Field Not Found");
 		return;
 	}
 	
 	if (password.length < 6)
 	{
 		console.log('Your password should be of minimum six characters');
-		sendResponse(req, res, 200, 6, "Your password should be of minimum six characters");
+		master.sendResponse(req, res, 200, 6, "Your password should be of minimum six characters");
 		return;
 	} 
 
@@ -1221,7 +1327,7 @@ module.exports.resetpassword = function(req, res) {
 	if (password !== confirm_password)
 	{
 		console.log('Password And Confirm Password are Mismatched');
-		sendResponse(req, res, 200, 6, "Both password entries must be identical.");
+		master.sendResponse(req, res, 200, 6, "Both password entries must be identical.");
 		return;
 	}	
     
@@ -1234,7 +1340,7 @@ module.exports.resetpassword = function(req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -1249,7 +1355,7 @@ module.exports.resetpassword = function(req, res) {
             if(result == "" || result == null || result == undefined)
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
             
@@ -1261,7 +1367,7 @@ module.exports.resetpassword = function(req, res) {
                 if (tokenTest == 2)
                 {
                     console.log('Reset Password Token is Expired');
-                    sendResponse(req, res, 200, 10, 'Token is expired');
+                    master.sendResponse(req, res, 200, 10, 'Token is expired');
                     return;
                 }
 
@@ -1269,7 +1375,7 @@ module.exports.resetpassword = function(req, res) {
                 else if (tokenTest == 0)
                 {
                     console.log('Token is Invalid');
-                    sendResponse(req, res, 200, 11, 'Token is Invalid');
+                    master.sendResponse(req, res, 200, 11, 'Token is Invalid');
                     return;
                 }
 
@@ -1283,7 +1389,7 @@ module.exports.resetpassword = function(req, res) {
                 else
                 {
                     console.log('Unknown Token Output');
-                    sendResponse(req, res, 200, 50, 'Unkown Token Error');
+                    master.sendResponse(req, res, 200, 50, 'Unkown Token Error');
                     return;
                 }
                 
@@ -1299,6 +1405,7 @@ module.exports.resetpassword = function(req, res) {
                 var currentTime = Date.now();
                 
                 var updatedInfo = {
+                    
                     password: hashpass,         // Salted Hash of the password
                     salt:salt,					// Salt (Random Generated Value)
                     lastLogin: currentTime,     // Last Login Time
@@ -1306,7 +1413,7 @@ module.exports.resetpassword = function(req, res) {
                 };
                 
                 // Find and Update User's Currency Preference
-                userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+                userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, results){
 
                     if (err)
                     {
@@ -1314,17 +1421,18 @@ module.exports.resetpassword = function(req, res) {
                         return err;
                     }
 
-                    if (result==null || result=="") // Email Not Found
+                    if (results==null || results=="") // Email Not Found
                     {
                         console.log(email+" Not Registered");
-                        sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                        master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                         return;
                     }
 
                     else
                     {
                         console.log('Password Resetted Successfully');
-                        sendResponse(req, res, 200, -1, 'Success');
+                        resettedConfirmation(result[0]);
+                        master.sendResponse(req, res, 200, -1, 'Success');
                     }
 
                 })
@@ -1361,37 +1469,37 @@ module.exports.changePassword = function (req, res) {
     console.log('Signature : ' + signature);
     
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
     
     // Validate Old Password
-	if(!(validateParameter(old_pass, 'Old Password')))
+	if(!(master.validateParameter(old_pass, 'Old Password')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
     
@@ -1402,7 +1510,7 @@ module.exports.changePassword = function (req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
         
@@ -1418,7 +1526,7 @@ module.exports.changePassword = function (req, res) {
             if(result.length == 0) // DoesNot Exists
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
@@ -1431,7 +1539,7 @@ module.exports.changePassword = function (req, res) {
             if(old_pass != stored_pass)
             {
                 console.log('Old Password is Wrong');
-                sendResponse(req, res, 200, 6, "The entry in the Old Password field is incorrect.");
+                master.sendResponse(req, res, 200, 6, "The entry in the Old Password field is incorrect.");
                 return;
             }
 
@@ -1439,14 +1547,14 @@ module.exports.changePassword = function (req, res) {
             if(new_pass == null || new_pass.length==0 || confirm_new_pass == null || confirm_new_pass.length==0)
             {
                 console.log('Password is Blank');
-                sendResponse(req, res, 200, 1, "Mandatory field not found");
+                master.sendResponse(req, res, 200, 1, "Mandatory field not found");
                 return;
             }
 
             if(new_pass.length < 6)
             {
                 console.log('Your password should be of minimum six characters');
-                sendResponse(req, res, 200, 1, "Your password should be of minimum six characters");
+                master.sendResponse(req, res, 200, 1, "Your password should be of minimum six characters");
                 return;
             }
 
@@ -1454,7 +1562,7 @@ module.exports.changePassword = function (req, res) {
             if(new_pass != confirm_new_pass)
             {
                 console.log('New Password And Confirm Password are Mismatched');
-                sendResponse(req, res, 200, 6, "Both password entries must be identical.");
+                master.sendResponse(req, res, 200, 6, "Both password entries must be identical.");
                 return;
             }
 
@@ -1471,6 +1579,7 @@ module.exports.changePassword = function (req, res) {
             var password = crypt.hashIt(salt+new_pass);
 
             var updatedInfo = {
+                
                 password: password,                        	// Salted Hash of the password
                 salt:salt,									// Salt (Random Generated Value)
                 lastLogin: currentTime,                   	// Last Login Time
@@ -1478,7 +1587,7 @@ module.exports.changePassword = function (req, res) {
             };
 
             // Find and Update User's Currency Preference
-            userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+            userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, results){
 
                 if (err)
                 {
@@ -1486,17 +1595,18 @@ module.exports.changePassword = function (req, res) {
                     return err;
                 }
 
-                if (result==null || result=="") // Email Not Found
+                if (results==null || results=="") // Email Not Found
                 {
                     console.log(email+" Not Registered");
-                    sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                    master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                     return;
                 }
 
                 else
                 {
                     console.log('Password Changed Successfully');
-                    sendResponse(req, res, 200, -1, 'Success');
+                    changePassEmail(result[0]);
+                    master.sendResponse(req, res, 200, -1, 'Success');
                 }
 
             })
@@ -1528,37 +1638,37 @@ module.exports.setAppId = function (req, res) {
     console.log('Signature : ' + signature);
 
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
     
     // Validate App Id
-	if(!(validateParameter(appId, 'App ID')))
+	if(!(master.validateParameter(appId, 'App ID')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
     
@@ -1569,7 +1679,7 @@ module.exports.setAppId = function (req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -1594,14 +1704,14 @@ module.exports.setAppId = function (req, res) {
             if (result==null || result=="") // Email Not Found
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
                 console.log('App Id Successfully Setted');
-                sendResponse(req, res, 200, -1, 'Success');
+                master.sendResponse(req, res, 200, -1, 'Success');
             }
 
         })
@@ -1629,30 +1739,30 @@ module.exports.getAppId = function (req, res) {
     console.log('Signature : ' + signature);
 
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
-		sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	if(!(validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
-		sendResponse(req, res, 200, 7, "Incorrect email id format");
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
 
@@ -1663,7 +1773,7 @@ module.exports.getAppId = function (req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
     
@@ -1678,14 +1788,14 @@ module.exports.getAppId = function (req, res) {
             if (result==null || result=="") // Email Not Found
             {
                 console.log(email+" Not Registered");
-                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
                 console.log('App Id : '+result[0].default_search_appId);
-                sendResponse(req, res, 200, -1, result[0].default_search_appId);
+                master.sendResponse(req, res, 200, -1, result[0].default_search_appId);
             }
 
         })
@@ -1693,3 +1803,53 @@ module.exports.getAppId = function (req, res) {
     })
     
 }
+
+
+/* Accounting API */
+
+/*============================= Add Total Keyword Income =============================*/
+
+module.exports.creditUserAmount = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : creditUserAmount')
+	console.log('Credit User Amount API Hitted');
+	console.log('Parameter Receiving..')
+    
+    validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        // Find and Update User's App Id
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:retVal[0].amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('App Id Successfully Setted');
+                sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+a061802be82efbbff4045d08c85d5e49b33f89bcd97241766119e62a2b6d3f0a9c5c725d6788c4bca351dd0b7bac7190352dae603c1152aded270bd595d8665e
