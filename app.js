@@ -69,7 +69,7 @@ app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);  //
 app.post('/secure/decreaseTotalFeesEarning', pool.decreaseTotalFeesEarning);  // Decrease Total Fees Earning API
 app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);              // Add To Keyword Income API
 app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);         // Deduct From Keyword Income API
-app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutlow);             // Add To Cashback OutFlow API
+app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);             // Add To Cashback OutFlow API
 app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);          // Deduct From Cashback OutFlow API
 app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);          // Add To Affiliate OutFlow API
 app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);    // Increase Total Fees Earning API
