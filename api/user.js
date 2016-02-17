@@ -103,6 +103,135 @@ function sendRestEmail(accountInfo, flag){
 }
 
 
+// Send Email as Notification that Password is Changed Successfully
+function changePassEmail(accountInfo)
+{
+	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
+  
+	// Setup e-mail data with unicode symbols
+	var mailOptions = {
+		from: 'Search Trade <donotreply@searchtrade.com>', 		// Sender address
+		to: accountInfo.email, 									// List of Receivers
+		subject: "Search Trade: Password Change Confirmation", 	// Subject line
+		text: text,												// Text
+		html: text
+	  };
+
+	mailer.sendmail(mailOptions);
+}
+
+// Send Email as Notification that Password is Resetted Successfully
+function resettedConfirmation(accountInfo)
+{
+	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
+  
+    // Setup e-mail data with unicode symbols
+	var mailOptions = {
+		from: 'Search Trade <donotreply@searchtrade.com>', 		// Sender address
+		to: accountInfo.email, 								// list of receivers
+		subject: "Search Trade: Password Reset Confirmation", 	// Subject line
+		text: text,												// Text
+		html: text
+    };
+	
+	mailer.sendmail(mailOptions);
+}
+
+
+// For User Accounting API's Only
+var validation = function(req, cb){
+    
+    var email       = req.body.email;
+	var amount      = req.body.amount;
+	var publicKey   = req.body.publicKey;
+	var signature   = req.body.signature;
+    
+    console.log('Email :'+email);
+	console.log('Amount : '+amount);
+	console.log('Public Key : '+publicKey);
+	console.log('Signature : '+signature);
+    
+    // Validate Public Key
+	if(!(validateParameter(publicKey, 'Public Key')))
+	{
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+	}
+
+	// Validate Signature
+	if(!(validateParameter(signature, 'Signature')))
+	{
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+	}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+        var retVal = [{
+            "message" : "Incorrect email id format",
+            "errCode" : 7,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+    }
+	
+	// Validate Keyword Income
+	if(amount.length<=0 && isNaN(amount))
+	{
+		console.log('Amount is Invalid');
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+		cb(retVal);
+		return;
+	}
+    
+    var query = {publicKey:publicKey};
+    var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
+        
+        if(result[0].error == 'false')
+        {
+            result[0].email  = email;
+            result[0].amount = amount;
+            cb(result);
+            return;
+        }
+        
+        cb(result);
+    })
+}
+
+
+
+
 /* Export Fuctions */
 
 /*============================= Register User =============================*/
@@ -1299,6 +1428,7 @@ module.exports.resetpassword = function(req, res) {
                 var currentTime = Date.now();
                 
                 var updatedInfo = {
+                    
                     password: hashpass,         // Salted Hash of the password
                     salt:salt,					// Salt (Random Generated Value)
                     lastLogin: currentTime,     // Last Login Time
@@ -1306,7 +1436,7 @@ module.exports.resetpassword = function(req, res) {
                 };
                 
                 // Find and Update User's Currency Preference
-                userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+                userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, results){
 
                     if (err)
                     {
@@ -1314,7 +1444,7 @@ module.exports.resetpassword = function(req, res) {
                         return err;
                     }
 
-                    if (result==null || result=="") // Email Not Found
+                    if (results==null || results=="") // Email Not Found
                     {
                         console.log(email+" Not Registered");
                         sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
@@ -1324,6 +1454,7 @@ module.exports.resetpassword = function(req, res) {
                     else
                     {
                         console.log('Password Resetted Successfully');
+                        resettedConfirmation(result[0]);
                         sendResponse(req, res, 200, -1, 'Success');
                     }
 
@@ -1471,6 +1602,7 @@ module.exports.changePassword = function (req, res) {
             var password = crypt.hashIt(salt+new_pass);
 
             var updatedInfo = {
+                
                 password: password,                        	// Salted Hash of the password
                 salt:salt,									// Salt (Random Generated Value)
                 lastLogin: currentTime,                   	// Last Login Time
@@ -1478,7 +1610,7 @@ module.exports.changePassword = function (req, res) {
             };
 
             // Find and Update User's Currency Preference
-            userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+            userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, results){
 
                 if (err)
                 {
@@ -1486,7 +1618,7 @@ module.exports.changePassword = function (req, res) {
                     return err;
                 }
 
-                if (result==null || result=="") // Email Not Found
+                if (results==null || results=="") // Email Not Found
                 {
                     console.log(email+" Not Registered");
                     sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
@@ -1496,6 +1628,7 @@ module.exports.changePassword = function (req, res) {
                 else
                 {
                     console.log('Password Changed Successfully');
+                    changePassEmail(result[0]);
                     sendResponse(req, res, 200, -1, 'Success');
                 }
 
@@ -1693,3 +1826,53 @@ module.exports.getAppId = function (req, res) {
     })
     
 }
+
+
+/* Accounting API */
+
+/*============================= Add Total Keyword Income =============================*/
+
+module.exports.creditUserAmount = function(req, res){
+    
+	console.log('Page Name : user.js');
+	console.log('API Name : creditUserAmount')
+	console.log('Credit User Amount API Hitted');
+	console.log('Parameter Receiving..')
+    
+    validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        // Find and Update User's App Id
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:retVal[0].amount}},function(err, result){
+
+            if (err)
+            {
+                console.log(err);
+                return err;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                console.log(email+" Not Registered");
+                sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                console.log('App Id Successfully Setted');
+                sendResponse(req, res, 200, -1, 'Success');
+            }
+
+        })
+        
+    })
+  
+}
+
+a061802be82efbbff4045d08c85d5e49b33f89bcd97241766119e62a2b6d3f0a9c5c725d6788c4bca351dd0b7bac7190352dae603c1152aded270bd595d8665e

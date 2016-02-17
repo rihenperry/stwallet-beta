@@ -54,7 +54,8 @@ app.post('/secure/setAppId', user.setAppId);                        // Set App I
 app.post('/secure/getAppId', user.getAppId);                        // Get USer's App Id
 
 // Account Related API
-
+app.post('/secure/creditAmount', user.creditUserAmount);			// Credit User Amount API
+//app.post('/secure/deductAmount', user.deductUserAmount);			// Deduct User Amount API
 
 
 /*============================== Pool Related API ==================================*/
