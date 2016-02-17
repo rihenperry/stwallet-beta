@@ -215,7 +215,7 @@ module.exports.deductFromkwdIncome = function (req, res){
 }
 
 /*Add To Cashback Outflow*/
-module.exports.addTocashbackOutlow = function (req, res){
+module.exports.addTocashbackOutflow = function (req, res){
 	
 	console.log('Page Name: Pool.js');
 	console.log('API Name : addTocashbackOutlow');
@@ -458,5 +458,81 @@ module.exports.increaseTotalFeesEarning = function (req, res){
 			
 	});
 		
+	
+}
+
+/*Decrese Total Fees Earning*/
+module.exports.decreaseTotalFeesEarning = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : decreaseTotalFeesEarning');
+	console.log('Decrease Total Fees Earning API Hitted');
+
+	var amount = req.body.amount;
+	// var publicKey = req.body.publicKey;
+	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
+	// var signature = req.body.signature;
+	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
+	var text = 'amount='+amount+'&publicKey='+publicKey;
+
+	var reqParam = [amount, publicKey, signature];
+
+	if(!validate(reqParam, res))
+	{
+
+		console.log('Parameters are  not valid');
+		return;
+	}
+	
+	var query = {'publicKey': publicKey};
+	
+	// Find Server
+	master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+				
+		// Server Successfully Found
+		var privateKey = result[0].privateKey;
+		var txt = 'amount='+amount+'&publicKey='+publicKey;
+		
+		// Signature Match
+		crypt.validateSignature(txt, signature, privateKey, function(err, isValid){
+		console.log(err);
+			// Signature Not Matched
+			if (!isValid)
+			{
+				console.log('Invalid Signature');
+				sendResponse(req, res, 200, 14, 'Invalid Signature');
+				return;
+			}
+			
+			// console.log('Deduct Fees Amount : '+amount);
+			
+			// var query = { $inc: {'total_fees_earning': -parseFloat(amount)}};
+
+			// // Update Pool Fees Income Function
+			// poolSchema.findOneAndUpdate({}, query, function(retVal){
+				
+			// 	// Successfully Updated
+			// 	if(retVal)
+			// 	{
+			// 		console.log('Deducted Fees Amount '+amount+' From Pool Successfully');
+			// 		sendResponse(req, res, 200, -1, "Success");
+			// 	}
+				
+			// 	// Error In Updating Pool Fees
+			// 	else
+			// 	{
+			// 		sendResponse(req, res, 200, 5, "Database Error");
+			// 	}
+			// })
+			
+		});
+		
+	});
 	
 }
