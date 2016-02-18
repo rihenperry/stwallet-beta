@@ -17,9 +17,11 @@ var poolvalidate = function(req, cb){
 	
 	var amount = req.body.amount;
 	// var publicKey = req.body.publicKey;
-	var publicKey = '';
+	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
 	// var signature = req.body.signature;
 	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
+	// var signature = 'f217f11ab5df130c54ee1869eb806a174bf6f1fb3c569db7333c737e9cf6645cf69d28eb05dc9ef61d329e51dbe566b1b692c12336924c73cb3aa66adb4e4dce';
+	
 	var text = 'amount='+amount+'&publicKey='+publicKey;	
 	var reqParam = [amount, publicKey, signature];
 	var query = {'publicKey': publicKey};
@@ -90,52 +92,40 @@ module.exports.addTokwdIncome = function (req, res){
 	console.log('API Name : addTokwdIncome');
 	console.log('Add To Keyword Income API Hitted');
 	
-	
+	poolvalidate(req, function(retVal){
 
+		if (retVal[0].error == 'true' || retVal[0].error == true){
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
 
-	if(!poolvalidate(reqParam, res))
-	{
+		console.log('Parameters are valid');
 
-		console.log('Parameters are  not valid');
-		return;
-	}
+		console.log('Credit Keyword Amount : '+retVal[0].amount)
+		
+		var query = { $inc: {'total_kwd_purchase_income': parseFloat(retVal[0].amount) }};
 
-
-	// Find Server
-	master.secureAuth(query, text, signature, function (result){
-         
-        if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-	
-			console.log('Credit Keyword Amount : '+amount)
+		// Update Pool Keyword Income
+		poolSchema.findOneAndUpdate({}, query, function(err, retVals){
 			
-    		var query = { $inc: {'total_kwd_purchase_income': parseFloat(amount) }};
+			// Error In Finding Server
+			if (err){
+				console.log('Database Error');
+				master.sendResponse(req, res, 200, 5, "Database Error");
+				return;
+			}
 
-			// Update Pool Keyword Income
-			poolSchema.findOneAndUpdate({}, query, function(err, retVal){
-				
-				// Error In Finding Server
-				if (err)
-				{
-					console.log('Database Error');
-					master.sendResponse(req, res, 200, 5, "Database Error");
-					return;
-				}
+			// Successfully Updated
+			if(retVals){
+				console.log('Credited Keyword Income Amount '+retVal[0].amount+' To Pool Successfully');
+				master.sendResponse(req, res, 200, -1, "Success");
+			}
+			
+		});
 
-				// Successfully Updated
-				if(retVal)
-				{
-					console.log('Credited Keyword Income Amount '+amount+' To Pool Successfully');
-					master.sendResponse(req, res, 200, -1, "Success");
-				}
-				
-			})
-			
-	});
-			
+	});	
+
 }
 
 /*Deduct from Keyword Income*/
@@ -145,55 +135,25 @@ module.exports.deductFromkwdIncome = function (req, res){
 	console.log('API Name : deductFromkwdIncome');
 	console.log('Deduct From Keyword Income API Hitted');
 
-	
+	poolvalidate(req, function(retVal){
 
-	if(!poolvalidate(reqParam, res))
-	{
-
-		console.log('Parameters are  not valid');
-		return;
-	}
-	
-	console.log('Parameters are not valid');
-	
-
-	// Find Server
-	deviceSchema.find(query, function(err, retVal){
-	
-		// Error In Finding Server
-		if (!retVal[0])
-		{
-			console.log('No Such Server');
-			master.sendResponse(req, res, 200, 13, 'Server is not registered');
+		if (retVal[0].error == 'true' || retVal[0].error == true){
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
 			return;
 		}
-		
-		// Server Successfully Found
-		var privateKey = retVal[0].privateKey;
-		var txt = 'amount='+amount+'&publicKey='+publicKey;
-		
-		// Signature Match
-		crypt.validateSignature(txt, signature, privateKey, function(isValid){
-		
-			// Signature Not Matched
-			if (!isValid)
-			{
-				console.log('Invalid Signature');
-				master.sendResponse(req, res, 200, 14, 'Invalid Signature');
-				return;
-			}
+
+			console.log('Deduct Keyword Amount : '+retVal[0].amount);
 			
-			console.log('Deduct Keyword Amount : '+amount);
-			
-    		var query = { $inc: {'total_kwd_purchase_income': -parseFloat(amount) }};
+    		var query = { $inc: {'total_kwd_purchase_income': -parseFloat(retVal[0].amount) }};
 
 			// Update Pool Keyword Income
-			poolSchema.findOneAndUpdate({}, query, function(err, retVal){
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
 			
 				// Successfully Updated
-				if(retVal)
+				if(retVals)
 				{
-					console.log('Deducted Keyword Income Amount '+amount+' From Pool Successfully');
+					console.log('Deducted Keyword Income Amount '+retVal[0].amount+' From Pool Successfully');
 					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
@@ -205,11 +165,10 @@ module.exports.deductFromkwdIncome = function (req, res){
 				}
 			})
 			
-		});
-		
 	});
+		
+};
 	
-}
 
 /*Add To Cashback Outflow*/
 module.exports.addTocashbackOutflow = function (req, res){
@@ -217,39 +176,26 @@ module.exports.addTocashbackOutflow = function (req, res){
 	console.log('Page Name: Pool.js');
 	console.log('API Name : addTocashbackOutlow');
 	console.log('Add To Cashback Outflow API Hitted');
-	
-	
 
-	
-	if(!poolvalidate(reqParam, res))
-	{
+	poolvalidate(req, function(retVal){
 
-		console.log('Parameters are  not valid');
-		return;
-	}
-	
-	console.log('Parameters are not valid');
-	
-	
-	// Find Server
-	master.secureAuth(query, text, signature, function (result){
-         
-        if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-	
-			console.log('Cashback Amount : '+amount);
-			var query = { $inc: {'total_cashback_outflow': parseFloat(amount) }};
+		if (retVal[0].error == 'true' || retVal[0].error == true){
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+			console.log('Cashback Amount : '+retVal[0].amount);
+
+			var query = { $inc: {'total_cashback_outflow': parseFloat(retVal[0].amount) }};
 
 			// Update Pool Cashback
-			poolSchema.findOneAndUpdate({}, query, function(err, retVal){
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
 			
 				// Successfully Updated
-				if(retVal)
+				if(retVals)
 				{
-					console.log('Added Cashback Amount '+amount+' To Pool Successfully');
+					console.log('Added Cashback Amount '+retVal[0].amount+' To Pool Successfully');
 					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
@@ -272,38 +218,26 @@ module.exports.deductcashbackOutflow = function (req, res){
 	console.log('Page Name: Pool.js');
 	console.log('API Name : deductcashbackOutflow');
 	console.log('Deduct From Cashback Outflow API Hitted');
-	
-	
-	
-	if(!poolvalidate(reqParam, res))
-	{
 
-		console.log('Parameters are  not valid');
-		return;
-	}
-	
-	console.log('Parameters are not valid');
+	poolvalidate(req, function(retVal){
 
-	// Find Server
-    master.secureAuth(query, text, signature, function (result){
-         
-        if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-	
-			console.log('Cashback Amount : '+amount);
+		if (retVal[0].error == 'true' || retVal[0].error == true){
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
 
-			var query = { $inc: {'total_cashback_outflow': -parseFloat(amount) }};
+			console.log('Cashback Amount : '+retVal[0].amount);
+
+			var query = { $inc: {'total_cashback_outflow': -parseFloat(retVal[0].amount) }};
 
 			// Update Pool Cashback
-			poolSchema.findOneAndUpdate({}, query, function(err, retVal){
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
 			
 				// Successfully Updated
-				if(retVal)
+				if(retVals)
 				{
-					console.log('Deducted Cashback Amount '+amount+' From Pool Successfully');
+					console.log('Deducted Cashback Amount '+retVal[0].amount+' From Pool Successfully');
 					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
@@ -325,41 +259,25 @@ module.exports.addToaffiliateOutflow = function (req, res){
 	console.log('Page Name: Pool.js');
 	console.log('API Name : addToaffiliateOutflow');
 	console.log('Add To Affiliate Outflow API Hitted');
-	
-	
 
+	poolvalidate(req, function(retVal){
 
-	
-	
-	if(!poolvalidate(reqParam, res))
-	{
-
-		console.log('Parameters are  not valid');
-		return;
-	}
-	
-	console.log('Parameters are valid');
-
-	// Find Server
-    master.secureAuth(query, text, signature, function (result){
-         
-        if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-	
-			console.log('Affiliate Pool Amount : '+amount);
+		if (retVal[0].error == 'true' || retVal[0].error == true){
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+			console.log('Affiliate Pool Amount : '+retVal[0].amount);
 			
-			var query = { $inc: {'total_affiliate_outflow': parseFloat(amount)}}
+			var query = { $inc: {'total_affiliate_outflow': parseFloat(retVal[0].amount)}}
 
 			// Update Pool Affiliate Amount Function
-			poolSchema.findOneAndUpdate({}, query, function(err, retVal){
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
 
 				// Successfully Updated
-				if(retVal)
+				if(retVals)
 				{
-					console.log('Added Affiliate Amount '+amount+' To Pool Successfully');
+					console.log('Added Affiliate Amount '+retVal[0].amount+' To Pool Successfully');
 					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
@@ -383,37 +301,24 @@ module.exports.increaseTotalFeesEarning = function (req, res){
 	console.log('API Name : increaseTotalFeesEarning');
 	console.log('Increase Total Fees Earning API Hitted');
 	
-	
+	poolvalidate(req, function(retVal){
 
-
-	
-	if(!poolvalidate(reqParam, res))
-	{
-
-		console.log('Parameters are  not valid');
-		return;
-	}
-	
-	
-	// Find Server
-	master.secureAuth(query, text, signature, function (result){
-         
-        if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-			console.log('Added Fees Amount : '+amount);
+		if (retVal[0].error == 'true' || retVal[0].error == true){
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+			console.log('Added Fees Amount : '+retVal[0].amount);
 			
-			var query = { $inc: {'total_fees_earning': parseFloat(amount)}};
-
+			var query = { $inc: {'total_fees_earning': parseFloat(retVal[0].amount)}};
+		
 			// Update Pool Fees Income Function
-			poolSchema.findOneAndUpdate({}, query, function(retVal){
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
 			
 				// Successfully Updated
-				if(!retVal)
+				if(retVals)
 				{
-					console.log('Added Fees Amount '+amount+' To Pool Successfully');
+					console.log('Added Fees Amount '+retVal.amount+' To Pool Successfully');
 					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
@@ -423,6 +328,7 @@ module.exports.increaseTotalFeesEarning = function (req, res){
 					console.log('Database Error');
 					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
+
 			})
 			
 	});
@@ -436,37 +342,24 @@ module.exports.decreaseTotalFeesEarning = function (req, res){
 	console.log('API Name : decreaseTotalFeesEarning');
 	console.log('Decrease Total Fees Earning API Hitted');
 
-	
+	poolvalidate(req, function(retVal){
 
-
-	if(!poolvalidate(reqParam, res))
-	{
-
-		console.log('Parameters are  not valid');
-		return;
-	}
-	
-	
-	// Find Server
-	master.secureAuth(query, text, signature, function (result){
-         
-        if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-	
-			console.log('Deduct Fees Amount : '+amount);
+		if (retVal[0].error == 'true' || retVal[0].error == true){
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+			console.log('Deduct Fees Amount : '+retVal[0].amount);
 			
-			var query = { $inc: {'total_fees_earning': -parseFloat(amount)}};
+			var query = { $inc: {'total_fees_earning': -parseFloat(retVal[0].amount)}};
 
 			// // Update Pool Fees Income Function
-			poolSchema.findOneAndUpdate({}, query, function(retVal){
+			poolSchema.findOneAndUpdate({}, query, function(retVals){
 				
 				// Successfully Updated
-				if(retVal)
+				if(retVals)
 				{
-					console.log('Deducted Fees Amount '+amount+' From Pool Successfully');
+					console.log('Deducted Fees Amount '+retVal[0].amount+' From Pool Successfully');
 					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
@@ -478,33 +371,6 @@ module.exports.decreaseTotalFeesEarning = function (req, res){
 			})
 			
 	});		
-	
-}
-
-/*Get Pool Stats*/
-module.exports.getPoolStats = function (req, res){
-	
-	console.log('Get Pool Status API Hitted');
-	
-	var value = true;
-	
-	// Get Pool Results Function
-	poolSchema.find({}, function(err, retVal){
-		
-		// Successfully Updated
-		if(retVal[0])
-		{
-			console.log('Pool Status:');
-			console.log(retVal);
-			master.sendResponse(req, res, 200, -1, retVal[0]);
-		}
-		
-		// Error In Updating Pool Fees
-		else
-		{
-			master.sendResponse(req, res, 200, 5, "Database Error");
-		}
-	})
 	
 }
 
@@ -551,4 +417,471 @@ module.exports.addTotalKeywordOwnerPayout = function (req, res){
 
 	});
 
+}
+
+/*Deduct Total Keyword Owner Payout*/
+module.exports.deductTotalKeywordOwnerPayout = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : deductTotalKeywordOwnerPayout');
+	console.log('Deduct Total Keyword Owner Payout API Hitted');
+	
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+		
+		console.log('Deduct Total Keyword Owner Payout Amount : '+retVal[0].amount);
+			
+			var query = {$inc:{"total_kwd_owner_payout": -parseFloat(retVal[0].amount)}};
+
+			// Update Pool Keyword Owner Payout
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+			
+				// Successfully Updated
+				if(retVals)
+				{
+					console.log('Deducted Total Keyword Owner Payout Amount '+retVal[0].amount+' From Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					console.log('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+
+			});
+			
+	});
+	
+}
+
+/*Add No of Qualified Searches*/
+module.exports.addNoOfQualifeidSearches = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : addNoOfQualifeidSearches');
+	console.log('Add Qualified Searches API Hitted');
+
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+		
+		console.log('Credit Qualified Searches Value : '+retVal[0].amount)
+			
+			// Update Pool Qualified Searches
+			var query = {$inc:{"no_of_qualified_searches": parseFloat(retVal[0].amount)}};
+
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+
+				// Successfully Updated
+				if(retVal)
+				{
+					console.log('Credit Qualified Searches Value '+retVal[0].amount+' To Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					console.log('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+
+			});
+			
+	});
+		
+};
+
+/*Deduct No of Qualified Searches*/
+module.exports.deductNoOfQualifeidSearches = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : deductNoOfQualifeidSearches');
+	console.log('Deduct Qualified Searches API Hitted');
+	
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+		
+		console.log('Deduct Qualified Searches Value : '+retVal[0].amount);
+			
+			var query = {$inc:{"no_of_unQualified_searches": -parseFloat(retVal[0].amount)}};
+
+			// Update Pool Qualified Searches
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+
+				// Successfully Updated
+				if(retVal)
+				{
+					console.log('Deducted Qualified Searches Value '+retVal[0].amount+' From Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+
+			});
+			
+		});
+		
+};
+	
+/*Add No of Unqualified*/
+module.exports.addNoOfunQualifeidSearches = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : addNoOfunQualifeidSearches');
+	console.log('Add unQualified Searches API Hitted');
+	
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+		
+		console.log('Credit unQualified Searches Value : '+retVal[0].amount)
+			
+			var query = {$inc:{"no_of_unQualified_searches": parseFloat(retVal[0].amount)}};
+
+			// Update Pool unQualified Searches
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+						
+				// Successfully Updated
+				if(retVals)
+				{
+					console.log('Credit unQualified Searches Value '+retVal[0].amount+' To Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					console.log('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+
+			})
+			
+	});
+		
+};
+
+/*Deduct No of UnQualified Searches*/
+module.exports.deductNoOfunQualifeidSearches = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : deductNoOfunQualifeidSearches');
+	console.log('Deduct unQualified Searches API Hitted');
+
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+		
+		console.log('Deduct unQualified Searches Value : '+amount);
+			
+			// Update Pool unQualified Searches
+			var query = {$inc:{"no_of_unQualified_searches": -parseFloat(retVal[0].amount)}};
+
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+
+				// Successfully Updated
+				if(retVals)
+				{
+					console.log('Deducted unQualified Searches Value '+retVal[0].amount+' From Pool Successfully');
+					sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					sendResponse(req, res, 200, 5, "Database Error");
+				}
+
+			})
+			
+	});
+		
+};
+
+/*Add anonymous Searches*/	
+module.exports.addAnonymousSearches = function (req, res){
+	
+	console.log('Page Name: Pool.js')
+	console.log('API Name : addAnonymousSearches');
+	console.log('Add To Anonymous Income API Hitted');
+	
+	req.body.amount = "1";
+
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+		
+		console.log('Credit Anonymous Amount : '+retVal[0].amount)
+						
+			var query = {$inc:{"total_anonymous_searches": parseFloat(retVal[0].amount)}};
+
+			// Update Pool Anonymous Income
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+				
+				// Successfully Updated
+				if(retVals)
+				{
+					console.log('Credited Anonymous Income Amount '+retVal[0].amount+' To Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					console.log('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+
+
+			})
+			
+	});
+		
+}
+
+/*Add App Payout*/
+module.exports.addAppPayout = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : addAppPayout');
+	console.log('Add To App Payout API Hitted');
+	
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+			
+		console.log('Credit App Payout Amount : '+retVal[0].amount);
+			
+			var query = {$inc:{"total_app_payout": parseFloat(retVal[0].amount)}};
+
+			// Update Pool App Payout
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+
+				// Successfully Updated
+				if(retVals)
+				{
+					console.log('Credited App Payout Value '+retVal[0].amount+' To Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					console.log('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+			})
+			
+	});
+	
+}
+
+/*Add Search Trade Payout*/
+module.exports.addSearchTradePayout = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : addAppPayout');
+	console.log('Add Total Searchtrade Payout API Hitted');
+
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+		
+		console.log('Credit Searchtrade Payout Amount : '+retVal[0].amount)
+			
+			var query = {$inc:{"total_searchtrade_payout": parseFloat(retVal[0].amount)}};
+
+			// Update Pool SearchTrade Payout
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+
+				// Successfully Updated
+				if(retVals)
+				{
+					console.log('Credited Searchtrade Payout Amount '+retVal[0].amount+' To Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					console.log('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+			})
+			
+	});
+		
+}
+
+/*Deduct Serarches TradePayout*/
+module.exports.deductSearchTradePayout = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : deductSearchTradePayout');
+	console.log('Deduct Total Searchtrade Payout API Hitted');
+
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+		
+		console.log('Deducted Searchtrade Payout Amount : '+retVal[0].amount)
+			
+			var query = {$inc:{"total_searchtrade_payout": parseFloat(retVal[0].amount)}};
+
+			// Update Pool SearchTrade Payout
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+
+				// Successfully Updated
+				if(retVals)
+				{
+					console.log('Deducted Searchtrade Payout Amount '+retVal[0].amount+' From Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					console.log('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+
+			})
+			
+	});
+		
+}
+
+/*Add Unsold Keyword Refund*/
+module.exports.addUnsoldKwdRefund = function (req, res){
+	
+	console.log('Page Name: Pool.js');
+	console.log('API Name : addUnsoldKwdRefund');
+	console.log('Add Unsold Keyword Refund API Hitted');
+
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true) {
+			console.log('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		console.log('Parameters are valid');
+		
+		console.log('Credit Unsold Keyword Refund Amount : '+retVal[0].amount)
+			
+			var query = {$inc:{"total_unsold_kwd_refund": parseFloat(retVal[0].amount)}};
+
+			// Update Pool SearchTrade Payout
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+
+				// Successfully Updated
+				if(retVals)
+				{
+					console.log('Credited Unsold Keyword Refund Amount '+retVal[0].amount+' To Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					console.log('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+
+			})
+			
+	});
+		
+}
+
+
+/*Get Pool Stats*/
+module.exports.getPoolStats = function (req, res){
+	
+	console.log('Get Pool Status API Hitted');
+	
+	var value = true;
+	
+	// Get Pool Results Function
+	poolSchema.find({}, function(err, retVal){
+		
+		// Successfully Updated
+		if(retVal[0])
+		{
+			console.log('Pool Status:');
+			console.log(retVal);
+			master.sendResponse(req, res, 200, -1, retVal[0]);
+		}
+		
+		// Error In Updating Pool Fees
+		else
+		{
+			master.sendResponse(req, res, 200, 5, "Database Error");
+		}
+	})
+	
 }
