@@ -15,6 +15,7 @@ var user        = require('./api/user.js');
 var device      = require('./api/device.js');
 var pool        = require('./api/pool');                    // Get Pool API
 var W_transaction =  require("./api/transaction");
+var search		  =  require("./api/search");
 
 // Middleware
 app.use(bodyParser.json());
@@ -80,12 +81,6 @@ app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// De
 
 /*============================== Pool Related API ==================================*/
 
-app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);	    	 					 // Add To Keyword Income API
-app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);							 // Deduct From Keyword Income API
-app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);							 // Add To Cashback OutFlow API
-app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);		 					 // Deduct From Cashback OutFlow API
-app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow); 	 						 // Add To Affiliate OutFlow API
-app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning); 	 			     // Increase Total Fees Earning API
 app.post('/secure/decreaseTotalFeesEarning', pool.decreaseTotalFeesEarning); 					 // Decrease Total Fees Earning API
 app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);            					 // Add To Keyword Income API
 app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);      					 // Deduct From Keyword Income API
@@ -105,20 +100,6 @@ app.post('/secure/addSearchTradePayout', pool.addSearchTradePayout);							 // A
 app.post('/secure/deductSearchTradePayout',pool.deductSearchTradePayout)						 // Deduct Search Trade Payout
 app.post('/secure/addUnsoldKwdRefund', pool.addUnsoldKwdRefund)									 // Add Unsold Keyword Refund
 app.post('/secure/getPoolStats', pool.getPoolStats);						  					 // Get All Feilds From Pool Table
-app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);	    	  // Add To Keyword Income API
-app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);		  // Deduct From Keyword Income API
-app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);		  // Add To Cashback OutFlow API
-app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);		  // Deduct From Cashback OutFlow API
-app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow); 	 	  // Add To Affiliate OutFlow API
-app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);  // Increase Total Fees Earning API
-app.post('/secure/decreaseTotalFeesEarning', pool.decreaseTotalFeesEarning);  // Decrease Total Fees Earning API
-app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);            // Add To Keyword Income API
-app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);       // Deduct From Keyword Income API
-app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);          // Add To Cashback OutFlow API
-app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);        // Deduct From Cashback OutFlow API
-app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);        // Add To Affiliate OutFlow API
-app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);  // Increase Total Fees Earning API
-app.post('/secure/getPoolStats', pool.getPoolStats);						  // Get All Feilds From Pool Table
 
 
 
