@@ -7,6 +7,7 @@ var userSchema      = require('../models/userSchema.js');       // User Schema
 var master          = require('../config/masterfunc.js');       // Master Functions
 var crypt           = require('../config/crypt.js');            // Crypt/Signature Related Functionality
 var mailer          = require('../config/mail.js');             // Mail Functionality
+var protocol 		= 'http';
 
 
 //========================= Page Functions ========================= //
@@ -358,7 +359,7 @@ module.exports.secureRegister = function (req, res) {
                                 return err;
                             }
 
-                            sendVerificationEmail(accountInfo, flag);   // Send Email to Registered Email Address For Account Verification
+                            sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
                             console.log('Saved SuccessFully');
                             master.sendResponse(req, res, 200, -1, "Success");
 

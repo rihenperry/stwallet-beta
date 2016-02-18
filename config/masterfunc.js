@@ -153,6 +153,17 @@ module.exports.validation  = function(req, cb){
         return;
     }
     
+    // Validate Amount
+    if(!(validate(amount, 'amount'))){
+        var retVal = [{
+            "message" : "Mandatory field not found",
+            "errCode" : 1,
+            "error" : "true"
+        }];
+        cb(retVal);
+        return;
+    }
+
     // Validate Keyword Income
     if(amount.length<=0 && isNaN(amount)){
         console.log('Amount is Invalid');
