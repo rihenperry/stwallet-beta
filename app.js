@@ -106,9 +106,10 @@ app.post('/secure/insertUserTransaction', W_transaction.insertUserTransaction);	
 
 app.post('/secure/search/addSearchEarning', search.addSearchEarning);                           // Add Keyword Search Earning For User API
 app.post('/secure/search/deductSearchEarning', search.deductSearchEarning);                     // Deduct Keyword Search Earning For User API
-app.post('/secure/search/deductQualifiedSearches', search.deductQualifiedSearches);				// Deduct Qualified Searches For User API 
-
-
+app.post('/secure/search/deductQualifiedSearches', search.deductQualifiedSearches);				// Deduct Qualified Searches For User API
+app.post('/secure/search/addunQualifiedSearches', search.addunQualifiedSearches);				// Add UnQualified Searches For User API
+app.post('/secure/search/updateLastHourValue', search.updateLastHourValue);						// Update Last Hour Timing For User API
+app.post('/secure/search/recentSearches', search.recentSearches);                               // Add Recent Searches For User API
 
 
 // Server Connectivity
