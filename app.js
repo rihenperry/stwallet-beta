@@ -10,12 +10,11 @@ var app         = express();
 var bodyParser  = require('body-parser');
 
 // Pages
-var mongoose    = require('./config/mongoose.js');          // Moongoose
-var user        = require('./api/user.js');                 // User API
-var device      = require('./api/device.js');               // Device API
-var search      = require('./api/search.js');               // Search API
+var mongoose    = require('./config/mongoose.js');
+var user        = require('./api/user.js');
+var device      = require('./api/device.js');
 var pool        = require('./api/pool');                    // Get Pool API
-var W_transaction =  require("./api/transaction");          // Transaction API
+var W_transaction =  require("./api/transaction");
 
 // Middleware
 app.use(bodyParser.json());
@@ -34,8 +33,8 @@ app.get('/', function (req, res) {
 
 /*============================== Device Related API ==================================*/
 
-app.post('/api/register', device.deviceRegister);					                            // Device Register API
-app.post('/api/getPvtKey', device.getPvtKey);						                            // Get Private Key API
+app.post('/api/register', device.deviceRegister);					// Device Register API
+app.post('/api/getPvtKey', device.getPvtKey);						// Get Private Key API
 
 
 /*============================== User Related API ==================================*/
@@ -81,20 +80,20 @@ app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// De
 
 /*============================== Pool Related API ==================================*/
 
-app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);                              // Add To Keyword Income API
-app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);		                    // Deduct From Keyword Income API
-app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);		                    // Add To Cashback OutFlow API
-app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);		                    // Deduct From Cashback OutFlow API
-app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);                          // Add To Affiliate OutFlow API
-app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);                    // Increase Total Fees Earning API
-app.post('/secure/decreaseTotalFeesEarning', pool.decreaseTotalFeesEarning);                    // Decrease Total Fees Earning API
-app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);                              // Add To Keyword Income API
-app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);                         // Deduct From Keyword Income API
-app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);                            // Add To Cashback OutFlow API
-app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);                          // Deduct From Cashback OutFlow API
-app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);                          // Add To Affiliate OutFlow API
-app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);                    // Increase Total Fees Earning API
-app.post('/secure/getPoolStats', pool.getPoolStats);						                    // Get All Feilds From Pool Table
+app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);	    	  // Add To Keyword Income API
+app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);		  // Deduct From Keyword Income API
+app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);		  // Add To Cashback OutFlow API
+app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);		  // Deduct From Cashback OutFlow API
+app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow); 	 	  // Add To Affiliate OutFlow API
+app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);  // Increase Total Fees Earning API
+app.post('/secure/decreaseTotalFeesEarning', pool.decreaseTotalFeesEarning);  // Decrease Total Fees Earning API
+app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);            // Add To Keyword Income API
+app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);       // Deduct From Keyword Income API
+app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);          // Add To Cashback OutFlow API
+app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);        // Deduct From Cashback OutFlow API
+app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);        // Add To Affiliate OutFlow API
+app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);  // Increase Total Fees Earning API
+app.post('/secure/getPoolStats', pool.getPoolStats);						  // Get All Feilds From Pool Table
 
 
 /*============================== Transactions Related API ==================================*/
@@ -110,6 +109,7 @@ app.post('/secure/search/deductQualifiedSearches', search.deductQualifiedSearche
 app.post('/secure/search/addunQualifiedSearches', search.addunQualifiedSearches);				// Add UnQualified Searches For User API
 app.post('/secure/search/updateLastHourValue', search.updateLastHourValue);						// Update Last Hour Timing For User API
 app.post('/secure/search/recentSearches', search.recentSearches);                               // Add Recent Searches For User API
+
 
 
 // Server Connectivity

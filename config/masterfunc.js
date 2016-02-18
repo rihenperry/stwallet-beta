@@ -12,7 +12,7 @@ var crypt           = require('./crypt.js');                    // Crypt/Signatu
 // Response Function
 module.exports.sendResponse = function(req, res, status, errCode, errMsg) {
 
-    var d = Date.now();
+    var d = Date();
     console.log(status +" "+ errCode +" "+ errMsg + " " + d);
     res.status(status).send({
         errCode: errCode, 
