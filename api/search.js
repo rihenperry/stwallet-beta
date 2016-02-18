@@ -240,7 +240,7 @@ module.exports.updateLastHourValue = function(req, res){
 		return;
 	}
 
-	if(!(validateEmail(email))) 
+	if(!(master.validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
@@ -326,7 +326,7 @@ module.exports.recentSearches = function(req, res){
 		return;
 	}
 
-	if(!(validateEmail(email))) 
+	if(!(master.validateEmail(email))) 
 	{
 		console.log('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");

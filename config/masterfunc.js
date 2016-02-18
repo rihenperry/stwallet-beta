@@ -12,7 +12,7 @@ var crypt           = require('./crypt.js');                    // Crypt/Signatu
 // Response Function
 module.exports.sendResponse = function(req, res, status, errCode, errMsg) {
 
-    var d = Date.now();
+    var d = Date();
     console.log(status +" "+ errCode +" "+ errMsg + " " + d);
     res.status(status).send({
         errCode: errCode, 
@@ -35,6 +35,14 @@ module.exports.validateParameter = function(parameter, name){
 }
 
 var validate = module.exports.validateParameter;
+
+// Email Validation
+module.exports.validateEmail = function(email){
+    var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+	return re.test(email);
+}
+
+var validateEmail = module.exports.validateEmail;
 
 /* Master Export Fuctions */
 
@@ -142,7 +150,7 @@ module.exports.validation  = function(req, cb){
         return;
     }
 
-    if(!(validate(email))){
+    if(!(validateEmail(email))){
         console.log('Incorrect Email Format');
         var retVal = [{
             "message" : "Incorrect email id format",
