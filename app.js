@@ -18,6 +18,12 @@ var W_transaction =  require("./api/transaction");
 var search		  =  require("./api/search");
 var admin     	= require("./api/admin");    	// Get Admin API
 
+var mongoose        = require('./config/mongoose.js');          // Moongoose
+var user            = require('./api/user.js');                 // User API
+var device          = require('./api/device.js');               // Device API
+var search          = require('./api/search.js');               // Search API
+var pool            = require('./api/pool');                    // Get Pool API
+var W_transaction   =  require("./api/transaction.js");         // Transaction API
 
 // Middleware
 app.use(bodyParser.json());
@@ -108,7 +114,8 @@ app.post('/secure/getPoolStats', pool.getPoolStats);						  					 // Get All Fei
 /*============================== Transactions Related API ==================================*/
 
 app.post('/secure/insertUserTransaction', W_transaction.insertUserTransaction);	                // Insert User Transaction API
-
+app.post('/secure/getUsersTotalTransactions', W_transaction.getUsersTotalTransactions);         // Get Total Count Transactions of User API
+app.post('/secure/transactions', W_transaction.getTransactions);								// Get Transactions API		
 
 /*============================== Search Related API ==================================*/
 

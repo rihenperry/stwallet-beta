@@ -7,8 +7,12 @@ var userSchema      = require('../models/userSchema.js');       // User Schema
 var master          = require('../config/masterfunc.js');       // Master Functions
 var crypt           = require('../config/crypt.js');            // Crypt/Signature Related Functionality
 var mailer          = require('../config/mail.js');             // Mail Functionality
+<<<<<<< HEAD
 var protocol 		= 'http';
 
+=======
+var protocol        = "http";
+>>>>>>> b27eb2dcd4128529efbd5eecdf2060439a6ee926
 
 //========================= Page Functions ========================= //
 
@@ -1740,16 +1744,13 @@ module.exports.creditUserAmount = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Amount '+amount+' Successfully Deposited To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Amount '+amount+' Successfully Deposited To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -1787,16 +1788,13 @@ module.exports.deductUserAmount = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Amount '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -1834,16 +1832,13 @@ module.exports.addPurchases = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Purchase Amount '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Purchase Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -1881,16 +1876,13 @@ module.exports.deductPurchases = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Purchase Amount '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Purchase Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -1928,16 +1920,13 @@ module.exports.addCashback = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Cashback Amount '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Cashback Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -1975,16 +1964,13 @@ module.exports.deductCashback = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Cashback Amount '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Cashback Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2022,16 +2008,13 @@ module.exports.addAffEarning = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Affiliate Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Affiliate Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2069,16 +2052,13 @@ module.exports.deductAffEarning = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Affiliate Earning Amount '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Affiliate Earning Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2116,16 +2096,13 @@ module.exports.addSales = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Sales Amount '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Sales Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2163,16 +2140,13 @@ module.exports.deductSales = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Sales Amount '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Sales Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2210,16 +2184,13 @@ module.exports.addTrade = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Trade Amount '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Trade Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2257,16 +2228,13 @@ module.exports.deductTrade = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Trade Amount '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Trade Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2304,16 +2272,13 @@ module.exports.addTotalKeywordIncome = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Total Keyword Income Amount '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Total Keyword Income Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2351,16 +2316,13 @@ module.exports.deductTotalKeywordIncome = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Total Keyword Income Amount '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Total Keyword Income Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2398,16 +2360,13 @@ module.exports.addBlockedPendingWithdrawals = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Blocked Pending Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Blocked Pending Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2445,16 +2404,13 @@ module.exports.deductBlockedPendingWithdrawals = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
-
-            else
-            {
-                console.log('Blocked Pending Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            
+            console.log('Blocked Pending Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2492,16 +2448,13 @@ module.exports.addApprovedWithdrawals = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Approved Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Approved Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2539,16 +2492,13 @@ module.exports.deductApprovedWithdrawals = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
-
-            else
-            {
-                console.log('Approved Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            
+            console.log('Approved Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2586,16 +2536,13 @@ module.exports.addTotalAppIncome = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Total App Income Amount '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Total App Income Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2633,16 +2580,13 @@ module.exports.firstBuy = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Successfully Updated First Buy Status of '+retVal[0].email+' To '+amount);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Successfully Updated First Buy Status of '+retVal[0].email+' To '+amount);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2680,16 +2624,13 @@ module.exports.addBlockedForBids = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Blocked For Bids '+amount+' Successfully Added To '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Blocked For Bids '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         
@@ -2727,16 +2668,13 @@ module.exports.deductBlockedForBids = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                console.log(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            else
-            {
-                console.log('Blocked For Bids '+amount+' Successfully Deducted From '+retVal[0].email);
-                master.sendResponse(req, res, 200, -1, 'Success');
-            }
+            console.log('Blocked For Bids '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
 
         })
         

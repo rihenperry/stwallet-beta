@@ -36,6 +36,14 @@ module.exports.validateParameter = function(parameter, name){
 
 var validate = module.exports.validateParameter;
 
+// Email Validation
+module.exports.validateEmail = function(email){
+    var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+	return re.test(email);
+}
+
+var validateEmail = module.exports.validateEmail;
+
 /* Master Export Fuctions */
 
 /*============================= Find Server and Signature Validation =============================*/
@@ -142,7 +150,7 @@ module.exports.validation  = function(req, cb){
         return;
     }
 
-    if(!(validate(email))){
+    if(!(validateEmail(email))){
         console.log('Incorrect Email Format');
         var retVal = [{
             "message" : "Incorrect email id format",
