@@ -2,7 +2,8 @@
 /*jslint node: true */
 "use strict";
 
-var  express     = require('express'),
+// Framwork
+var  express     = require('express'),      
 	 app         = express(),
 	 nconf 	     = require('nconf'),
 	 fs          = require('fs'),
@@ -19,12 +20,21 @@ var  express     = require('express'),
 	 search		  =  require("./api/search"),
 	 admin     	= require("./api/admin"),    	// Get Admin API
 
+	 // fs          = require('fs'), 
+// Packages
+     bodyParser  = require('body-parser'),
+     nconf 		 = require('nconf'),
+     bunyan      = require('bunyan'),
+
+
+// Pages
 	 mongoose        = require('./config/mongoose.js'),          // Moongoose
 	 user            = require('./api/user.js'),                 // User API
 	 device          = require('./api/device.js'),               // Device API
 	 search          = require('./api/search.js'),               // Search API
 	 pool            = require('./api/pool'),                    // Get Pool API
-	 W_transaction   =  require("./api/transaction.js");         // Transaction API
+	 W_transaction   =  require("./api/transaction.js"),         // Transaction API
+     admin     	     = require("./api/admin");    	             // Get Admin API
 
 
 
