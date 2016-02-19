@@ -1716,6 +1716,226 @@ module.exports.getAppId = function (req, res) {
     
 }
 
+module.exports.editProfilePic = function(req, res){
+  
+    var email = req.body.email;
+    var dataImage = req.body.profile_pic;
+    var extension = req.body.extension;
+    var publicKey = req.body.publicKey;
+    var signature = req.body.signature;
+
+    console.log('Email: '+email);
+    console.log('Extension: '+extension);
+    console.log('Public Key: '+publicKey);
+
+    var fs = require('fs'); 
+    var im = require('imagemagick');
+
+    var imageUploadUrl = 'public/images/';
+
+    var path       = imageUploadUrl+"original/";
+    var thumbPath  = imageUploadUrl+"thumb/";
+    var mediumPath = imageUploadUrl+"medium/";
+    var smallPath  = imageUploadUrl+"small/";
+      
+    // Validate Email
+    if(!(master.validateParameter(email, 'Email')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+
+    if(!(validateEmail(email))) 
+    {
+        console.log('Incorrect Email Format');
+        master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+        return;
+    }
+
+    // Validate DataImage
+    if(!(master.validateParameter(dataImage, 'dataImage')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+
+    // Validate Extension
+    if(!(master.validateParameter(extension, 'Extension')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+
+    // Validate Public Key
+    if(!(master.validateParameter(publicKey, 'Public Key')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+
+    // Validate Signature
+    if(!(master.validateParameter(signature, 'Signature')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+
+    var query = {'publicKey': publicKey};
+
+    var text  = 'email='+email+'&publicKey='+publicKey;
+    
+        master.secureAuth(query, text, signature, function (result){
+             
+            if(result[0].error == true || result[0].error == 'true')
+            {
+                master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+                return;
+            }
+
+        });
+
+        var randomNo = Math.floor(Math.random()*9000) + 1000;
+
+        var fileName = email+'_'+randomNo+'.'+extension;
+
+        console.log('File Name : '+fileName);
+
+        var query = {"email": email};
+
+        userSchema.find(query, function(err, imageresults){
+
+        console.log('getImageNameFromUser Callback');
+        //console.log(imageresults);
+
+        if (typeof imageresults !== 'undefined')
+        {
+              
+            var filePath = path+imageresults[0]['profile_pic'];
+
+            console.log('File Name from Database: '+filePath);
+
+                fs.exists(filePath, function (exists) {
+          
+                    if (exists) {
+
+                        if(imageresults[0]['profile_pic'] !== null && imageresults[0]['profile_pic'] !== 'avatar.png' && imageresults[0]['profile_pic'] !== '')
+                        { 
+                            console.log("File is there");
+                            //remove image from server.
+                            fs.unlinkSync(filePath);
+
+                            var fileThumbPath  = thumbPath+imageresults[0]['profile_pic'];
+                            var fileMediumPath = mediumPath+imageresults[0]['profile_pic'];
+                            var fileSmallPath  = smallPath+imageresults[0]['profile_pic'];
+
+                            console.log(fileMediumPath);
+
+                            fs.exists(fileThumbPath, function (exists){
+                                if (exists) {
+                                    fs.unlinkSync(fileThumbPath);
+                                //console.log('Image removed from thumb folder');
+                                }
+                            });
+
+                            fs.exists(fileMediumPath, function (exists){
+                                if (exists) {
+                                    fs.unlinkSync(fileMediumPath);
+                                    //console.log('Image removed from medium folder');
+                                 }
+                            });
+
+                            fs.exists(fileSmallPath, function (exists){
+                                if (exists) {
+                                    fs.unlinkSync(fileSmallPath);
+                                    //console.log('Image removed from small folder');
+                                 }
+                            }); 
+
+                            console.log('Image removed from server');
+                        }  
+
+                    }
+                  
+                    /*Created Origin image*/
+                    fs.writeFile(path+fileName, dataImage, 'base64', {encoding:null}, function(err) { 
+                       // console.log(path+fileName);
+                        if(err)
+                            {
+                                console.log(err);
+                                master.sendResponse(req, res, 200, 50, "file could not creating");
+                                return;
+                            }
+                        else{
+                              var query = {"email": email};
+
+                                userSchema.findOneAndUpdate(query, fileName, function(retVal){
+                                // db.updateImageNameOfUser(query, fileName, function(retVal){
+
+                                    if(retVal)
+                                    {
+                                        console.log('Image path updated');
+                                        master.sendResponse(req, res, 200, -1, "Image successfully Created");
+                                    }
+                                    else{
+                                        master.sendResponse(req, res, 200, -1, "Database Error");
+                                    }
+
+                                });
+                              
+                              console.log("Image successfully Created");
+
+                              resizeImages();
+
+                            }
+
+                    });
+
+                });
+
+        }
+
+     });
+
+
+    /*function to resize images*/
+    function resizeImages(){
+
+        console.log("resize images function called");
+
+        // Thumbnail Images
+        im.resize({
+            srcPath: path+fileName,
+            dstPath: thumbPath+fileName,
+            width:   80
+        }, function(err, stdout, stderr){
+          if (err) throw err;
+          console.log('resized profile pic to fit within 64px');
+        });
+
+        // Medium Images
+        im.resize({
+            srcPath: path+fileName,
+            dstPath: mediumPath+fileName,
+            width:   200
+        }, function(err, stdout, stderr){
+          if (err) throw err;
+          console.log('resized profile pic to fit within 200px');
+        });
+
+        // small Images
+        im.resize({
+            srcPath: path+fileName,
+            dstPath: smallPath+fileName,
+            width:   150
+        }, function(err, stdout, stderr){
+          if (err) throw err;
+          console.log('resized profile pic to fit within 128px');
+        });
+ 
+    }
+    /*function to resize images*/
+  
+}
 
 /* Accounting API */
 

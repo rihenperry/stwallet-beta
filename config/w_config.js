@@ -1,8 +1,9 @@
 var nconf = require('nconf');
 
 function getOptionsFromConfigFile () {
+
   nconf.env(['USER'])
-       .file('options','config.json');
+       .file('options','./config/config.json');
   var options = {}
   
   var user = nconf.get('USER')
@@ -10,7 +11,7 @@ function getOptionsFromConfigFile () {
   
   options.host = nconf.get('host')
   options.port = nconf.get('port')
-  // console.log("host" +' option.host + option.port');
   return options
 }
+
 module.exports = {DEFAULTS:getOptionsFromConfigFile ()}

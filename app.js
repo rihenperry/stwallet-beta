@@ -4,7 +4,8 @@
 
 var  express     = require('express'),
 	 app         = express(),
-	 nconf 			 = require('nconf'),
+	 nconf 	     = require('nconf'),
+	 fs          = require('fs'),
 
 	// Packages
 	 bodyParser  = require('body-parser'),
@@ -26,6 +27,7 @@ var  express     = require('express'),
 	 W_transaction   =  require("./api/transaction.js");         // Transaction API
 
 
+
 // code to set ENV for node app
 var loadconfig = require('./config/w_config.js')
 
@@ -34,8 +36,11 @@ console.log("Configuration read from the JSON file using nconf is :")
 console.log(defaultOptions)
 
 // Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: '10mb'}));
+app.use(bodyParser.urlencoded({limit: '10mb', extended: false}));
+
+// Static Resource in public Folder To Display View
+app.use(express.static(__dirname + '/public'));
 
 app.use(function (req, res, next) {
     console.log('==================================');
@@ -70,6 +75,8 @@ app.post('/secure/resetpassword', user.resetpassword);				                      
 app.post('/secure/changePassword', user.changePassword);			                            // Change Password API
 app.post('/secure/setAppId', user.setAppId);                                                    // Set App Id API
 app.post('/secure/getAppId', user.getAppId);                                                    // Get USer's App Id
+app.post('/secure/editProfilePic', user.editProfilePic);										// Edit Profile Picture API
+
 
 // Account Related API
 app.post('/secure/creditAmount', user.creditUserAmount);			                            // Credit User Amount API

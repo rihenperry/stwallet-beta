@@ -160,7 +160,10 @@ module.exports.validation  = function(req, cb){
     }
     
     // Validate Amount
-    if(!(validate(amount, 'amount'))){
+    if(!(validate(amount, 'amount')) || isNaN(amount)){
+        if(isNaN(amount)){
+            console.log('Amount is Invalid');
+        }
         var retVal = [{
             "message" : "Mandatory field not found",
             "errCode" : 1,
@@ -170,17 +173,6 @@ module.exports.validation  = function(req, cb){
         return;
     }
 
-    // Validate Keyword Income
-    if(amount.length<=0 && isNaN(amount)){
-        console.log('Amount is Invalid');
-        var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-        cb(retVal);
-        return;
-    }
     var query = {publicKey:publicKey};
     var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
     
