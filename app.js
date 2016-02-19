@@ -2,28 +2,23 @@
 /*jslint node: true */
 "use strict";
 
-var  express     = require('express'),
+// Framwork
+var  express     = require('express'),      
 	 app         = express(),
-	 nconf 			 = require('nconf'),
 
-	// Packages
-	 bodyParser  = require('body-parser'),
+// Packages
+     bodyParser  = require('body-parser'),
+     nconf 		 = require('nconf'),
+     bunyan      = require('bunyan'),
 
-	// Pages
-	 mongoose    = require('./config/mongoose.js'),
-	 user        = require('./api/user.js'),
-	 device      = require('./api/device.js'),
-	 pool        = require('./api/pool'),                    // Get Pool API
-	 W_transaction =  require("./api/transaction"),
-	 search		  =  require("./api/search"),
-	 admin     	= require("./api/admin"),    	// Get Admin API
-
+// Pages
 	 mongoose        = require('./config/mongoose.js'),          // Moongoose
 	 user            = require('./api/user.js'),                 // User API
 	 device          = require('./api/device.js'),               // Device API
 	 search          = require('./api/search.js'),               // Search API
 	 pool            = require('./api/pool'),                    // Get Pool API
-	 W_transaction   =  require("./api/transaction.js");         // Transaction API
+	 W_transaction   =  require("./api/transaction.js"),         // Transaction API
+     admin     	     = require("./api/admin");    	             // Get Admin API
 
 
 // code to set ENV for node app
@@ -145,6 +140,16 @@ app.post('/secure/admin/deductunQualifiedSearches', admin.deductunQualifiedSearc
 app.post('/secure/admin/userManage', admin.userManage);											// Get Specific User Details
 // app.post('/secure/admin/userKwdPurchaseTrans', admin.userKwdPurchaseTrans);						// Get User Keyword Purchase Transactions
 // app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Get User Transaction Count On Payment Mode
+
+var log = bunyan.createLogger({name: 'st-wallet'});
+log.info('hi');
+
+var log = bunyan.createLogger({
+    name: 'myserver',
+    serializers: {
+        err: bunyan.stdSerializers.err,   // <--- use this
+    }
+});
 
 // Server Connectivity
 app.listen('5000', function () {
