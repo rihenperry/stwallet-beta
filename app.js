@@ -3,20 +3,38 @@
 "use strict";
 
 // Framework
-var express     = require('express');
-var app         = express();
+var  express     = require('express'),
+	 app         = express(),
+	 nconf 			 = require('nconf'),
 
-// Packages
-var bodyParser  = require('body-parser');
+	// Packages
+	 bodyParser  = require('body-parser'),
 
-// Pages
-var mongoose        = require('./config/mongoose.js');          // Moongoose
-var user            = require('./api/user.js');                 // User API
-var device          = require('./api/device.js');               // Device API
-var search          = require('./api/search.js');               // Search API
-var pool            = require('./api/pool');                    // Get Pool API
-var W_transaction   =  require("./api/transaction.js");         // Transaction API
-var admin     	    = require("./api/admin");    	            // Get Admin API
+	// Pages
+	 mongoose    = require('./config/mongoose.js'),
+	 user        = require('./api/user.js'),
+	 device      = require('./api/device.js'),
+	 pool        = require('./api/pool'),                    // Get Pool API
+	 W_transaction =  require("./api/transaction"),
+	 search		  =  require("./api/search"),
+	 admin     	= require("./api/admin"),    	// Get Admin API
+
+	 mongoose        = require('./config/mongoose.js'),          // Moongoose
+	 user            = require('./api/user.js'),                 // User API
+	 device          = require('./api/device.js'),               // Device API
+	 search          = require('./api/search.js'),               // Search API
+	 pool            = require('./api/pool'),                    // Get Pool API
+	 W_transaction   =  require("./api/transaction.js");         // Transaction API
+
+
+// code to set ENV for node app
+var loadconfig = require('./config/w_config.js')
+
+var defaultOptions = loadconfig.DEFAULTS
+console.log("Configuration read from the JSON file using nconf is :")
+console.log(defaultOptions)
+
+
 
 // Middleware
 app.use(bodyParser.json());

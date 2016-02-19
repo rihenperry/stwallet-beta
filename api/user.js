@@ -9,6 +9,8 @@ var crypt           = require('../config/crypt.js');            // Crypt/Signatu
 var mailer          = require('../config/mail.js');             // Mail Functionality
 var protocol 		= 'http';
 
+//========================= Page Functions ========================= //
+
 // Email Validation
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
