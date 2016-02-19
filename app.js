@@ -32,10 +32,11 @@ app.get('/', function (req, res) {
     res.send('Hello Revised Wallet');
 });
 
+
 /*============================== Device Related API ==================================*/
 
-app.post('/api/register', device.deviceRegister);					// Device Register API
-app.post('/api/getPvtKey', device.getPvtKey);						// Get Private Key API
+app.post('/api/register', device.deviceRegister);					                           // Device Register API
+app.post('/api/getPvtKey', device.getPvtKey);						                           // Get Private Key API
 
 
 /*============================== User Related API ==================================*/
@@ -100,8 +101,6 @@ app.post('/secure/addSearchTradePayout', pool.addSearchTradePayout);							 // A
 app.post('/secure/deductSearchTradePayout',pool.deductSearchTradePayout)						 // Deduct Search Trade Payout
 app.post('/secure/addUnsoldKwdRefund', pool.addUnsoldKwdRefund)									 // Add Unsold Keyword Refund
 app.post('/secure/getPoolStats', pool.getPoolStats);						  					 // Get All Feilds From Pool Table
-
-
 
 /*============================== Transactions Related API ==================================*/
 

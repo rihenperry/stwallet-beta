@@ -34,7 +34,8 @@ module.exports.addSearchEarning = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -81,7 +82,8 @@ module.exports.deductSearchEarning = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -130,7 +132,8 @@ module.exports.deductQualifiedSearches = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -177,7 +180,8 @@ module.exports.addunQualifiedSearches = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -266,6 +270,7 @@ module.exports.updateLastHourValue = function(req, res){
             if(err)
             {
                 console.log(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             
@@ -351,6 +356,7 @@ module.exports.recentSearches = function(req, res){
             if(err)
             {
                 console.log(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             
@@ -391,6 +397,7 @@ module.exports.recentSearches = function(req, res){
                 if(err)
                 {
                     console.log(err);
+                    master.sendResponse(req, res, 200, 5, "Database Error");
                     return;
                 }
 

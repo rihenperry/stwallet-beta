@@ -78,7 +78,6 @@ function sendRestEmail(accountInfo, flag){
 	mailer.sendmail(mailOptions);
 }
 
-
 // Send Email as Notification that Password is Changed Successfully
 function changePassEmail(accountInfo){
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
@@ -244,7 +243,8 @@ module.exports.secureRegister = function (req, res) {
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             console.log('Result : '+result);
@@ -266,7 +266,8 @@ module.exports.secureRegister = function (req, res) {
                     if(err)
                     {
                         console.log(err);
-                        return err;
+                        master.sendResponse(req, res, 200, 5, "Database Error");
+                        return;
                     }
 
                     // If No Referred Email Found
@@ -321,7 +322,8 @@ module.exports.secureRegister = function (req, res) {
                         if(err)
                         {
                             console.log(err);
-                            return err;
+                            master.sendResponse(req, res, 200, 5, "Database Error");
+                            return;
                         }
 
                         if(result.length>0) // no of Results with Same Refcode
@@ -355,7 +357,8 @@ module.exports.secureRegister = function (req, res) {
                             if(err)
                             {
                                 console.log(err);
-                                return err;
+                                master.sendResponse(req, res, 200, 5, "Database Error");
+                                return;
                             }
 
                             sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
@@ -374,7 +377,6 @@ module.exports.secureRegister = function (req, res) {
     })
     
 }
-
 
 /*============================= Verify =============================*/
 
@@ -441,7 +443,8 @@ module.exports.verifyAccount = function(req, res){
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if(result==null || result=="") // Email Not Found
@@ -497,7 +500,8 @@ module.exports.verifyAccount = function(req, res){
                         if(err)
                         {
                             console.log(err);
-                            return err;
+                            master.sendResponse(req, res, 200, 5, "Database Error");
+                            return;
                         }
 
                         if(result==null || result=="") // Email Not Found
@@ -523,7 +527,6 @@ module.exports.verifyAccount = function(req, res){
     })
     
 }
-
 
 /*============================= Resend Verification Link =============================*/
 
@@ -588,7 +591,8 @@ exports.secureResendVerification = function(req, res) {
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
             
             if(result[0]==null || result[0]==undefined || result[0]=="")
@@ -678,7 +682,8 @@ module.exports.secureLogin = function(req, res){
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if(result==null || result=="") // Email Not Found
@@ -708,7 +713,8 @@ module.exports.secureLogin = function(req, res){
                         if(err)
                         {
                             console.log(err);
-                            return err;
+                            master.sendResponse(req, res, 200, 5, "Database Error");
+                            return;
                         }
 
                         if(result==null || result=="") // Email Not Found
@@ -743,7 +749,6 @@ module.exports.secureLogin = function(req, res){
     })
     
 }
-
 
 /*============================= Get Details =============================*/
 
@@ -806,7 +811,8 @@ module.exports.getDetails = function(req, res) {
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if(result == null || result == undefined || result == "")
@@ -824,7 +830,6 @@ module.exports.getDetails = function(req, res) {
     })
     
 }
-
 
 /*============================= Set User Details =============================*/
 
@@ -936,7 +941,8 @@ module.exports.setUserDetails = function(req, res){
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if(result==null || result=="") // Email Not Found
@@ -957,7 +963,6 @@ module.exports.setUserDetails = function(req, res){
     })
     
 }
-
 
 /*============================= Currency Preference =============================*/
 
@@ -1033,7 +1038,8 @@ module.exports.currencyPrefrence = function(req, res) {
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -1055,7 +1061,6 @@ module.exports.currencyPrefrence = function(req, res) {
     
 }
 
-
 /*============================= Forget Password =============================*/
 
 exports.secureForgotPassword = function(req, res) {
@@ -1068,12 +1073,12 @@ exports.secureForgotPassword = function(req, res) {
 	var email          = req.body.email;
 	var flag           = req.body.flag;
     var publicKey      = req.body.publicKey;
-    var signature      = '123456';
+    var signature      = req.body.signature;
     
     console.log('Email : ' + email);
     console.log('Flag : '+flag);
-    console.log('Public Key : ' + publicKey);
-    console.log('Signature : ' + signature);
+    console.log('Public Key : ' +publicKey);
+    console.log('Signature : ' +signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -1119,7 +1124,8 @@ exports.secureForgotPassword = function(req, res) {
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if(result == "" || result == null || result == undefined)
@@ -1251,7 +1257,8 @@ module.exports.resetpassword = function(req, res) {
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if(result == "" || result == null || result == undefined)
@@ -1320,7 +1327,8 @@ module.exports.resetpassword = function(req, res) {
                     if (err)
                     {
                         console.log(err);
-                        return err;
+                        master.sendResponse(req, res, 200, 5, "Database Error");
+                        return;
                     }
 
                     if (results==null || results=="") // Email Not Found
@@ -1361,7 +1369,7 @@ module.exports.changePassword = function (req, res) {
 	var new_pass            = req.body.new_password;
     var confirm_new_pass    = req.body.confirm_new_password;
     var publicKey           = req.body.publicKey;
-    var signature           = '7c481e0f2991a5189d10fb94b26e66fc32a3e0ec0626d7bc31de3e0f070ba2da198d7ba09c55bb4f26b55491f6e956549da22e4ad2cbf60678c05786ec116583';
+    var signature           = req.body.signatre;
     
     console.log('Email : ' + email);
     console.log('Old Password : ' + old_pass);
@@ -1422,7 +1430,8 @@ module.exports.changePassword = function (req, res) {
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if(result.length == 0) // DoesNot Exists
@@ -1494,7 +1503,8 @@ module.exports.changePassword = function (req, res) {
                 if (err)
                 {
                     console.log(err);
-                    return err;
+                    master.sendResponse(req, res, 200, 5, "Database Error");
+                    return;
                 }
 
                 if (results==null || results=="") // Email Not Found
@@ -1519,7 +1529,6 @@ module.exports.changePassword = function (req, res) {
     
 }
 
-
 /*============================= Set App Id =============================*/
 
 module.exports.setAppId = function (req, res) {
@@ -1532,7 +1541,7 @@ module.exports.setAppId = function (req, res) {
     var email       = req.body.email;
     var appId       = req.body.appId;
     var publicKey   = req.body.publicKey;
-    var signature   = '123456';
+    var signature   = req.body.signature;
     
     console.log('Email : ' + email);
     console.log('App Id : ' + appId);
@@ -1600,7 +1609,8 @@ module.exports.setAppId = function (req, res) {
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -1622,7 +1632,6 @@ module.exports.setAppId = function (req, res) {
     
 }
 
-
 /*============================= Get App Id =============================*/
 
 module.exports.getAppId = function (req, res) {
@@ -1634,7 +1643,7 @@ module.exports.getAppId = function (req, res) {
     
     var email       = req.body.email;
     var publicKey   = req.body.publicKey;
-    var signature   = '123456';
+    var signature   = req.body.signature;
     
     console.log('Email : ' + email);
     console.log('Public Key : ' + publicKey);
@@ -1684,7 +1693,8 @@ module.exports.getAppId = function (req, res) {
             if(err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -1734,7 +1744,8 @@ module.exports.creditUserAmount = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -1778,7 +1789,8 @@ module.exports.deductUserAmount = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -1822,7 +1834,8 @@ module.exports.addPurchases = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -1866,7 +1879,8 @@ module.exports.deductPurchases = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -1910,7 +1924,8 @@ module.exports.addCashback = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -1954,7 +1969,8 @@ module.exports.deductCashback = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -1998,7 +2014,8 @@ module.exports.addAffEarning = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2042,7 +2059,8 @@ module.exports.deductAffEarning = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2086,7 +2104,8 @@ module.exports.addSales = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2130,7 +2149,8 @@ module.exports.deductSales = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2174,7 +2194,8 @@ module.exports.addTrade = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2218,7 +2239,8 @@ module.exports.deductTrade = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2262,7 +2284,8 @@ module.exports.addTotalKeywordIncome = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2306,7 +2329,8 @@ module.exports.deductTotalKeywordIncome = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2350,7 +2374,8 @@ module.exports.addBlockedPendingWithdrawals = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2394,7 +2419,8 @@ module.exports.deductBlockedPendingWithdrawals = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2438,7 +2464,8 @@ module.exports.addApprovedWithdrawals = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2482,7 +2509,8 @@ module.exports.deductApprovedWithdrawals = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2526,7 +2554,8 @@ module.exports.addTotalAppIncome = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2570,7 +2599,8 @@ module.exports.firstBuy = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2614,7 +2644,8 @@ module.exports.addBlockedForBids = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2658,7 +2689,8 @@ module.exports.deductBlockedForBids = function(req, res){
             if (err)
             {
                 console.log(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
             if (result==null || result=="") // Email Not Found
@@ -2881,8 +2913,6 @@ module.exports.rejectBlockedBids = function(req, res){
             // Holding Cancel Bid Functionality in 'else' part
             function callback()
             {
-                //console.log(value);
-
                 if(value == "Success")
                 {
                     console.log('Cancelled All Reject Bids Successfully');
