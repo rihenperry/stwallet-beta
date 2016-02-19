@@ -10,6 +10,14 @@ var app         = express();
 var bodyParser  = require('body-parser');
 
 // Pages
+var mongoose    = require('./config/mongoose.js');
+var user        = require('./api/user.js');
+var device      = require('./api/device.js');
+var pool        = require('./api/pool');                    // Get Pool API
+var W_transaction =  require("./api/transaction");
+var search		  =  require("./api/search");
+var admin     	= require("./api/admin");    	// Get Admin API
+
 var mongoose        = require('./config/mongoose.js');          // Moongoose
 var user            = require('./api/user.js');                 // User API
 var device          = require('./api/device.js');               // Device API
@@ -118,6 +126,18 @@ app.post('/secure/search/updateLastHourValue', search.updateLastHourValue);					
 app.post('/secure/search/recentSearches', search.recentSearches);                               // Add Recent Searches For User API
 
 
+/*============================== Admin Related API ==================================*/
+
+app.post('/secure/admin/allTransactions', admin.getAllTransactions);                          	// Get All Transactions API (Admin)
+app.post('/secure/admin/addQualifiedSearchesPending', admin.addQualifiedSearchesPending);   	// Get Increase User Number of Searches (Admin)
+app.post('/secure/admin/resetQualifiedSearches', admin.resetTotalNumberOfQualifiedSearches)		// Reset Qualified Searches Of All Users (Admin)
+app.post('/secure/admin/deductunQualifiedSearches', admin.deductunQualifiedSearches);			// Deduct UnQualified Searches For User API (Admin)
+// app.post('/secure/admin/getExpenceTransactions', admin.getExpenceTransactions);					// Get Expence Transactions For Admin API
+// app.post('/secure/admin/getIncomeTransactions', admin.getIncomeTransactions);					// Get Income Transactions For Admin API
+// app.post('/secure/admin/getActiveEmails', admin.getActiveEmails);								// Get Active Users Email
+app.post('/secure/admin/userManage', admin.userManage);											// Get Specific User Details
+// app.post('/secure/admin/userKwdPurchaseTrans', admin.userKwdPurchaseTrans);						// Get User Keyword Purchase Transactions
+// app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Get User Transaction Count On Payment Mode
 
 // Server Connectivity
 app.listen('5000', function () {
