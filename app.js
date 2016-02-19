@@ -33,9 +33,6 @@ var defaultOptions = loadconfig.DEFAULTS
 console.log("Configuration read from the JSON file using nconf is :")
 console.log(defaultOptions)
 
-
->>>>>>> 82a19ca78a177c6638b8858595ea76c727846f02
-
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
