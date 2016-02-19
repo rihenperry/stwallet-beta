@@ -10,20 +10,13 @@ var app         = express();
 var bodyParser  = require('body-parser');
 
 // Pages
-var mongoose    = require('./config/mongoose.js');
-var user        = require('./api/user.js');
-var device      = require('./api/device.js');
-var pool        = require('./api/pool');                    // Get Pool API
-var W_transaction =  require("./api/transaction");
-var search		  =  require("./api/search");
-var admin     	= require("./api/admin");    	// Get Admin API
-
 var mongoose        = require('./config/mongoose.js');          // Moongoose
 var user            = require('./api/user.js');                 // User API
 var device          = require('./api/device.js');               // Device API
 var search          = require('./api/search.js');               // Search API
 var pool            = require('./api/pool');                    // Get Pool API
 var W_transaction   =  require("./api/transaction.js");         // Transaction API
+var admin     	    = require("./api/admin");    	            // Get Admin API
 
 // Middleware
 app.use(bodyParser.json());
@@ -124,7 +117,6 @@ app.post('/secure/search/deductQualifiedSearches', search.deductQualifiedSearche
 app.post('/secure/search/addunQualifiedSearches', search.addunQualifiedSearches);				// Add UnQualified Searches For User API
 app.post('/secure/search/updateLastHourValue', search.updateLastHourValue);						// Update Last Hour Timing For User API
 app.post('/secure/search/recentSearches', search.recentSearches);                               // Add Recent Searches For User API
-
 
 /*============================== Admin Related API ==================================*/
 

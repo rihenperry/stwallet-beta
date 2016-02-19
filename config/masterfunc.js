@@ -7,7 +7,6 @@ var deviceSchema    = require('../models/deviceInfoSchema.js')  // DeviceInfo Sc
 var crypt           = require('./crypt.js');                    // Crypt/Signature Related Functionality
 
 
-
 //========================= Page Functions ========================= //
 // Response Function
 module.exports.sendResponse = function(req, res, status, errCode, errMsg) {
@@ -100,7 +99,6 @@ module.exports.secureAuth = function(query, text, signature, cb){
  };
 
 var secureAuth = module.exports.secureAuth;
-
 
 /*============================= Validation Parameter function For User Accounting and Search Page API =============================*/
 
