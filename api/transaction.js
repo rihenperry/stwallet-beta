@@ -175,6 +175,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
             if(err)
             {
                 console.log(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             
@@ -192,6 +193,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
                 if(err)
                 {
                     console.log(err);
+                    master.sendResponse(req, res, 200, 5, "Database Error");
                     return;
                 }
                 
@@ -321,6 +323,7 @@ module.exports.getTransactions = function(req, res) {
             if(err)
             {
                 console.log(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             

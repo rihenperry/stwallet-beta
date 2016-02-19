@@ -35,13 +35,12 @@ request.post({url: 'http://localhost:5000/secure/creditAmount',
         "content-type": "application/json",
  },
 },
- function optionalCallback(err, httpResponse, body) {
+function optionalCallback(err, httpResponse, body) {
   if (err) {
-    return console.error('upload failed:', err);
+    return console.error('Test Failed:', err);
   }
-  console.log('Upload successful!  Server responded with:', body);
+  console.log('Test successful!  Server responded with:', body);
 });
-
 
 
 // getPoolStats api without data
