@@ -16,7 +16,7 @@ var device          = require('./api/device.js');               // Device API
 var search          = require('./api/search.js');               // Search API
 var pool            = require('./api/pool');                    // Get Pool API
 var W_transaction   =  require("./api/transaction.js");         // Transaction API
-var admin     	    = require("./api/admin");    	            // Get Admin API
+var admin           = require("./api/admin");                   // Get Admin API
 
 // Middleware
 app.use(bodyParser.json());
@@ -83,25 +83,25 @@ app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// De
 
 /*============================== Pool Related API ==================================*/
 
-app.post('/secure/decreaseTotalFeesEarning', pool.decreaseTotalFeesEarning); 					 // Decrease Total Fees Earning API
-app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);            					 // Add To Keyword Income API
-app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);      					 // Deduct From Keyword Income API
-app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);         					 // Add To Cashback OutFlow API
-app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);       	 				 // Deduct From Cashback OutFlow API
-app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);       		 			 // Add To Affiliate OutFlow API
-app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);  					 // Increase Total Fees Earning API
-app.post('/secure/addTotalKeywordOwnerPayout', pool.addTotalKeywordOwnerPayout);				 // Add Total Keyword Owner Payout API
-app.post('/secure/deductTotalKeywordOwnerPayout', pool.deductTotalKeywordOwnerPayout);			 // Deduct Total Keyword Owner Payout API
-app.post('/secure/addNoOfQualifeidSearches', pool.addNoOfQualifeidSearches);					 // Add Qualified Searches API
-app.post('/secure/deductNoOfQualifeidSearches', pool.deductNoOfQualifeidSearches);				 // Deduct Qualified Searches API
-app.post('/secure/addNoOfunQualifeidSearches', pool.addNoOfunQualifeidSearches);				 // Add unQualified Searches API
-app.post('/secure/deductNoOfunQualifeidSearches', pool.deductNoOfunQualifeidSearches);			 // Deduct Qualified Searches API
-app.post('/secure/addAnonymousSearches', pool.addAnonymousSearches);							 // Add Anonymous Search API
-app.post('/secure/addAppPayout', pool.addAppPayout);											 // Add App Payout
-app.post('/secure/addSearchTradePayout', pool.addSearchTradePayout);							 // Add Search Trade Payout
-app.post('/secure/deductSearchTradePayout',pool.deductSearchTradePayout)						 // Deduct Search Trade Payout
-app.post('/secure/addUnsoldKwdRefund', pool.addUnsoldKwdRefund)									 // Add Unsold Keyword Refund
-app.post('/secure/getPoolStats', pool.getPoolStats);						  					 // Get All Feilds From Pool Table
+app.post('/secure/decreaseTotalFeesEarning', pool.decreaseTotalFeesEarning);                    // Decrease Total Fees Earning API
+app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);                              // Add To Keyword Income API
+app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);                         // Deduct From Keyword Income API
+app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);                            // Add To Cashback OutFlow API
+app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);                          // Deduct From Cashback OutFlow API
+app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);                          // Add To Affiliate OutFlow API
+app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);                    // Increase Total Fees Earning API
+app.post('/secure/addTotalKeywordOwnerPayout', pool.addTotalKeywordOwnerPayout);                // Add Total Keyword Owner Payout API
+app.post('/secure/deductTotalKeywordOwnerPayout', pool.deductTotalKeywordOwnerPayout);          // Deduct Total Keyword Owner Payout API
+app.post('/secure/addNoOfQualifeidSearches', pool.addNoOfQualifeidSearches);                    // Add Qualified Searches API
+app.post('/secure/deductNoOfQualifeidSearches', pool.deductNoOfQualifeidSearches);              // Deduct Qualified Searches API
+app.post('/secure/addNoOfunQualifeidSearches', pool.addNoOfunQualifeidSearches);                // Add unQualified Searches API
+app.post('/secure/deductNoOfunQualifeidSearches', pool.deductNoOfunQualifeidSearches);          // Deduct Qualified Searches API
+app.post('/secure/addAnonymousSearches', pool.addAnonymousSearches);                            // Add Anonymous Search API
+app.post('/secure/addAppPayout', pool.addAppPayout);                                            // Add App Payout
+app.post('/secure/addSearchTradePayout', pool.addSearchTradePayout);                            // Add Search Trade Payout
+app.post('/secure/deductSearchTradePayout', pool.deductSearchTradePayout);                      // Deduct Search Trade Payout
+app.post('/secure/addUnsoldKwdRefund', pool.addUnsoldKwdRefund);                                // Add Unsold Keyword Refund
+app.post('/secure/getPoolStats', pool.getPoolStats);                                            // Get All Feilds From Pool Table
 
 /*============================== Transactions Related API ==================================*/
 
@@ -120,9 +120,9 @@ app.post('/secure/search/recentSearches', search.recentSearches);               
 
 /*============================== Admin Related API ==================================*/
 
-app.post('/secure/admin/allTransactions', admin.getAllTransactions);                          	// Get All Transactions API (Admin)
-app.post('/secure/admin/addQualifiedSearchesPending', admin.addQualifiedSearchesPending);   	// Get Increase User Number of Searches (Admin)
-app.post('/secure/admin/resetQualifiedSearches', admin.resetTotalNumberOfQualifiedSearches)		// Reset Qualified Searches Of All Users (Admin)
+app.post('/secure/admin/allTransactions', admin.getAllTransactions);                            // Get All Transactions API (Admin)
+app.post('/secure/admin/addQualifiedSearchesPending', admin.addQualifiedSearchesPending);       // Get Increase User Number of Searches (Admin)
+app.post('/secure/admin/resetQualifiedSearches', admin.resetTotalNumberOfQualifiedSearches);    // Reset Qualified Searches Of All Users (Admin)
 app.post('/secure/admin/deductunQualifiedSearches', admin.deductunQualifiedSearches);			// Deduct UnQualified Searches For User API (Admin)
 // app.post('/secure/admin/getExpenceTransactions', admin.getExpenceTransactions);					// Get Expence Transactions For Admin API
 // app.post('/secure/admin/getIncomeTransactions', admin.getIncomeTransactions);					// Get Income Transactions For Admin API
