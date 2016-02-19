@@ -133,12 +133,12 @@ app.post('/secure/admin/allTransactions', admin.getAllTransactions);            
 app.post('/secure/admin/addQualifiedSearchesPending', admin.addQualifiedSearchesPending);   	// Get Increase User Number of Searches (Admin)
 app.post('/secure/admin/resetQualifiedSearches', admin.resetTotalNumberOfQualifiedSearches)		// Reset Qualified Searches Of All Users (Admin)
 app.post('/secure/admin/deductunQualifiedSearches', admin.deductunQualifiedSearches);			// Deduct UnQualified Searches For User API (Admin)
-// app.post('/secure/admin/getExpenceTransactions', admin.getExpenceTransactions);					// Get Expence Transactions For Admin API
-// app.post('/secure/admin/getIncomeTransactions', admin.getIncomeTransactions);					// Get Income Transactions For Admin API
-// app.post('/secure/admin/getActiveEmails', admin.getActiveEmails);								// Get Active Users Email
+app.post('/secure/admin/getExpenceTransactions', admin.getExpenceTransactions);					// Get Expence Transactions For Admin API
+app.post('/secure/admin/getIncomeTransactions', admin.getIncomeTransactions);					// Get Income Transactions For Admin API
+app.post('/secure/admin/getActiveEmails', admin.getActiveEmails);								// Get Active Users Email
 app.post('/secure/admin/userManage', admin.userManage);											// Get Specific User Details
-// app.post('/secure/admin/userKwdPurchaseTrans', admin.userKwdPurchaseTrans);						// Get User Keyword Purchase Transactions
-// app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Get User Transaction Count On Payment Mode
+app.post('/secure/admin/userKwdPurchaseTrans', admin.userKwdPurchaseTrans);						// Get User Keyword Purchase Transactions
+app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Get User Transaction Count On Payment Mode
 
 // Server Connectivity
 app.listen('5000', function () {

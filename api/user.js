@@ -7,12 +7,8 @@ var userSchema      = require('../models/userSchema.js');       // User Schema
 var master          = require('../config/masterfunc.js');       // Master Functions
 var crypt           = require('../config/crypt.js');            // Crypt/Signature Related Functionality
 var mailer          = require('../config/mail.js');             // Mail Functionality
-<<<<<<< HEAD
 var protocol 		= 'http';
 
-=======
-var protocol        = "http";
->>>>>>> b27eb2dcd4128529efbd5eecdf2060439a6ee926
 
 //========================= Page Functions ========================= //
 
