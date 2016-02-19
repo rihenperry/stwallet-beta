@@ -5,7 +5,7 @@
 // Framwork
 var  express     = require('express'),      
 	 app         = express(),
-
+	 // fs          = require('fs'), 
 // Packages
      bodyParser  = require('body-parser'),
      nconf 		 = require('nconf'),
@@ -140,16 +140,6 @@ app.post('/secure/admin/getActiveEmails', admin.getActiveEmails);								// Get 
 app.post('/secure/admin/userManage', admin.userManage);											// Get Specific User Details
 app.post('/secure/admin/userKwdPurchaseTrans', admin.userKwdPurchaseTrans);						// Get User Keyword Purchase Transactions
 app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Get User Transaction Count On Payment Mode
-
-var log = bunyan.createLogger({name: 'st-wallet'});
-log.info('hi');
-
-var log = bunyan.createLogger({
-    name: 'myserver',
-    serializers: {
-        err: bunyan.stdSerializers.err,   // <--- use this
-    }
-});
 
 // Server Connectivity
 app.listen('5000', function () {
