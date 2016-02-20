@@ -8,6 +8,8 @@ var master          = require('../config/masterfunc.js');       // Master Functi
 var crypt           = require('../config/crypt.js');            // Crypt/Signature Related Functionality
 var mailer          = require('../config/mail.js');             // Mail Functionality
 var protocol 		= 'http';
+var fs 				= require('fs'); 
+var im 				= require('imagemagick');
 
 //========================= Page Functions ========================= //
 
@@ -1727,9 +1729,6 @@ module.exports.editProfilePic = function(req, res){
     console.log('Email: '+email);
     console.log('Extension: '+extension);
     console.log('Public Key: '+publicKey);
-
-    var fs = require('fs'); 
-    var im = require('imagemagick');
 
     var imageUploadUrl = 'public/images/';
 
