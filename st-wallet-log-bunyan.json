@@ -78,3 +78,36 @@
 {"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":9766,"level":40,"err":{"message":"boom","name":"TypeError","stack":"TypeError: boom\n    at Object.<anonymous> (/media/sudeep/546AF16F6AF14DEC/sudeep_dk/searchtrade/stwallet-beta/config/w_config.js:52:11)\n    at Module._compile (module.js:413:34)\n    at Object.Module._extensions..js (module.js:422:10)\n    at Module.load (module.js:357:32)\n    at Function.Module._load (module.js:314:12)\n    at Module.require (module.js:367:17)\n    at require (internal/module.js:16:19)\n    at Object.<anonymous> (/media/sudeep/546AF16F6AF14DEC/sudeep_dk/searchtrade/stwallet-beta/app.js:42:18)\n    at Module._compile (module.js:413:34)\n    at Object.Module._extensions..js (module.js:422:10)\n    at Module.load (module.js:357:32)\n    at Function.Module._load (module.js:314:12)\n    at Function.Module.runMain (module.js:447:10)\n    at startup (node.js:140:18)\n    at node.js:1001:3"},"msg":"operation went boom: TypeError: boom","time":"2016-02-20T06:54:47.767Z","v":0}
 {"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":9766,"level":30,"err":{"message":"how about this?","name":"TypeError","stack":"TypeError: how about this?\n    at Object.<anonymous> (/media/sudeep/546AF16F6AF14DEC/sudeep_dk/searchtrade/stwallet-beta/config/w_config.js:57:10)\n    at Module._compile (module.js:413:34)\n    at Object.Module._extensions..js (module.js:422:10)\n    at Module.load (module.js:357:32)\n    at Function.Module._load (module.js:314:12)\n    at Module.require (module.js:367:17)\n    at require (internal/module.js:16:19)\n    at Object.<anonymous> (/media/sudeep/546AF16F6AF14DEC/sudeep_dk/searchtrade/stwallet-beta/app.js:42:18)\n    at Module._compile (module.js:413:34)\n    at Object.Module._extensions..js (module.js:422:10)\n    at Module.load (module.js:357:32)\n    at Function.Module._load (module.js:314:12)\n    at Function.Module.runMain (module.js:447:10)\n    at startup (node.js:140:18)\n    at node.js:1001:3"},"msg":"how about this?","time":"2016-02-20T06:54:47.769Z","v":0}
 {"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":9766,"level":50,"msg":"boom string","time":"2016-02-20T06:54:47.770Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":18930,"level":50,"msg":"hi","time":"2016-02-20T11:50:22.939Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":18943,"level":50,"msg":"hi","time":"2016-02-20T11:50:26.028Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":18972,"level":50,"msg":"hi","time":"2016-02-20T11:50:29.178Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19001,"level":50,"msg":"hi","time":"2016-02-20T11:50:32.376Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19030,"level":50,"msg":"hi","time":"2016-02-20T11:50:35.511Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19059,"level":50,"msg":"hi","time":"2016-02-20T11:50:38.539Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19088,"level":50,"msg":"hi","time":"2016-02-20T11:50:41.624Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19117,"level":50,"msg":"hi","time":"2016-02-20T11:50:44.712Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19146,"level":50,"msg":"hi","time":"2016-02-20T11:50:47.772Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19175,"level":50,"msg":"hi","time":"2016-02-20T11:50:50.828Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19204,"level":50,"msg":"hi","time":"2016-02-20T11:50:53.842Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19233,"level":50,"msg":"hi","time":"2016-02-20T11:50:56.861Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19262,"level":50,"msg":"hi","time":"2016-02-20T11:51:00.052Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19292,"level":50,"msg":"hi","time":"2016-02-20T11:51:03.236Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19322,"level":50,"msg":"hi","time":"2016-02-20T11:51:06.347Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19352,"level":50,"msg":"hi","time":"2016-02-20T11:51:09.422Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19381,"level":50,"msg":"hi","time":"2016-02-20T11:51:12.460Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19410,"level":50,"msg":"hi","time":"2016-02-20T11:51:15.445Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19439,"level":50,"msg":"hi","time":"2016-02-20T11:51:18.467Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19468,"level":50,"msg":"hi","time":"2016-02-20T11:51:21.599Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19497,"level":50,"msg":"hi","time":"2016-02-20T11:51:24.610Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19526,"level":50,"msg":"hi","time":"2016-02-20T11:51:27.718Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19555,"level":50,"msg":"hi","time":"2016-02-20T11:51:30.821Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19586,"level":50,"msg":"hi","time":"2016-02-20T11:51:33.828Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19676,"level":50,"msg":"hi","time":"2016-02-20T11:52:11.109Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19705,"level":50,"msg":"hi","time":"2016-02-20T11:52:14.649Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19734,"level":50,"msg":"hi","time":"2016-02-20T11:52:18.232Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19809,"level":50,"msg":"hi","time":"2016-02-20T11:54:30.908Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19822,"level":50,"msg":"hi","time":"2016-02-20T11:54:34.413Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19851,"level":50,"msg":"hi","time":"2016-02-20T11:54:38.022Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19884,"level":50,"msg":"hi","time":"2016-02-20T11:54:41.719Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19913,"level":50,"msg":"hi","time":"2016-02-20T11:54:45.464Z","v":0}
+{"name":"myapp","hostname":"sudeep-Aspire-Z1-601","pid":19949,"level":50,"msg":"hi","time":"2016-02-20T11:54:48.999Z","v":0}

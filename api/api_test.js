@@ -101,7 +101,7 @@ console.dir(jsonfile.readFileSync(file))
 // console.log(jsondata_wallet);
 // for(var con =1; con < 3; con++){
 
-  request.post({url: 'http://localhost:5000/secure/creditAmount',
+request.post({url: 'http://localhost:5000/secure/creditAmount',
 
  body: jsondata_wallet,
  json: true,
@@ -119,3 +119,45 @@ function optionalCallback(err, httpResponse, body) {
 // }
 
 
+
+
+// appjs backup Dk   200216
+
+
+var file = '/home/sudeep/json_test.json'
+console.log(file);
+// var jsondata_wallet =  jsonfile.readFile(file, function(err, obj) {
+//   // console.dir(obj[0].test2)
+//   console.dir(obj);
+// })
+
+var jsondata_wallet =  jsonfile.readFileSync(file)
+console.dir(jsonfile.readFileSync(file))
+
+// console.log(jsondata_wallet[0].email);
+// console.log(jsondata_wallet[0].email);
+// console.log(jsondata_wallet[0].email);
+// console.log(jsondata_wallet[0].email);
+// console.log(jsondata_wallet);
+// console.log(jsondata_wallet);
+// console.log(jsondata_wallet);
+// final_body = JSON.stringify(jsondata_wallet)
+
+// for(var con =0; con < 10; con++){
+
+request.post({url: 'http://localhost:5000/secure/creditAmount',
+ body: jsondata_wallet,
+ // body: jsondata_wallet[0].test1,
+ json: true,
+ headers: {
+  "content-type": "application/json",
+ },
+},
+function optionalCallback(err, httpResponse, body) {  
+  if (err) {
+    return console.error('Test Failed:', err);
+  }
+  console.log('Server responded with:', body);
+});
+
+// }
