@@ -1868,24 +1868,22 @@ module.exports.editProfilePic = function(req, res){
                         else{
                               var query = {"email": email};
 
-                                userSchema.findOneAndUpdate(query, fileName, function(retVal){
-                                // db.updateImageNameOfUser(query, fileName, function(retVal){
+                                userSchema.findOneAndUpdate(query, {'profile_pic':fileName}, function(err, retVal){
 
                                     if(retVal)
                                     {
                                         console.log('Image path updated');
+                                        console.log("Image successfully Created");
                                         master.sendResponse(req, res, 200, -1, "Image successfully Created");
+                                        resizeImages();
                                     }
                                     else{
                                         master.sendResponse(req, res, 200, -1, "Database Error");
+                                        return;
                                     }
 
                                 });
-                              
-                              console.log("Image successfully Created");
-
-                              resizeImages();
-
+                             
                             }
 
                     });
@@ -1922,7 +1920,7 @@ module.exports.editProfilePic = function(req, res){
           console.log('resized profile pic to fit within 200px');
         });
 
-        // small Images
+        // // small Images
         im.resize({
             srcPath: path+fileName,
             dstPath: smallPath+fileName,
