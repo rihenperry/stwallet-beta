@@ -43,6 +43,9 @@ function optionalCallback(err, httpResponse, body) {
 });
 
 
+
+
+
 // getPoolStats api without data
 request.post({url: 'http://localhost:5000/secure/getPoolStats', json:true},
  function optionalCallback(err, httpResponse, body) {
@@ -71,5 +74,48 @@ request.post({url: 'http://localhost:5000/secure/getPoolStats', json:true},
 //     }
 //     console.log('successful!  Server responded with:' , body);
 // })
+
+
+
+
+
+
+// 200216
+
+
+var file = '/home/sudeep/json_test.json'
+console.log(file);
+// var jsondata_wallet =  jsonfile.readFile(file, function(err, obj) {
+//   // console.dir(obj[0].test2)
+//   console.dir(obj);
+// })
+
+var jsondata_wallet =  jsonfile.readFileSync(file)
+console.dir(jsonfile.readFileSync(file))
+
+
+
+// console.log(jsondata_wallet);
+// console.log(jsondata_wallet);
+// console.log(jsondata_wallet);
+// console.log(jsondata_wallet);
+// for(var con =1; con < 3; con++){
+
+  request.post({url: 'http://localhost:5000/secure/creditAmount',
+
+ body: jsondata_wallet,
+ json: true,
+ headers: {
+        "content-type": "application/json",
+ },
+},
+function optionalCallback(err, httpResponse, body) {  
+  if (err) {
+    return console.error('Test Failed:', err);
+  }
+  console.log('Server responded with:', body);
+});
+
+// }
 
 
