@@ -2,6 +2,9 @@
 /*jslint node: true */
 "use strict";
 
+var bunyan          = require('bunyan'),
+    log             = bunyan.createLogger({name: "ST-Wallet"});
+
 // Pages
 var userSchema      = require('../models/userSchema.js');       // User Schema
 var poolSchema	  	= require('../models/poolSchema.js');       // Pool Schema
@@ -13,10 +16,10 @@ var master          = require('../config/masterfunc.js');       // Master Functi
 
 module.exports.addSearchEarning = function(req, res){
     
-	console.log('Page Name : search.js');
-	console.log('API Name : addSearchEarning')
-	console.log('Add Search Earning API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : search.js');
+	log.info('API Name : addSearchEarning')
+	log.info('Add Search Earning API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -33,21 +36,21 @@ module.exports.addSearchEarning = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
-                console.log('Search Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
+                log.info('Search Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
 
@@ -61,10 +64,10 @@ module.exports.addSearchEarning = function(req, res){
 
 module.exports.deductSearchEarning = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductSearchEarning');
-	console.log('Deduct Search Earning API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductSearchEarning');
+	log.info('Deduct Search Earning API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -81,21 +84,21 @@ module.exports.deductSearchEarning = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
-                console.log('Search Earning Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+                log.info('Search Earning Amount '+amount+' Successfully Deducted From '+retVal[0].email);
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
 
@@ -109,10 +112,10 @@ module.exports.deductSearchEarning = function(req, res){
 
 module.exports.deductQualifiedSearches = function(req, res){
     
-	console.log('Page Name : search.js');
-	console.log('API Name : deductQualifiedSearches')
-	console.log('Deduct Qualified Searches API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : search.js');
+	log.info('API Name : deductQualifiedSearches')
+	log.info('Deduct Qualified Searches API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -131,21 +134,21 @@ module.exports.deductQualifiedSearches = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
-                console.log('Qualified Searches '+amount+' Successfully Deducted From '+retVal[0].email);
+                log.info('Qualified Searches '+amount+' Successfully Deducted From '+retVal[0].email);
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
 
@@ -159,10 +162,10 @@ module.exports.deductQualifiedSearches = function(req, res){
 
 module.exports.addunQualifiedSearches = function(req, res){
     
-	console.log('Page Name : search.js');
-	console.log('API Name : addunQualifiedSearches')
-	console.log('Add UnQualified Searches API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : search.js');
+	log.info('API Name : addunQualifiedSearches')
+	log.info('Add UnQualified Searches API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -179,21 +182,21 @@ module.exports.addunQualifiedSearches = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
-                console.log('UnQualified Searches '+amount+' Successfully Added To '+retVal[0].email);
+                log.info('UnQualified Searches '+amount+' Successfully Added To '+retVal[0].email);
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
 
@@ -207,10 +210,10 @@ module.exports.addunQualifiedSearches = function(req, res){
 
 module.exports.updateLastHourValue = function(req, res){
 	
-	console.log('Page Name: search.js');
-	console.log('API Name : updateLastHourValue');	
-	console.log('Update Last Hour API Hitted');
-	console.log('Parameters Receiving -:');
+	log.info('Page Name: search.js');
+	log.info('API Name : updateLastHourValue');	
+	log.info('Update Last Hour API Hitted');
+	log.info('Parameters Receiving -:');
     
 	var email       = req.body.email;
     var publicKey   = req.body.publicKey;
@@ -218,10 +221,10 @@ module.exports.updateLastHourValue = function(req, res){
 	var date        = new Date();
 	var time        = date.getTime();
     
-    console.log('Email : '+email);
-	console.log('Time : '+time);
-	console.log('Public Key: '+publicKey);
-	console.log('Signature: '+signature);
+    log.info('Email : '+email);
+	log.info('Time : '+time);
+	log.info('Public Key: '+publicKey);
+	log.info('Signature: '+signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -246,7 +249,7 @@ module.exports.updateLastHourValue = function(req, res){
 
 	if(!(master.validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -269,19 +272,19 @@ module.exports.updateLastHourValue = function(req, res){
             
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             
             if(result == null || result == undefined || result == "")
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
             
-            console.log('Updated Last Hour Search Time '+time+' To : '+email );
+            log.info('Updated Last Hour Search Time '+time+' To : '+email );
             master.sendResponse(req, res, 200, -1, "Success");
             return;
             
@@ -295,20 +298,20 @@ module.exports.updateLastHourValue = function(req, res){
 
 module.exports.recentSearches = function(req, res){
 
-	console.log('Page Name: search.js');
-	console.log('API Name : recentSearches');
-	console.log('Recent Searches API Hitted');
-	console.log('Parameters Receiving -:');
+	log.info('Page Name: search.js');
+	log.info('API Name : recentSearches');
+	log.info('Recent Searches API Hitted');
+	log.info('Parameters Receiving -:');
     
   	var email       = req.body.email;
     var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
     var searches    = req.body.searches;
     
-    console.log('Email: '+email);
-	console.log('Searches (Last Search Record): '+searches);
-	console.log('Public Key: '+publicKey);
-	console.log('Signature: '+signature);
+    log.info('Email: '+email);
+	log.info('Searches (Last Search Record): '+searches);
+	log.info('Public Key: '+publicKey);
+	log.info('Signature: '+signature);
 
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -333,7 +336,7 @@ module.exports.recentSearches = function(req, res){
 
 	if(!(master.validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -355,14 +358,14 @@ module.exports.recentSearches = function(req, res){
             
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             
             if(result == null || result == undefined || result == "")
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -380,7 +383,7 @@ module.exports.recentSearches = function(req, res){
             }
             else	
             {
-                console.log('Recent Searches Data Received From User Field');
+                log.info('Recent Searches Data Received From User Field');
                 data.unshift(searches);
                 
                 if(data.length>500)
@@ -396,19 +399,19 @@ module.exports.recentSearches = function(req, res){
             
                 if(err)
                 {
-                    console.log(err);
+                    log.error(err);
                     master.sendResponse(req, res, 200, 5, "Database Error");
                     return;
                 }
 
                 if(result == null || result == undefined || result == "")
                 {
-                    console.log(email+" Not Registered");
+                    log.info(email+" Not Registered");
                     master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                     return;
                 }
                 
-                console.log('Updated Recent Searches Field of '+email+' Successfully');
+                log.info('Updated Recent Searches Field of '+email+' Successfully');
                 master.sendResponse(req, res, 200, -1, "Success");
                 return;
                 
