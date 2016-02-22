@@ -5,7 +5,8 @@ var userSchema          = require('../models/userSchema.js'),           // User 
     transactionSchema   = require('../models/transaction_Schema.js'),   // Transaction Schema
     crypt               = require('../config/crypt.js'),                // Crypt/Signature Related Functionality
     master              = require('../config/masterfunc.js'),           // Master Functions
-    log                 = require('../config/w_config.js');             // Logger Configuration
+    logger              = require('../config/w_config.js'),
+    log                 = logger();
 
 // Transaction API
 
@@ -13,10 +14,10 @@ var userSchema          = require('../models/userSchema.js'),           // User 
 
 module.exports.insertUserTransaction = function(req, res){
 
-	log.logger.info('Page Name: transaction.js');
-	log.logger.info('API Name : insertUserTransaction');	
-	log.logger.info('Insert Transaction API Hitted');
-	log.logger.info('Parameters Receiving -:');
+	log.info('Page Name: transaction.js');
+	log.info('API Name : insertUserTransaction');	
+	log.info('Insert Transaction API Hitted');
+	log.info('Parameters Receiving -:');
 
 	var sender         = req.body.sender;
 	var receiver       = req.body.receiver;
@@ -34,21 +35,21 @@ module.exports.insertUserTransaction = function(req, res){
 	var publicKey      = req.body.publicKey;
 	var signature      = req.body.signature;
 
-	log.logger.info('Sender (Email) : '+sender);
-	log.logger.info('Receiver (Email) : '+receiver);
-	log.logger.info('Amount : '+amount);
-	log.logger.info('Type : '+type);
-	log.logger.info('Description : '+desc);
-	log.logger.info('Keyword : '+keyword);
-	log.logger.info('Payment Mode : '+payment_mode);
-	log.logger.info('Discount : '+discount);
-	log.logger.info('App Id : '+appId);
-	log.logger.info('Commission : '+commision);
-	log.logger.info('Origin Ip : '+origin_ip);
-	log.logger.info('USD : '+usd);
-	log.logger.info('SGD : '+sgd);
-	log.logger.info('Public Key :'+publicKey);
-	log.logger.info('Signature :'+signature);
+	log.info('Sender (Email) : '+sender);
+	log.info('Receiver (Email) : '+receiver);
+	log.info('Amount : '+amount);
+	log.info('Type : '+type);
+	log.info('Description : '+desc);
+	log.info('Keyword : '+keyword);
+	log.info('Payment Mode : '+payment_mode);
+	log.info('Discount : '+discount);
+	log.info('App Id : '+appId);
+	log.info('Commission : '+commision);
+	log.info('Origin Ip : '+origin_ip);
+	log.info('USD : '+usd);
+	log.info('SGD : '+sgd);
+	log.info('Public Key :'+publicKey);
+	log.info('Signature :'+signature);
 
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -101,7 +102,7 @@ module.exports.insertUserTransaction = function(req, res){
             
             if(err)
             {
-                console.log(err);
+                log.info(err);
                 return err;
             }
 

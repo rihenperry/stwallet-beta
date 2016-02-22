@@ -19,10 +19,10 @@ var poolvalidate = function(req, cb){
 	log.info('Parameters Receiving..');
 	
 	var amount = req.body.amount;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
+	var publicKey = req.body.publicKey;
+	//var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
+	var signature = req.body.signature;
+	//var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
 	// var signature = 'f217f11ab5df130c54ee1869eb806a174bf6f1fb3c569db7333c737e9cf6645cf69d28eb05dc9ef61d329e51dbe566b1b692c12336924c73cb3aa66adb4e4dce';
 	
 	var text = 'amount='+amount+'&publicKey='+publicKey;	
@@ -121,9 +121,9 @@ module.exports.addTokwdIncome = function (req, res){
 
 			// Successfully Updated
 			if(retVals){
-				log.info('Credited Keyword Income Amount '+retVal[0].amount+' To Pool Successfully');
-				master.sendResponse(req, res, 200, -1, "Success");
-			}
+			    log.info('Credited Keyword Income Amount '+retVal[0].amount+' To Pool Successfully');
+			    master.sendResponse(req, res, 200, -1, "Success");
+			   }
 			
 		});
 
@@ -614,7 +614,7 @@ module.exports.deductNoOfunQualifeidSearches = function (req, res){
 
 		log.info('Parameters are valid');
 		
-		log.info('Deduct unQualified Searches Value : '+amount);
+		log.info('Deduct unQualified Searches Value : '+retVal[0].amount);
 			
 			// Update Pool unQualified Searches
 			var query = {$inc:{"no_of_unQualified_searches": -parseFloat(retVal[0].amount)}};
@@ -625,13 +625,13 @@ module.exports.deductNoOfunQualifeidSearches = function (req, res){
 				if(retVals)
 				{
 					log.info('Deducted unQualified Searches Value '+retVal[0].amount+' From Pool Successfully');
-					sendResponse(req, res, 200, -1, "Success");
+					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
 				// Error In Updating Database
 				else
 				{
-					sendResponse(req, res, 200, 5, "Database Error");
+					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
 
 			})
@@ -792,7 +792,7 @@ module.exports.deductSearchTradePayout = function (req, res){
 		
 		log.info('Deducted Searchtrade Payout Amount : '+retVal[0].amount)
 			
-			var query = {$inc:{"total_searchtrade_payout": parseFloat(retVal[0].amount)}};
+			var query = {$inc:{"total_searchtrade_payout": -parseFloat(retVal[0].amount)}};
 
 			// Update Pool SearchTrade Payout
 			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
