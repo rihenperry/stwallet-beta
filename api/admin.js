@@ -8,17 +8,20 @@ var deviceSchema 	= require('../models/deviceInfoSchema.js');
 var transSchema 	= require('../models/transaction_Schema.js');
 var userSchema	 	= require('../models/userSchema.js');
 var crypt 			= require("../config/crypt");				 // Crypt Connectivity.
-var master          = require('../config/masterfunc.js');        // Master Functions
+var master          = require('../config/masterfunc.js'),        // Master Functions
+
+    logger          = require('../config/w_config.js'),
+    log             = logger();
 
 //========================= Export Functions ========================= //
 
 /*Get All Transactions*/
 module.exports.getAllTransactions = function(req, res){
 
-	console.log('Page Name: admin.js.');
-	console.log('API Name : getAllTransactions');
-	console.log('Get All Transactions API Hitted');
-	console.log('Parameters Receiving..');
+	log.info('Page Name: admin.js.');
+	log.info('API Name : getAllTransactions');
+	log.info('Get All Transactions API Hitted');
+	log.info('Parameters Receiving..');
 	
 	var email = req.body.email;
 	// var publicKey = req.body.publicKey;
@@ -30,8 +33,8 @@ module.exports.getAllTransactions = function(req, res){
 	var text = 'publicKey='+publicKey;		
 	var query = {'publicKey': publicKey};
 
-	console.log('PublicKey  : '+publicKey);
-	console.log('Signature  : '+signature);
+	log.info('PublicKey  : '+publicKey);
+	log.info('Signature  : '+signature);
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -61,35 +64,35 @@ module.exports.getAllTransactions = function(req, res){
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 return err;
             }
 
             if(result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             	transSchema.find({}, function(err, results){
 
-					console.log(results);
+					log.info(results);
 					// Error In Fetching Data
 					if (err)
 					{
-					  console.log('Error In Fetching Data');
-					  console.log(err);
+					  log.info('Error In Fetching Data');
+					  log.error(err);
 					  return;
 					}
 					if(results == "" || results == undefined || results.length<=0)
 					{
-						console.log('No Transactions');
+						log.info('No Transactions');
 						master.sendResponse(req, res, 200, 9, "No Result");
 						return;
 					}
 					
-					console.log('Total '+results.length+' Transactions Found');
+					log.info('Total '+results.length+' Transactions Found');
 					master.sendResponse(req, res, 200, -1, results);
 
 				}).sort({'time':-1}).limit(50);
@@ -103,10 +106,10 @@ module.exports.getAllTransactions = function(req, res){
 /*Add Qualified Searches Pending*/
 module.exports.addQualifiedSearchesPending = function(req, res){
 	
-	console.log('Page Name: admin.js');
-	console.log('API Name : addQualifiedSearchesPending');
-	console.log('Add Qualified Search Pending API Hitted');
-	console.log('Parameters Receiving..');
+	log.info('Page Name: admin.js');
+	log.info('API Name : addQualifiedSearchesPending');
+	log.info('Add Qualified Search Pending API Hitted');
+	log.info('Parameters Receiving..');
 
 	//validation
 	master.validation(req, function(retVal){
@@ -124,20 +127,20 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 return err;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             var amount = parseFloat(retVal[0].amount);
 
-            console.log('Add Qualified Search Value : '+amount);
+            log.info('Add Qualified Search Value : '+amount);
 				
 				var updateDataQuery = {$inc: {"no_of_qualified_searches_pending": amount, "total_qualified_searches": -amount}};
 
@@ -145,7 +148,7 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 
 					if (err) {throw err}
 
-					console.log('Qualified Search Value '+amount+' Added For : '+retVal[0].email);
+					log.info('Qualified Search Value '+amount+' Added For : '+retVal[0].email);
 
 					master.sendResponse(req, res, 200, -1, "Success");
 			
@@ -160,10 +163,10 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 /*Deduct Unqualified Searches*/
 module.exports.deductunQualifiedSearches = function(req, res){
 	
-	console.log('Page Name: admin.js');
-	console.log('API Name : deductunQualifiedSearches');
-	console.log('Deduct Unqualified Search API Hitted');
-	console.log('Parameters Receiving..');
+	log.info('Page Name: admin.js');
+	log.info('API Name : deductunQualifiedSearches');
+	log.info('Deduct Unqualified Search API Hitted');
+	log.info('Parameters Receiving..');
 	
 	//validation
 	master.validation(req, function(retVal){
@@ -181,19 +184,19 @@ module.exports.deductunQualifiedSearches = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 return err;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
             var amount = -parseFloat(retVal[0].amount);
 
-            console.log('Add Qualified Search Value : '+amount);
+            log.info('Add Qualified Search Value : '+amount);
 				
 				var updateDataQuery = {$inc: {"no_of_unQualified_searches": amount}};
 
@@ -201,7 +204,7 @@ module.exports.deductunQualifiedSearches = function(req, res){
 
 					if (err) {throw err}
 
-					console.log('Qualified Search Value '+amount+' Added For : '+retVal[0].email);
+					log.info('Qualified Search Value '+amount+' Added For : '+retVal[0].email);
 
 					master.sendResponse(req, res, 200, -1, "Success");
 			
@@ -216,10 +219,10 @@ module.exports.deductunQualifiedSearches = function(req, res){
 /*Reset Total Number Of Qualified Searches*/
 module.exports.resetTotalNumberOfQualifiedSearches = function (req, res){
 	
-	console.log('Page Name: admin.js');
-	console.log('API Name : resetTotalNumberOfQualifiedSearches');	
-	console.log('Reset Qualified Searches API Hitted');
-	console.log('No Parameters Receiving...');
+	log.info('Page Name: admin.js');
+	log.info('API Name : resetTotalNumberOfQualifiedSearches');	
+	log.info('Reset Qualified Searches API Hitted');
+	log.info('No Parameters Receiving...');
 	
 	var value = true;
 	
@@ -233,14 +236,14 @@ module.exports.resetTotalNumberOfQualifiedSearches = function (req, res){
 		// Successfully Updated
 		if(retVal)
 		{
-			console.log('Qualified Searches ReSetted Successfully');
+			log.info('Qualified Searches ReSetted Successfully');
 			master.sendResponse(req, res, 200, -1, "Success");
 		}
 		
 		// Error In Updating Pool Fees
 		else
 		{
-			console.log('Failed to Reset Searches');
+			log.info('Failed to Reset Searches');
 			master.sendResponse(req, res, 200, 5, "Database Error");
 		}
 	})
@@ -250,10 +253,10 @@ module.exports.resetTotalNumberOfQualifiedSearches = function (req, res){
 /*User manage*/
 module.exports.userManage = function (req, res){
 	
-	console.log('Page Name: admin.js');
-	console.log('API Name : userManage');	
-	console.log('User Manage API Hitted');
-	console.log('No Parameters Receiving...');
+	log.info('Page Name: admin.js');
+	log.info('API Name : userManage');	
+	log.info('User Manage API Hitted');
+	log.info('No Parameters Receiving...');
 	
 	var email = req.body.email;
 	// var publicKey = req.body.publicKey;
@@ -269,12 +272,12 @@ module.exports.userManage = function (req, res){
 
 	var query = {'publicKey': publicKey};
 
-	console.log('PublicKey  : '+publicKey);
-	console.log('Signature  : '+signature);
-	console.log('Email : '+email);
-	console.log('Skip : '+skip);
-	console.log('Order : '+order);
-	console.log('column : '+column);
+	log.info('PublicKey  : '+publicKey);
+	log.info('Signature  : '+signature);
+	log.info('Email : '+email);
+	log.info('Skip : '+skip);
+	log.info('Order : '+order);
+	log.info('column : '+column);
 
 	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
@@ -291,7 +294,7 @@ module.exports.userManage = function (req, res){
 	// Validate Signature
 	master.secureAuth(query, text, signature, function (result){
 
-        console.log(result);
+        log.info(result);
 
         if(email == '' || email == undefined || email == null)
 		{
@@ -332,7 +335,7 @@ module.exports.userManage = function (req, res){
 			sort = {"active":order};
 		}
 
-		console.log(sort);
+		log.info(sort);
 
 			var selectQuery = {"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1};
 
@@ -340,22 +343,22 @@ module.exports.userManage = function (req, res){
 				
 				if (err)
 				{
-				   console.log('Error In Getting Active Emails');
-				   console.log(err);
+				   log.info('Error In Getting Active Emails');
+				   log.error(err);
 				   return;
 				}
 
 				// Successfully Fetched
 				if(results)
 				{
-					console.log('User Results Found Successfully');
+					log.info('User Results Found Successfully');
 					master.sendResponse(req, res, 200, -1, results);
 				}
 				
 				// Error In Fetching
 				else
 				{
-					console.log('Failed to Found Users Results');
+					log.info('Failed to Found Users Results');
 					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
 			}).sort(sort).limit(10);
@@ -367,10 +370,10 @@ module.exports.userManage = function (req, res){
 /*Get Expence Transactions*/
 module.exports.getExpenceTransactions = function(req, res) {
 
-	console.log('Page Name: admin.js');
-	console.log('API Name : getExpenceTransactions');
-	console.log('Get Expence Transaction Accessed');
-	console.log('Parameters Receiving..');
+	log.info('Page Name: admin.js');
+	log.info('API Name : getExpenceTransactions');
+	log.info('Get Expence Transaction Accessed');
+	log.info('Parameters Receiving..');
 
 	var vars = req.body;
 	var email = req.body.email;
@@ -382,12 +385,12 @@ module.exports.getExpenceTransactions = function(req, res) {
 	
 	var type = vars.type;
 	
-	console.log('Email : '+email);
-	console.log('From Date : '+from);
-	console.log('To Date: '+to);
-	console.log('N (Number Of Tansactions) :'+n);
-	console.log('Public Key :'+publicKey);
-	console.log('Signature :'+signature);
+	log.info('Email : '+email);
+	log.info('From Date : '+from);
+	log.info('To Date: '+to);
+	log.info('N (Number Of Tansactions) :'+n);
+	log.info('Public Key :'+publicKey);
+	log.info('Signature :'+signature);
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -412,7 +415,7 @@ module.exports.getExpenceTransactions = function(req, res) {
 	// Number of Transactions
 	else if(isNaN(n))
 	{
-		console.log('Number is Wrong Number');
+		log.info('Number is Wrong Number');
 		master.sendResponse(req, res, 200, 12, "Wrong Input");
 		return;
 	}
@@ -486,9 +489,9 @@ module.exports.getExpenceTransactions = function(req, res) {
             return;
         }
 
-			console.log('Milisec Value of From Date :'+from);
+			log.info('Milisec Value of From Date :'+from);
 
-			console.log('Milisec Value of To Date :'+to); 
+			log.info('Milisec Value of To Date :'+to); 
 			
 			if(type == "" || type == undefined || type == 'All')
 			{
@@ -526,13 +529,13 @@ module.exports.getExpenceTransactions = function(req, res) {
 					// No Transaction
 					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
 					{	
-						console.log('No Transactions');
+						log.info('No Transactions');
 						master.sendResponse(req, res, 200, -1, 'No Transactions');
 						return;
 					}
 					
 					// Transactions Found
-					console.log('Transaction Found Successfully');
+					log.info('Transaction Found Successfully');
 					master.sendResponse(req, res, 200, -1, retTrans);
 					return;
 					
@@ -547,13 +550,13 @@ module.exports.getExpenceTransactions = function(req, res) {
 				// No Transaction
 				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
 				{	
-					console.log('No Transactions');
+					log.info('No Transactions');
 					master.sendResponse(req, res, 200, -1, 'No Transactions');
 					return;
 				}
 				
 				// Transactions Found
-				console.log('Transaction Found Successfully');
+				log.info('Transaction Found Successfully');
 				master.sendResponse(req, res, 200, -1, retTrans);
 				return;
 				
@@ -567,16 +570,16 @@ module.exports.getExpenceTransactions = function(req, res) {
 /*Payment Mode Count*/
 module.exports.paymentModeCount = function (req, res){
 	
-	console.log('Page Name: admin.js');
-	console.log('API Name : paymentModeCount');	
-	console.log('User Manage API Hitted');
-	console.log('No Parameters Receiving...');
+	log.info('Page Name: admin.js');
+	log.info('API Name : paymentModeCount');	
+	log.info('User Manage API Hitted');
+	log.info('No Parameters Receiving...');
 	
 	var mode = req.body.mode;
 	var publicKey = req.body.publicKey;
 	var signature = req.body.signature;
 
-	console.log('Mode : '+mode);
+	log.info('Mode : '+mode);
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -612,14 +615,14 @@ module.exports.paymentModeCount = function (req, res){
 				// Successfully Fetched
 				if(results)
 				{
-					console.log('Total '+results.length+' Transactions Found By Payment Mode '+mode);
+					log.info('Total '+results.length+' Transactions Found By Payment Mode '+mode);
 					master.sendResponse(req, res, 200, -1, results.length);
 				}
 				
 				// Error In Fetching
 				else
 				{
-					console.log('Failed to Found Users Results');
+					log.info('Failed to Found Users Results');
 					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
 			});
@@ -631,10 +634,10 @@ module.exports.paymentModeCount = function (req, res){
 /*Get Active Emails*/
 module.exports.getActiveEmails = function(req, res){
 
-	console.log('Page Name: admin.js.');
-	console.log('API Name : getActiveEmails');
-	console.log('Get All Transactions API Hitted');
-	console.log('Parameters Receiving...');
+	log.info('Page Name: admin.js.');
+	log.info('API Name : getActiveEmails');
+	log.info('Get All Transactions API Hitted');
+	log.info('Parameters Receiving...');
 	
 	var flag = req.body.flag;
 	var publicKey = req.body.publicKey;
@@ -680,19 +683,19 @@ module.exports.getActiveEmails = function(req, res){
             
                 if(err)
                 {
-                    console.log(err);
+                    log.error(err);
                     master.sendResponce(req, res, 200, 5, "Datbase Error");
                     return;
                 }
                 
                 if(result == null || result == undefined || result == "")
                 {
-                    console.log('No Active Emails Found');
+                    log.info('No Active Emails Found');
                     master.sendResponse(req, res, 200, 9, "No Result");
                     return;                
                 }
                 
-                console.log(result.length+' Active Emails Found');
+                log.info(result.length+' Active Emails Found');
                 master.sendResponse(req, res, 200, -1, result);
                 return; 
             
@@ -706,19 +709,19 @@ module.exports.getActiveEmails = function(req, res){
             
                 if(err)
                 {
-                    console.log(err);
+                    log.error(err);
                     master.sendResponce(req, res, 200, 5, "Datbase Error");
                     return;
                 }
                 
                 if(result == null || result == undefined || result == "")
                 {
-                    console.log('No Data Found');
+                    log.info('No Data Found');
                     master.sendResponse(req, res, 200, 9, "No Result");
                     return;                
                 }
                 
-                console.log(result.length+' Results Found');
+                log.info(result.length+' Results Found');
                 master.sendResponse(req, res, 200, -1, result);
                 return;
                 
@@ -732,10 +735,10 @@ module.exports.getActiveEmails = function(req, res){
 /*Get Income Transactions*/
 module.exports.getIncomeTransactions = function(req, res) {
 
-	console.log('Page Name: admin.js');
-	console.log('API Name : getIncomeTransactions');
-	console.log('Get Income Transaction Accessed');
-	console.log('Parameters Receiving..');
+	log.info('Page Name: admin.js');
+	log.info('API Name : getIncomeTransactions');
+	log.info('Get Income Transaction Accessed');
+	log.info('Parameters Receiving..');
 
 	var vars = req.body;
 	var email = req.body.email;
@@ -746,13 +749,13 @@ module.exports.getIncomeTransactions = function(req, res) {
 	var signature = req.body.signature;
 	var payment_mode = vars.payment_mode;
 	
-	console.log('Email : '+email);
-	console.log('From Date : '+from);
-	console.log('To Date: '+to);
-	console.log('N (Number Of Tansactions) :'+n);
-	console.log('Public Key :'+publicKey);
-	console.log('Signature :'+signature);
-	console.log('Payment Mode : '+payment_mode);
+	log.info('Email : '+email);
+	log.info('From Date : '+from);
+	log.info('To Date: '+to);
+	log.info('N (Number Of Tansactions) :'+n);
+	log.info('Public Key :'+publicKey);
+	log.info('Signature :'+signature);
+	log.info('Payment Mode : '+payment_mode);
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -777,7 +780,7 @@ module.exports.getIncomeTransactions = function(req, res) {
 	// Number of Transactions
 	else if(isNaN(n))
 	{
-		console.log('Number is Blank');
+		log.info('Number is Blank');
 		n = 0;
 	}
 
@@ -850,9 +853,9 @@ module.exports.getIncomeTransactions = function(req, res) {
             return;
         }
 	
-		console.log('Milisec Value of From Date :'+from);
+		log.info('Milisec Value of From Date :'+from);
 
-		console.log('Milisec Value of To Date :'+to); 
+		log.info('Milisec Value of To Date :'+to); 
 			
 			if(payment_mode == "" || payment_mode == undefined || payment_mode == 'All')
 			{
@@ -907,13 +910,13 @@ module.exports.getIncomeTransactions = function(req, res) {
 					// No Transaction
 					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
 					{	
-						console.log('No Transactions');
+						log.info('No Transactions');
 						master.sendResponse(req, res, 200, -1, 'No Transactions');
 						return;
 					}
 					
 					// Transactions Found
-					console.log('Transaction Found Successfully');
+					log.info('Transaction Found Successfully');
 					master.sendResponse(req, res, 200, -1, retTrans);
 					return;
 				
@@ -927,13 +930,13 @@ module.exports.getIncomeTransactions = function(req, res) {
 					// No Transaction
 					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
 					{	
-						console.log('No Transactions');
+						log.info('No Transactions');
 						master.sendResponse(req, res, 200, -1, 'No Transactions');
 						return;
 					}
 					
 					// Transactions Found
-					console.log('Transaction Found Successfully');
+					log.info('Transaction Found Successfully');
 					master.sendResponse(req, res, 200, -1, retTrans);
 					return;
 				
@@ -948,10 +951,10 @@ module.exports.getIncomeTransactions = function(req, res) {
 
 module.exports.userKwdPurchaseTrans = function(req, res) {
 
-	console.log('Page Name: admin.js');
-	console.log('API Name : userKwdPurchaseTrans');
-	console.log('Get Keyword Purchase Transaction Accessed');
-	console.log('Parameters Receiving..');
+	log.info('Page Name: admin.js');
+	log.info('API Name : userKwdPurchaseTrans');
+	log.info('Get Keyword Purchase Transaction Accessed');
+	log.info('Parameters Receiving..');
 
 	var vars = req.body;
 	var email = req.body.email;
@@ -962,13 +965,13 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 	var signature = req.body.signature;
 	var mode = vars.mode;
 	
-	console.log('Email : '+email);
-	console.log('From Date : '+from);
-	console.log('To Date: '+to);
-	console.log('Number Of Transactions : '+n);
-	console.log('Payment Mode : '+mode);
-	console.log('Public Key :'+publicKey);
-	console.log('Signature :'+signature);
+	log.info('Email : '+email);
+	log.info('From Date : '+from);
+	log.info('To Date: '+to);
+	log.info('Number Of Transactions : '+n);
+	log.info('Payment Mode : '+mode);
+	log.info('Public Key :'+publicKey);
+	log.info('Signature :'+signature);
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -993,7 +996,7 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 	// Number of Transactions
 	else if(isNaN(n))
 	{
-		console.log('Number is Wrong Number');
+		log.info('Number is Wrong Number');
 		sendResponse(req, res, 200, 12, "Wrong Input");
 		return;
 	}
@@ -1069,9 +1072,9 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
         }
 					
 			// Signature Match
-			console.log('Milisec Value of From Date :'+from);
+			log.info('Milisec Value of From Date :'+from);
 
-			console.log('Milisec Value of To Date :'+to); 
+			log.info('Milisec Value of To Date :'+to); 
 			
 			if(mode == "" || mode == undefined || mode == 'All')
 			{
@@ -1108,13 +1111,13 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 					// No Transaction
 					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
 					{	
-						console.log('No Transactions');
+						log.info('No Transactions');
 						master.sendResponse(req, res, 200, -1, 'No Transactions');
 						return;
 					}
 					
 					// Transactions Found
-					console.log('Transaction Found Successfully');
+					log.info('Transaction Found Successfully');
 					master.sendResponse(req, res, 200, -1, retTrans);
 					return;
 				
@@ -1126,13 +1129,13 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 					// No Transaction
 					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
 					{	
-						console.log('No Transactions');
+						log.info('No Transactions');
 						master.sendResponse(req, res, 200, -1, 'No Transactions');
 						return;
 					}
 					
 					// Transactions Found
-					console.log('Transaction Found Successfully');
+					log.info('Transaction Found Successfully');
 					master.sendResponse(req, res, 200, -1, retTrans);
 					return;
 				

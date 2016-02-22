@@ -9,7 +9,9 @@ var crypt           = require('../config/crypt.js');            // Crypt/Signatu
 var mailer          = require('../config/mail.js');             // Mail Functionality
 var protocol 		= 'http';
 var fs 				= require('fs'); 
-var im 				= require('imagemagick');
+var im 				= require('imagemagick'),
+    logger          = require('../config/w_config.js'),
+    log             = logger();
 
 //========================= Page Functions ========================= //
 
@@ -118,10 +120,10 @@ function resettedConfirmation(accountInfo){
 
 module.exports.secureRegister = function (req, res) {
    
-    console.log('Page Name : user.js');
-	console.log('API Name : secureRegister');
-	console.log('Secure Register API Hitted');
-	console.log('Parameters Receiving..');
+    log.info('Page Name : user.js');
+	log.info('API Name : secureRegister');
+	log.info('Secure Register API Hitted');
+	log.info('Parameters Receiving..');
     
     var first_name         = req.body.first_name;
     var last_name          = req.body.last_name;
@@ -144,16 +146,16 @@ module.exports.secureRegister = function (req, res) {
     var salt = "";
     var seed = crypt.hashIt(Math.random() * creationTime);
     
-    console.log('First Name :' + first_name);
-	console.log('Last Name :' + last_name);
-	console.log('Email : ' + email);
-	console.log('Password : ' + password);
-    console.log('Country :' + country);
-    console.log('Flag : ' + flag);
-    console.log('Mobile Number : ' + mobile_number);
-    console.log('Refferal : ' + referral);
-    console.log('Public Key : '+publicKey);
-    console.log('Signature : '+signature);
+    log.info('First Name :' + first_name);
+	log.info('Last Name :' + last_name);
+	log.info('Email : ' + email);
+	log.info('Password : ' + password);
+    log.info('Country :' + country);
+    log.info('Flag : ' + flag);
+    log.info('Mobile Number : ' + mobile_number);
+    log.info('Refferal : ' + referral);
+    log.info('Public Key : '+publicKey);
+    log.info('Signature : '+signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -178,7 +180,7 @@ module.exports.secureRegister = function (req, res) {
 
 	if (!(validateEmail(email)))
     {
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -186,7 +188,7 @@ module.exports.secureRegister = function (req, res) {
     // Validate Password And Repeat Password
 	if(password == "" || password == null || confirm_password == "" || confirm_password == null)
 	{
-		console.log('Any of Password Field is Missing');
+		log.info('Any of Password Field is Missing');
 		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
@@ -195,7 +197,7 @@ module.exports.secureRegister = function (req, res) {
 	{
 		if(password.length<6)
 		{
-			console.log('Your Password Is Less Than Six Characters');
+			log.info('Your Password Is Less Than Six Characters');
 			master.sendResponse(req, res, 200, 20, "Your password should be of minimum six characters");
 			return;   
 		}
@@ -209,13 +211,13 @@ module.exports.secureRegister = function (req, res) {
 				salt += chars[Math.round(Math.random() * (chars.length - 1))];
 			}
 			
-			console.log('Salt :'+salt);
+			log.info('Salt :'+salt);
 			password = crypt.hashIt(salt+password);
 		}
 	}
 	else
 	{
-		console.log('Passwords Are Not Matching');
+		log.info('Passwords Are Not Matching');
 		master.sendResponse(req, res, 200, 6, "Incorrect Email/password");
 		return;
 	}
@@ -223,7 +225,7 @@ module.exports.secureRegister = function (req, res) {
 	// Validate Country
 	if(country == "Select Country")
 	{
-		console.log('Country Not Selected');
+		log.info('Country Not Selected');
 		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
@@ -244,16 +246,16 @@ module.exports.secureRegister = function (req, res) {
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
-            console.log('Result : '+result);
+            log.info('Result : '+result);
 
             if(result.length>0) // Already Exists
             {
-                console.log(email+" Already exists");
+                log.info(email+" Already exists");
                 master.sendResponse(req, res, 200, 2, "Email already in use");
                 return;
             }
@@ -267,7 +269,7 @@ module.exports.secureRegister = function (req, res) {
 
                     if(err)
                     {
-                        console.log(err);
+                        log.error(err);
                         master.sendResponse(req, res, 200, 5, "Database Error");
                         return;
                     }
@@ -284,7 +286,7 @@ module.exports.secureRegister = function (req, res) {
 
                         else // Wrong Refferal
                         {
-                            console.log('Wrong Affiliate Ref Code Entered');
+                            log.info('Wrong Affiliate Ref Code Entered');
                             master.sendResponse(req, res, 200, 18, "Wrong Affiliate Reference");
                             return;
                         }
@@ -323,7 +325,7 @@ module.exports.secureRegister = function (req, res) {
 
                         if(err)
                         {
-                            console.log(err);
+                            log.error(err);
                             master.sendResponse(req, res, 200, 5, "Database Error");
                             return;
                         }
@@ -358,13 +360,13 @@ module.exports.secureRegister = function (req, res) {
                             
                             if(err)
                             {
-                                console.log(err);
+                                log.error(err);
                                 master.sendResponse(req, res, 200, 5, "Database Error");
                                 return;
                             }
 
                             sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
-                            console.log('Saved SuccessFully');
+                            log.info('Saved SuccessFully');
                             master.sendResponse(req, res, 200, -1, "Success");
 
                         });
@@ -384,20 +386,20 @@ module.exports.secureRegister = function (req, res) {
 
 module.exports.verifyAccount = function(req, res){
     
-    console.log('Page Name : user.js');
-	console.log('API Name : verifyAccount');
-	console.log('Verify Account API Hitted');
-	console.log('Parameters Receiving..');
+    log.info('Page Name : user.js');
+	log.info('API Name : verifyAccount');
+	log.info('Verify Account API Hitted');
+	log.info('Parameters Receiving..');
     
     var auth       = req.body.auth;
 	var email      = req.body.email;
     var publicKey  = req.body.publicKey;
 	var signature  = req.body.signature;
 	
-	console.log('Email : '+email);
-	console.log('Auth : '+auth);
-    console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+	log.info('Email : '+email);
+	log.info('Auth : '+auth);
+    log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
   
 	auth=auth.replace(/\ /g,'+');
     
@@ -424,7 +426,7 @@ module.exports.verifyAccount = function(req, res){
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -444,14 +446,14 @@ module.exports.verifyAccount = function(req, res){
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if(result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -462,7 +464,7 @@ module.exports.verifyAccount = function(req, res){
 
                 if (tokenTest== 2)
                 {
-                    console.log('Token is Expired');
+                    log.info('Token is Expired');
                     master.sendResponse(req, res, 200, 10, "Link expired");
                     return;
                 }
@@ -470,7 +472,7 @@ module.exports.verifyAccount = function(req, res){
                 // Token is Invalid
                 else if (tokenTest== 0)
                 {
-                    console.log('Token is Invalid');
+                    log.info('Token is Invalid');
                     master.sendResponse(req, res, 200, 11, "Invalid link");
                     return;
                 }
@@ -478,20 +480,20 @@ module.exports.verifyAccount = function(req, res){
                 // Token is Valid
                 else if (tokenTest == 1)
                 {
-                    console.log('Token is Valid');
+                    log.info('Token is Valid');
                 }
 
                 // Unknown Token Output
                 else
                 {
-                    console.log('Unknown Token Output');
+                    log.info('Unknown Token Output');
                     master.sendResponse(req, res, 200, 11, "Invalid link");
                     return;
                 } 
 
                 if(result[0].active==1)
                 {
-                    console.log('Account Already Activated');
+                    log.info('Account Already Activated');
                     master.sendResponse(req, res, 200, 37, "Account is Already Activated");
                 }
 
@@ -501,21 +503,21 @@ module.exports.verifyAccount = function(req, res){
 
                         if(err)
                         {
-                            console.log(err);
+                            log.error(err);
                             master.sendResponse(req, res, 200, 5, "Database Error");
                             return;
                         }
 
                         if(result==null || result=="") // Email Not Found
                         {
-                            console.log('Error In Activation');
+                            log.info('Error In Activation');
                             master.sendResponse(req, res, 200, 5, 'Database Error');
                             return;
                         }
 
                         else
                         {
-                            console.log('Total Active Users Successfully Updated');
+                            log.info('Total Active Users Successfully Updated');
                             master.sendResponse(req, res, 200, -1, "Success");
                         }
 
@@ -534,20 +536,20 @@ module.exports.verifyAccount = function(req, res){
 
 exports.secureResendVerification = function(req, res) {
 
-	console.log('Page Name : user.js');
-	console.log('API Name : secureResendVerification');
-	console.log('Secure Resend Verification API Accessed');
-	console.log('Parameters Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : secureResendVerification');
+	log.info('Secure Resend Verification API Accessed');
+	log.info('Parameters Receiving..');
     
     var email       = req.body.email;
     var flag        = req.body.flag;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
 
-    console.log('Email : '+email);
-	console.log('Flag : '+flag);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+    log.info('Email : '+email);
+	log.info('Flag : '+flag);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
     
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -572,7 +574,7 @@ exports.secureResendVerification = function(req, res) {
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -592,19 +594,19 @@ exports.secureResendVerification = function(req, res) {
             
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             
             if(result[0]==null || result[0]==undefined || result[0]=="")
             {
-                console.log(email+' Is Not Registered');
+                log.info(email+' Is Not Registered');
                 master.sendResponse(req, res, 200, 4, "There is no user registered with that email address.");
                 return;
             }
             
-            console.log('User Found');
+            log.info('User Found');
             sendVerificationEmail(result[0], flag);
             master.sendResponse(req, res, 200, -1, "Success");
             
@@ -618,20 +620,20 @@ exports.secureResendVerification = function(req, res) {
 
 module.exports.secureLogin = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : secureLogin');
-	console.log('Secure Login API Hitted');
-	console.log('Parameters Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : secureLogin');
+	log.info('Secure Login API Hitted');
+	log.info('Parameters Receiving..');
     
     var email       = req.body.email;
 	var password    = req.body.password;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
     
-    console.log('Email : '+email);
-	console.log('Password : '+password);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+    log.info('Email : '+email);
+	log.info('Password : '+password);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
     
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -656,7 +658,7 @@ module.exports.secureLogin = function(req, res){
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -683,14 +685,14 @@ module.exports.secureLogin = function(req, res){
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if(result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -703,7 +705,7 @@ module.exports.secureLogin = function(req, res){
                 {
                     if (!result[0].active)
                     {
-                        console.log('Account is Not Active');
+                        log.info('Account is Not Active');
                         master.sendResponse(req, res, 200, 3, "Account is not active");
                         return;
                     }
@@ -714,21 +716,21 @@ module.exports.secureLogin = function(req, res){
 
                         if(err)
                         {
-                            console.log(err);
+                            log.error(err);
                             master.sendResponse(req, res, 200, 5, "Database Error");
                             return;
                         }
 
                         if(result==null || result=="") // Email Not Found
                         {
-                            console.log('Error In Login');
+                            log.info('Error In Login');
                             master.sendResponse(req, res, 200, 5, 'Datbase Error');
                             return;
                         }
 
                         else
                         {   
-                            console.log('Successfully Login');
+                            log.info('Successfully Login');
                             master.sendResponse(req, res, 200, -1, "Success");
                             return;
                         }
@@ -739,7 +741,7 @@ module.exports.secureLogin = function(req, res){
 
                 else
                 {
-                    console.log('Email Password Combination is Incorrect');
+                    log.info('Email Password Combination is Incorrect');
                     master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
                     return;
                 }
@@ -756,18 +758,18 @@ module.exports.secureLogin = function(req, res){
 
 module.exports.getDetails = function(req, res) {
     
-    console.log('Page Name : user .js');
-	console.log('API Name : getDetails');
-	console.log('Get Details API Hitted');
-	console.log('Parameters Receiving..');
+    log.info('Page Name : user .js');
+	log.info('API Name : getDetails');
+	log.info('Get Details API Hitted');
+	log.info('Parameters Receiving..');
     
     var email       = req.body.email;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
 
-	console.log('Email : '+email);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+	log.info('Email : '+email);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -792,7 +794,7 @@ module.exports.getDetails = function(req, res) {
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -812,14 +814,14 @@ module.exports.getDetails = function(req, res) {
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if(result == null || result == undefined || result == "")
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -837,10 +839,10 @@ module.exports.getDetails = function(req, res) {
 
 module.exports.setUserDetails = function(req, res){
     
-    console.log('Page Name : user.js');
-	console.log('API Name : setUserDetails');
-	console.log('Set User Details API Hitted');
-	console.log('Parameters Receiving..');
+    log.info('Page Name : user.js');
+	log.info('API Name : setUserDetails');
+	log.info('Set User Details API Hitted');
+	log.info('Parameters Receiving..');
     
     var email           = req.body.email;
 	var first_name      = req.body.first_name;
@@ -856,19 +858,19 @@ module.exports.setUserDetails = function(req, res){
     var publicKey       = req.body.publicKey;
     var signature       = req.body.signature;
     
-    console.log('Email : '+email);
-    console.log('First Name : '+first_name);
-    console.log('Last Name : '+last_name);
-    console.log('Gender : '+gender);
-    console.log('Address1 : '+address1);
-    console.log('Address2 : '+address2);
-    console.log('Country : '+country);
-    console.log('State : '+state);
-    console.log('Zip : '+zip);
-    console.log('City : '+city);
-    console.log('Mobile Number : '+mobile_number);
-    console.log('Public Key : '+publicKey);
-    console.log('Signature : '+signature);
+    log.info('Email : '+email);
+    log.info('First Name : '+first_name);
+    log.info('Last Name : '+last_name);
+    log.info('Gender : '+gender);
+    log.info('Address1 : '+address1);
+    log.info('Address2 : '+address2);
+    log.info('Country : '+country);
+    log.info('State : '+state);
+    log.info('Zip : '+zip);
+    log.info('City : '+city);
+    log.info('Mobile Number : '+mobile_number);
+    log.info('Public Key : '+publicKey);
+    log.info('Signature : '+signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -893,7 +895,7 @@ module.exports.setUserDetails = function(req, res){
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -901,7 +903,7 @@ module.exports.setUserDetails = function(req, res){
     // Valiadte Mobile Number
 	if(mobile_number!="" && isNaN(mobile_number))
 	{
-		console.log('Invalid Mobile');
+		log.info('Invalid Mobile');
 		master.sendResponse(req, res, 200, 8, "Incorrect Mobile");
 		return;
 	}
@@ -942,21 +944,21 @@ module.exports.setUserDetails = function(req, res){
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if(result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
-                console.log('Details Successfully Updated');
+                log.info('Details Successfully Updated');
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
 
@@ -970,10 +972,10 @@ module.exports.setUserDetails = function(req, res){
 
 module.exports.currencyPrefrence = function(req, res) {
     
-    console.log('Page Name : user.js');
-	console.log('API Name : currencyPrefrence');
-	console.log('Currency Preference API Hitted');
-	console.log('Parameters Receiving..');
+    log.info('Page Name : user.js');
+	log.info('API Name : currencyPrefrence');
+	log.info('Currency Preference API Hitted');
+	log.info('Parameters Receiving..');
     
     var email           = req.body.email;
     var currency_code   = req.body.currency_code;
@@ -982,10 +984,10 @@ module.exports.currencyPrefrence = function(req, res) {
         
     var currentTime    = Date.now();
     
-    console.log('Email : ' + email);
-    console.log('Currency Code : ' + currency_code);
-    console.log('Public Key : ' + publicKey);
-    console.log('Signature : ' + signature);
+    log.info('Email : ' + email);
+    log.info('Currency Code : ' + currency_code);
+    log.info('Public Key : ' + publicKey);
+    log.info('Signature : ' + signature);
 
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -1010,7 +1012,7 @@ module.exports.currencyPrefrence = function(req, res) {
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1039,21 +1041,21 @@ module.exports.currencyPrefrence = function(req, res) {
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
-                console.log('Currency Preference Successfully Updated');
+                log.info('Currency Preference Successfully Updated');
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
 
@@ -1067,20 +1069,20 @@ module.exports.currencyPrefrence = function(req, res) {
 
 exports.secureForgotPassword = function(req, res) {
 
-    console.log('Page Name : user.js');
-    console.log('API Name : secureForgotPassword');
-	console.log('Secure Forgot Password API Accessed');
-    console.log('Parameters Receiving..');  
+    log.info('Page Name : user.js');
+    log.info('API Name : secureForgotPassword');
+	log.info('Secure Forgot Password API Accessed');
+    log.info('Parameters Receiving..');  
 	
 	var email          = req.body.email;
 	var flag           = req.body.flag;
     var publicKey      = req.body.publicKey;
     var signature      = req.body.signature;
     
-    console.log('Email : ' + email);
-    console.log('Flag : '+flag);
-    console.log('Public Key : ' +publicKey);
-    console.log('Signature : ' +signature);
+    log.info('Email : ' + email);
+    log.info('Flag : '+flag);
+    log.info('Public Key : ' +publicKey);
+    log.info('Signature : ' +signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -1105,7 +1107,7 @@ exports.secureForgotPassword = function(req, res) {
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1125,14 +1127,14 @@ exports.secureForgotPassword = function(req, res) {
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if(result == "" || result == null || result == undefined)
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -1148,7 +1150,7 @@ exports.secureForgotPassword = function(req, res) {
 
                 else
                 {
-                    console.log('User Account is Not Active');
+                    log.info('User Account is Not Active');
                     master.sendResponse(req, res, 200, 3, "Account is not active");
                     return;
                 }
@@ -1164,10 +1166,10 @@ exports.secureForgotPassword = function(req, res) {
 
 module.exports.resetpassword = function(req, res) {
 
-	console.log('Page Name : user.js');
-	console.log('API Name : resetpassword');
-	console.log("Reset Password API Hitted");
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : resetpassword');
+	log.info("Reset Password API Hitted");
+	log.info('Parameter Receiving..');
 
     var auth                = req.body.auth;
 	var email               = req.body.email;
@@ -1176,12 +1178,12 @@ module.exports.resetpassword = function(req, res) {
     var publicKey           = req.body.publicKey;
     var signature           = 'cb2aa4b29c505fe181863a6';
     
-    console.log('Email : '+email);
-	console.log('Authentication : '+auth);
-	console.log('New Password : '+password);
-	console.log('Confirm Password : '+confirm_password);
-    console.log('Public Key : ' + publicKey);
-    console.log('Signature : ' + signature);
+    log.info('Email : '+email);
+	log.info('Authentication : '+auth);
+	log.info('New Password : '+password);
+	log.info('Confirm Password : '+confirm_password);
+    log.info('Public Key : ' + publicKey);
+    log.info('Signature : ' + signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -1213,7 +1215,7 @@ module.exports.resetpassword = function(req, res) {
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1221,14 +1223,14 @@ module.exports.resetpassword = function(req, res) {
 	// Validate Password
 	if (password === 'undefined' || confirm_password === 'undefined')
 	{
-		console.log('Passwords Cannot be Blank');
+		log.info('Passwords Cannot be Blank');
 		master.sendResponse(req, res, 200, 1, "Mandatory Field Not Found");
 		return;
 	}
 	
 	if (password.length < 6)
 	{
-		console.log('Your password should be of minimum six characters');
+		log.info('Your password should be of minimum six characters');
 		master.sendResponse(req, res, 200, 6, "Your password should be of minimum six characters");
 		return;
 	} 
@@ -1236,7 +1238,7 @@ module.exports.resetpassword = function(req, res) {
 	// Validate Both Password Match 
 	if (password !== confirm_password)
 	{
-		console.log('Password And Confirm Password are Mismatched');
+		log.info('Password And Confirm Password are Mismatched');
 		master.sendResponse(req, res, 200, 6, "Both password entries must be identical.");
 		return;
 	}	
@@ -1258,14 +1260,14 @@ module.exports.resetpassword = function(req, res) {
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if(result == "" || result == null || result == undefined)
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -1277,7 +1279,7 @@ module.exports.resetpassword = function(req, res) {
                 // Token Expired
                 if (tokenTest == 2)
                 {
-                    console.log('Reset Password Token is Expired');
+                    log.info('Reset Password Token is Expired');
                     master.sendResponse(req, res, 200, 10, 'Token is expired');
                     return;
                 }
@@ -1285,7 +1287,7 @@ module.exports.resetpassword = function(req, res) {
                 // Invalid Token 
                 else if (tokenTest == 0)
                 {
-                    console.log('Token is Invalid');
+                    log.info('Token is Invalid');
                     master.sendResponse(req, res, 200, 11, 'Token is Invalid');
                     return;
                 }
@@ -1293,13 +1295,13 @@ module.exports.resetpassword = function(req, res) {
                 // Valid Token
                 else if (tokenTest == 1)
                 {
-                    console.log('Token is Valid');
+                    log.info('Token is Valid');
                 }
 
                 // Unknown Token
                 else
                 {
-                    console.log('Unknown Token Output');
+                    log.info('Unknown Token Output');
                     master.sendResponse(req, res, 200, 50, 'Unkown Token Error');
                     return;
                 }
@@ -1328,21 +1330,21 @@ module.exports.resetpassword = function(req, res) {
 
                     if (err)
                     {
-                        console.log(err);
+                        log.error(err);
                         master.sendResponse(req, res, 200, 5, "Database Error");
                         return;
                     }
 
                     if (results==null || results=="") // Email Not Found
                     {
-                        console.log(email+" Not Registered");
+                        log.info(email+" Not Registered");
                         master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                         return;
                     }
 
                     else
                     {
-                        console.log('Password Resetted Successfully');
+                        log.info('Password Resetted Successfully');
                         resettedConfirmation(result[0]);
                         master.sendResponse(req, res, 200, -1, 'Success');
                     }
@@ -1361,10 +1363,10 @@ module.exports.resetpassword = function(req, res) {
 
 module.exports.changePassword = function (req, res) {
     
-    console.log('Page Name : user.js');
-	console.log('API Name : changePassword');
-	console.log('Change Password API Hitted');
-	console.log('Parameters Receiving..');
+    log.info('Page Name : user.js');
+	log.info('API Name : changePassword');
+	log.info('Change Password API Hitted');
+	log.info('Parameters Receiving..');
     
     var email               = req.body.email;
     var old_pass            = req.body.old_password;
@@ -1373,12 +1375,12 @@ module.exports.changePassword = function (req, res) {
     var publicKey           = req.body.publicKey;
     var signature           = req.body.signatre;
     
-    console.log('Email : ' + email);
-    console.log('Old Password : ' + old_pass);
-    console.log('New Password : ' + new_pass);
-    console.log('Confirm Password : ' + confirm_new_pass);
-    console.log('Public Key : ' + publicKey);
-    console.log('Signature : ' + signature);
+    log.info('Email : ' + email);
+    log.info('Old Password : ' + old_pass);
+    log.info('New Password : ' + new_pass);
+    log.info('Confirm Password : ' + confirm_new_pass);
+    log.info('Public Key : ' + publicKey);
+    log.info('Signature : ' + signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -1403,7 +1405,7 @@ module.exports.changePassword = function (req, res) {
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1431,14 +1433,14 @@ module.exports.changePassword = function (req, res) {
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if(result.length == 0) // DoesNot Exists
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -1451,7 +1453,7 @@ module.exports.changePassword = function (req, res) {
             // Validate Old Password
             if(old_pass != stored_pass)
             {
-                console.log('Old Password is Wrong');
+                log.info('Old Password is Wrong');
                 master.sendResponse(req, res, 200, 6, "The entry in the Old Password field is incorrect.");
                 return;
             }
@@ -1459,14 +1461,14 @@ module.exports.changePassword = function (req, res) {
             // Validate New Password
             if(new_pass == null || new_pass.length==0 || confirm_new_pass == null || confirm_new_pass.length==0)
             {
-                console.log('Password is Blank');
+                log.info('Password is Blank');
                 master.sendResponse(req, res, 200, 1, "Mandatory field not found");
                 return;
             }
 
             if(new_pass.length < 6)
             {
-                console.log('Your password should be of minimum six characters');
+                log.info('Your password should be of minimum six characters');
                 master.sendResponse(req, res, 200, 1, "Your password should be of minimum six characters");
                 return;
             }
@@ -1474,7 +1476,7 @@ module.exports.changePassword = function (req, res) {
             // Checking New Password With Confirm New Password
             if(new_pass != confirm_new_pass)
             {
-                console.log('New Password And Confirm Password are Mismatched');
+                log.info('New Password And Confirm Password are Mismatched');
                 master.sendResponse(req, res, 200, 6, "Both password entries must be identical.");
                 return;
             }
@@ -1504,21 +1506,21 @@ module.exports.changePassword = function (req, res) {
 
                 if (err)
                 {
-                    console.log(err);
+                    log.error(err);
                     master.sendResponse(req, res, 200, 5, "Database Error");
                     return;
                 }
 
                 if (results==null || results=="") // Email Not Found
                 {
-                    console.log(email+" Not Registered");
+                    log.info(email+" Not Registered");
                     master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                     return;
                 }
 
                 else
                 {
-                    console.log('Password Changed Successfully');
+                    log.info('Password Changed Successfully');
                     changePassEmail(result[0]);
                     master.sendResponse(req, res, 200, -1, 'Success');
                 }
@@ -1535,20 +1537,20 @@ module.exports.changePassword = function (req, res) {
 
 module.exports.setAppId = function (req, res) {
     
-    console.log('Page Name : user.js');
-	console.log('API Name : setAppId');
-	console.log('Set App API Hitted');
-	console.log('Parameters Receiving..');
+    log.info('Page Name : user.js');
+	log.info('API Name : setAppId');
+	log.info('Set App API Hitted');
+	log.info('Parameters Receiving..');
     
     var email       = req.body.email;
     var appId       = req.body.appId;
     var publicKey   = req.body.publicKey;
     var signature   = req.body.signature;
     
-    console.log('Email : ' + email);
-    console.log('App Id : ' + appId);
-    console.log('Public Key : ' + publicKey);
-    console.log('Signature : ' + signature);
+    log.info('Email : ' + email);
+    log.info('App Id : ' + appId);
+    log.info('Public Key : ' + publicKey);
+    log.info('Signature : ' + signature);
 
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -1573,7 +1575,7 @@ module.exports.setAppId = function (req, res) {
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1610,21 +1612,21 @@ module.exports.setAppId = function (req, res) {
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
-                console.log('App Id Successfully Setted');
+                log.info('App Id Successfully Setted');
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
 
@@ -1638,18 +1640,18 @@ module.exports.setAppId = function (req, res) {
 
 module.exports.getAppId = function (req, res) {
     
-    console.log('Page Name : user.js');
-	console.log('API Name : getAppId');
-	console.log('Get App API Hitted');
-	console.log('Parameters Receiving..');
+    log.info('Page Name : user.js');
+	log.info('API Name : getAppId');
+	log.info('Get App API Hitted');
+	log.info('Parameters Receiving..');
     
     var email       = req.body.email;
     var publicKey   = req.body.publicKey;
     var signature   = req.body.signature;
     
-    console.log('Email : ' + email);
-    console.log('Public Key : ' + publicKey);
-    console.log('Signature : ' + signature);
+    log.info('Email : ' + email);
+    log.info('Public Key : ' + publicKey);
+    log.info('Signature : ' + signature);
 
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -1674,7 +1676,7 @@ module.exports.getAppId = function (req, res) {
 
 	if(!(validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1694,21 +1696,21 @@ module.exports.getAppId = function (req, res) {
 
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
             else
             {
-                console.log('App Id : '+result[0].default_search_appId);
+                log.info('App Id : '+result[0].default_search_appId);
                 master.sendResponse(req, res, 200, -1, result[0].default_search_appId);
             }
 
@@ -1726,9 +1728,9 @@ module.exports.editProfilePic = function(req, res){
     var publicKey = req.body.publicKey;
     var signature = req.body.signature;
 
-    console.log('Email: '+email);
-    console.log('Extension: '+extension);
-    console.log('Public Key: '+publicKey);
+    log.info('Email: '+email);
+    log.info('Extension: '+extension);
+    log.info('Public Key: '+publicKey);
 
     var imageUploadUrl = 'public/images/';
 
@@ -1746,7 +1748,7 @@ module.exports.editProfilePic = function(req, res){
 
     if(!(validateEmail(email))) 
     {
-        console.log('Incorrect Email Format');
+        log.info('Incorrect Email Format');
         master.sendResponse(req, res, 200, 7, "Incorrect email id format");
         return;
     }
@@ -1797,21 +1799,21 @@ module.exports.editProfilePic = function(req, res){
 
         var fileName = email+'_'+randomNo+'.'+extension;
 
-        console.log('File Name : '+fileName);
+        log.info('File Name : '+fileName);
 
         var query = {"email": email};
 
         userSchema.find(query, function(err, imageresults){
 
-        console.log('getImageNameFromUser Callback');
-        //console.log(imageresults);
+        log.info('getImageNameFromUser Callback');
+        //log.info(imageresults);
 
         if (typeof imageresults !== 'undefined')
         {
               
             var filePath = path+imageresults[0]['profile_pic'];
 
-            console.log('File Name from Database: '+filePath);
+            log.info('File Name from Database: '+filePath);
 
                 fs.exists(filePath, function (exists) {
           
@@ -1819,7 +1821,7 @@ module.exports.editProfilePic = function(req, res){
 
                         if(imageresults[0]['profile_pic'] !== null && imageresults[0]['profile_pic'] !== 'avatar.png' && imageresults[0]['profile_pic'] !== '')
                         { 
-                            console.log("File is there");
+                            log.info("File is there");
                             //remove image from server.
                             fs.unlinkSync(filePath);
 
@@ -1827,40 +1829,40 @@ module.exports.editProfilePic = function(req, res){
                             var fileMediumPath = mediumPath+imageresults[0]['profile_pic'];
                             var fileSmallPath  = smallPath+imageresults[0]['profile_pic'];
 
-                            console.log(fileMediumPath);
+                            log.info(fileMediumPath);
 
                             fs.exists(fileThumbPath, function (exists){
                                 if (exists) {
                                     fs.unlinkSync(fileThumbPath);
-                                //console.log('Image removed from thumb folder');
+                                //log.info('Image removed from thumb folder');
                                 }
                             });
 
                             fs.exists(fileMediumPath, function (exists){
                                 if (exists) {
                                     fs.unlinkSync(fileMediumPath);
-                                    //console.log('Image removed from medium folder');
+                                    //log.info('Image removed from medium folder');
                                  }
                             });
 
                             fs.exists(fileSmallPath, function (exists){
                                 if (exists) {
                                     fs.unlinkSync(fileSmallPath);
-                                    //console.log('Image removed from small folder');
+                                    //log.info('Image removed from small folder');
                                  }
                             }); 
 
-                            console.log('Image removed from server');
+                            log.info('Image removed from server');
                         }  
 
                     }
                   
                     /*Created Origin image*/
                     fs.writeFile(path+fileName, dataImage, 'base64', {encoding:null}, function(err) { 
-                       // console.log(path+fileName);
+                       // log.info(path+fileName);
                         if(err)
                             {
-                                console.log(err);
+                                log.error(err);
                                 master.sendResponse(req, res, 200, 50, "file could not creating");
                                 return;
                             }
@@ -1871,8 +1873,8 @@ module.exports.editProfilePic = function(req, res){
 
                                     if(retVal)
                                     {
-                                        console.log('Image path updated');
-                                        console.log("Image successfully Created");
+                                        log.info('Image path updated');
+                                        log.info("Image successfully Created");
                                         master.sendResponse(req, res, 200, -1, "Image successfully Created");
                                         resizeImages();
                                     }
@@ -1897,7 +1899,7 @@ module.exports.editProfilePic = function(req, res){
     /*function to resize images*/
     function resizeImages(){
 
-        console.log("resize images function called");
+        log.info("resize images function called");
 
         // Thumbnail Images
         im.resize({
@@ -1906,7 +1908,7 @@ module.exports.editProfilePic = function(req, res){
             width:   80
         }, function(err, stdout, stderr){
           if (err) throw err;
-          console.log('resized profile pic to fit within 64px');
+          log.info('resized profile pic to fit within 64px');
         });
 
         // Medium Images
@@ -1916,7 +1918,7 @@ module.exports.editProfilePic = function(req, res){
             width:   200
         }, function(err, stdout, stderr){
           if (err) throw err;
-          console.log('resized profile pic to fit within 200px');
+          log.info('resized profile pic to fit within 200px');
         });
 
         // // small Images
@@ -1926,7 +1928,7 @@ module.exports.editProfilePic = function(req, res){
             width:   150
         }, function(err, stdout, stderr){
           if (err) throw err;
-          console.log('resized profile pic to fit within 128px');
+          log.info('resized profile pic to fit within 128px');
         });
  
     }
@@ -1940,10 +1942,10 @@ module.exports.editProfilePic = function(req, res){
 
 module.exports.creditUserAmount = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : creditUserAmount')
-	console.log('Credit User Amount API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : creditUserAmount')
+	log.info('Credit User Amount API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -1960,19 +1962,19 @@ module.exports.creditUserAmount = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Amount '+amount+' Successfully Deposited To '+retVal[0].email);
+            log.info('Amount '+amount+' Successfully Deposited To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -1985,10 +1987,10 @@ module.exports.creditUserAmount = function(req, res){
 
 module.exports.deductUserAmount = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductUserAmount')
-	console.log('Deduct User Amount API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : deductUserAmount')
+	log.info('Deduct User Amount API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2005,19 +2007,19 @@ module.exports.deductUserAmount = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Amount '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2030,10 +2032,10 @@ module.exports.deductUserAmount = function(req, res){
 
 module.exports.addPurchases = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addPurchases')
-	console.log('Add Purchase API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addPurchases')
+	log.info('Add Purchase API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2050,19 +2052,19 @@ module.exports.addPurchases = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Purchase Amount '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Purchase Amount '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2075,10 +2077,10 @@ module.exports.addPurchases = function(req, res){
 
 module.exports.deductPurchases = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductPurchases');
-	console.log('Deduct Purchase API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductPurchases');
+	log.info('Deduct Purchase API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -2095,19 +2097,19 @@ module.exports.deductPurchases = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Purchase Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Purchase Amount '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2120,10 +2122,10 @@ module.exports.deductPurchases = function(req, res){
 
 module.exports.addCashback = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addCashback')
-	console.log('Add Cashback API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addCashback')
+	log.info('Add Cashback API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2140,19 +2142,19 @@ module.exports.addCashback = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Cashback Amount '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Cashback Amount '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2165,10 +2167,10 @@ module.exports.addCashback = function(req, res){
 
 module.exports.deductCashback = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductPurchases');
-	console.log('Deduct Cashback API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductPurchases');
+	log.info('Deduct Cashback API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -2185,19 +2187,19 @@ module.exports.deductCashback = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Cashback Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Cashback Amount '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2210,10 +2212,10 @@ module.exports.deductCashback = function(req, res){
 
 module.exports.addAffEarning = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addAffEarning')
-	console.log('Add Affiliate Earning API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addAffEarning')
+	log.info('Add Affiliate Earning API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2230,19 +2232,19 @@ module.exports.addAffEarning = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Affiliate Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Affiliate Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2255,10 +2257,10 @@ module.exports.addAffEarning = function(req, res){
 
 module.exports.deductAffEarning = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductAffEarning');
-	console.log('Deduct Affiliate Earning API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductAffEarning');
+	log.info('Deduct Affiliate Earning API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -2275,19 +2277,19 @@ module.exports.deductAffEarning = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Affiliate Earning Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Affiliate Earning Amount '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2300,10 +2302,10 @@ module.exports.deductAffEarning = function(req, res){
 
 module.exports.addSales = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addSales')
-	console.log('Add Sales API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addSales')
+	log.info('Add Sales API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2320,19 +2322,19 @@ module.exports.addSales = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Sales Amount '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Sales Amount '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2345,10 +2347,10 @@ module.exports.addSales = function(req, res){
 
 module.exports.deductSales = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductSales');
-	console.log('Deduct Sales API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductSales');
+	log.info('Deduct Sales API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -2365,19 +2367,19 @@ module.exports.deductSales = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Sales Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Sales Amount '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2390,10 +2392,10 @@ module.exports.deductSales = function(req, res){
 
 module.exports.addTrade = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addTrade')
-	console.log('Add Trade API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addTrade')
+	log.info('Add Trade API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2410,19 +2412,19 @@ module.exports.addTrade = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Trade Amount '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Trade Amount '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2435,10 +2437,10 @@ module.exports.addTrade = function(req, res){
 
 module.exports.deductTrade = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductTrade');
-	console.log('Deduct Trade API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductTrade');
+	log.info('Deduct Trade API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -2455,19 +2457,19 @@ module.exports.deductTrade = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Trade Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Trade Amount '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2480,10 +2482,10 @@ module.exports.deductTrade = function(req, res){
 
 module.exports.addTotalKeywordIncome = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addTotalKeywordIncome')
-	console.log('Add Total Keyword Income API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addTotalKeywordIncome')
+	log.info('Add Total Keyword Income API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2500,19 +2502,19 @@ module.exports.addTotalKeywordIncome = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Total Keyword Income Amount '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Total Keyword Income Amount '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2525,10 +2527,10 @@ module.exports.addTotalKeywordIncome = function(req, res){
 
 module.exports.deductTotalKeywordIncome = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductTotalKeywordIncome');
-	console.log('Deduct Total Keyword Income API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductTotalKeywordIncome');
+	log.info('Deduct Total Keyword Income API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -2545,19 +2547,19 @@ module.exports.deductTotalKeywordIncome = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Total Keyword Income Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Total Keyword Income Amount '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2570,10 +2572,10 @@ module.exports.deductTotalKeywordIncome = function(req, res){
 
 module.exports.addBlockedPendingWithdrawals = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addBlockedPendingWithdrawals')
-	console.log('Add Blocked Pending Withdrawals API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addBlockedPendingWithdrawals')
+	log.info('Add Blocked Pending Withdrawals API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2590,19 +2592,19 @@ module.exports.addBlockedPendingWithdrawals = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Blocked Pending Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Blocked Pending Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2615,10 +2617,10 @@ module.exports.addBlockedPendingWithdrawals = function(req, res){
 
 module.exports.deductBlockedPendingWithdrawals = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductTotalKeywordIncome');
-	console.log('Deduct Blocked Pending Withdrawals API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductTotalKeywordIncome');
+	log.info('Deduct Blocked Pending Withdrawals API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -2635,19 +2637,19 @@ module.exports.deductBlockedPendingWithdrawals = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
             
-            console.log('Blocked Pending Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Blocked Pending Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2660,10 +2662,10 @@ module.exports.deductBlockedPendingWithdrawals = function(req, res){
 
 module.exports.addApprovedWithdrawals = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addApprovedWithdrawals')
-	console.log('Add Approved Withdrawals API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addApprovedWithdrawals')
+	log.info('Add Approved Withdrawals API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2680,19 +2682,19 @@ module.exports.addApprovedWithdrawals = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Approved Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Approved Withdrawals Amount '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2705,10 +2707,10 @@ module.exports.addApprovedWithdrawals = function(req, res){
 
 module.exports.deductApprovedWithdrawals = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductApprovedWithdrawals');
-	console.log('Deduct Blocked Pending Withdrawals API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductApprovedWithdrawals');
+	log.info('Deduct Blocked Pending Withdrawals API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -2725,19 +2727,19 @@ module.exports.deductApprovedWithdrawals = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
             
-            console.log('Approved Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Approved Withdrawals Amount '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2750,10 +2752,10 @@ module.exports.deductApprovedWithdrawals = function(req, res){
 
 module.exports.addTotalAppIncome = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addTotalAppIncome')
-	console.log('Add Total App Income API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addTotalAppIncome')
+	log.info('Add Total App Income API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2770,19 +2772,19 @@ module.exports.addTotalAppIncome = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Total App Income Amount '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Total App Income Amount '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2795,10 +2797,10 @@ module.exports.addTotalAppIncome = function(req, res){
 
 module.exports.firstBuy = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : firstBuy')
-	console.log('First Buy Status API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : firstBuy')
+	log.info('First Buy Status API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2815,19 +2817,19 @@ module.exports.firstBuy = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Successfully Updated First Buy Status of '+retVal[0].email+' To '+amount);
+            log.info('Successfully Updated First Buy Status of '+retVal[0].email+' To '+amount);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2840,10 +2842,10 @@ module.exports.firstBuy = function(req, res){
 
 module.exports.addBlockedForBids = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : addBlockedForBids')
-	console.log('Add Blocked For Bids API Hitted');
-	console.log('Parameter Receiving..')
+	log.info('Page Name : user.js');
+	log.info('API Name : addBlockedForBids')
+	log.info('Add Blocked For Bids API Hitted');
+	log.info('Parameter Receiving..')
     
     master.validation(req, function(retVal){
         
@@ -2860,19 +2862,19 @@ module.exports.addBlockedForBids = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Blocked For Bids '+amount+' Successfully Added To '+retVal[0].email);
+            log.info('Blocked For Bids '+amount+' Successfully Added To '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2885,10 +2887,10 @@ module.exports.addBlockedForBids = function(req, res){
 
 module.exports.deductBlockedForBids = function(req, res){
     
-	console.log('Page Name : user.js');
-	console.log('API Name : deductBlockedForBids');
-	console.log('Deduct Blocked For Bids API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : deductBlockedForBids');
+	log.info('Deduct Blocked For Bids API Hitted');
+	log.info('Parameter Receiving..');
     
     master.validation(req, function(retVal){
         
@@ -2905,19 +2907,19 @@ module.exports.deductBlockedForBids = function(req, res){
 
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
 
             if (result==null || result=="") // Email Not Found
             {
-                console.log(retVal[0].email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
 
-            console.log('Blocked For Bids '+amount+' Successfully Deducted From '+retVal[0].email);
+            log.info('Blocked For Bids '+amount+' Successfully Deducted From '+retVal[0].email);
             master.sendResponse(req, res, 200, -1, 'Success');
 
         })
@@ -2930,10 +2932,10 @@ module.exports.deductBlockedForBids = function(req, res){
 
 module.exports.rejectBlockedBids = function(req, res){
 	
-	console.log('Page Name : user.js');
-	console.log('API Name : rejectBlockedBids')
-	console.log('Reject Blocked Bids API Hitted');
-	console.log('Parameter Receiving..');
+	log.info('Page Name : user.js');
+	log.info('API Name : rejectBlockedBids')
+	log.info('Reject Blocked Bids API Hitted');
+	log.info('Parameter Receiving..');
 	
 	// Require Modules
 	var http = require('http');
@@ -2949,7 +2951,7 @@ module.exports.rejectBlockedBids = function(req, res){
 	var value = '';
 	var emailValue = '';
 
-	console.log('Json File : '+reject_bids_json);
+	log.info('Json File : '+reject_bids_json);
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -2967,7 +2969,7 @@ module.exports.rejectBlockedBids = function(req, res){
 	
 	if(reject_bids_json == "" && reject_bids_json == null)
 	{
-		console.log('Reject Bids Json Missing');
+		log.info('Reject Bids Json Missing');
 		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
@@ -2999,7 +3001,7 @@ module.exports.rejectBlockedBids = function(req, res){
                     // Receiving Data In Chunk
                     res.on('data', function(chunk){
 
-                        console.log('Chunk Started');
+                        log.info('Chunk Started');
 
                         json = chunk.toString();
                         json = json.replace(/\[/g,"");
@@ -3039,7 +3041,7 @@ module.exports.rejectBlockedBids = function(req, res){
 
                     var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
 
-                    console.log(totalAmount);
+                    log.info(totalAmount);
 
                     var query = {"email": bidRetEmail};
 
@@ -3082,7 +3084,7 @@ module.exports.rejectBlockedBids = function(req, res){
                 // Error Returning Bid Functionality of Phase 2 
                 else
                 {
-                    console.log('Error In Updating Blocked Bids At:'+value+' For Email: '+bidRetEmail);
+                    log.info('Error In Updating Blocked Bids At:'+value+' For Email: '+bidRetEmail);
 
                     for(var j=0; j<value; j++)
                     {
@@ -3132,13 +3134,13 @@ module.exports.rejectBlockedBids = function(req, res){
             {
                 if(value == "Success")
                 {
-                    console.log('Cancelled All Reject Bids Successfully');
+                    log.info('Cancelled All Reject Bids Successfully');
                     master.sendResponse(req, res, 200, 5, "Database Error");
                 }
 
                 else
                 {
-                    console.log('Error In Cancellation At:'+value+' For Email: '+bidRetEmail);
+                    log.info('Error In Cancellation At:'+value+' For Email: '+bidRetEmail);
                     master.sendResponse(req, res, 200, 5, "Database Error");
                 }
             }

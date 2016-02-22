@@ -3,8 +3,10 @@
 "use strict";
 
 // Pages
-var deviceSchema    = require('../models/deviceInfoSchema.js')  // DeviceInfo Schema
-var crypt           = require('./crypt.js');                    // Crypt/Signature Related Functionality
+var deviceSchema    = require('../models/deviceInfoSchema.js'),  // DeviceInfo Schema
+    crypt           = require('./crypt.js'),                     // Crypt/Signature Related Functionality
+    logger          = require('./w_config.js'),
+    log             = logger();
 
 
 //========================= Page Functions ========================= //
@@ -12,7 +14,7 @@ var crypt           = require('./crypt.js');                    // Crypt/Signatu
 module.exports.sendResponse = function(req, res, status, errCode, errMsg) {
 
     var d = Date();
-    console.log(status +" "+ errCode +" "+ errMsg + " " + d);
+    log.info(status +" "+ errCode +" "+ errMsg + " " + d);
     res.status(status).send({
         errCode: errCode, 
         errMsg: errMsg,
@@ -26,7 +28,7 @@ module.exports.validateParameter = function(parameter, name){
     
     if(parameter === undefined || parameter.length<=0)
     {
-        console.log(name+' Is Missing');
+        log.info(name+' Is Missing');
         return false;
     }
 
@@ -53,7 +55,8 @@ module.exports.secureAuth = function(query, text, signature, cb){
         
         if (err)
         {
-            console.log('Database Error');
+            log.info('Database Error');
+            log.error(err);
             cb(err);
             return;
         }
@@ -66,7 +69,7 @@ module.exports.secureAuth = function(query, text, signature, cb){
                 "error" : "true"
             }];
             
-            console.log('Server Not Found');
+            log.info('Server Not Found');
             cb(retVal);
             return;
         }
@@ -78,7 +81,7 @@ module.exports.secureAuth = function(query, text, signature, cb){
              // Signature Not Matched
 			if (!isValid)
 			{
-				console.log('Invalid Signature');
+				log.info('Invalid Signature');
                 var retVal = [{
                     "message" : "Invalid Signature",
                     "errCode" : 14,
@@ -110,10 +113,10 @@ module.exports.validation  = function(req, cb){
     var publicKey   = req.body.publicKey;
     var signature   = req.body.signature;
     
-    console.log('Email :'+email);
-    console.log('Amount : '+amount);
-    console.log('Public Key : '+publicKey);
-    console.log('Signature : '+signature);
+    log.info('Email :'+email);
+    log.info('Amount : '+amount);
+    log.info('Public Key : '+publicKey);
+    log.info('Signature : '+signature);
     
     // Validate Public Key
     if(!(validate(publicKey, 'Public Key'))){
@@ -149,7 +152,7 @@ module.exports.validation  = function(req, cb){
     }
 
     if(!(validateEmail(email))){
-        console.log('Incorrect Email Format');
+        log.info('Incorrect Email Format');
         var retVal = [{
             "message" : "Incorrect email id format",
             "errCode" : 7,
@@ -162,7 +165,7 @@ module.exports.validation  = function(req, cb){
     // Validate Amount
     if(!(validate(amount, 'amount')) || isNaN(amount)){
         if(isNaN(amount)){
-            console.log('Amount is Invalid');
+            log.info('Amount is Invalid');
         }
         var retVal = [{
             "message" : "Mandatory field not found",

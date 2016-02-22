@@ -25,7 +25,9 @@ var  express     = require('express'),
 // Packages
      bodyParser  = require('body-parser'),
      nconf 		 = require('nconf'),
-     bunyan      = require('bunyan'),
+     //bunyan      = require('bunyan'),
+    logger             = require('./config/w_config.js'),
+    log                = logger(),
 
 
 // Pages
@@ -166,8 +168,5 @@ app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Ge
 
 // Server Connectivity
 app.listen('5000', function () {
-    console.log('Connected To Server');
+    log.info('Connected To Server');
 });
-
-
-
