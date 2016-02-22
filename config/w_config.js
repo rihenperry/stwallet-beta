@@ -29,7 +29,7 @@ var bunyanOpts = {
     },
     {
         level: 'info',
-        path: '/home/sudeep/wallet_log.json'  // log ERROR and above to a file
+        path: 'D:/wallet_log.json'  // log ERROR and above to a file
         // path: 'st-wallet-log-bunyan.json'  // log ERROR and above to a file
     }
   ]
