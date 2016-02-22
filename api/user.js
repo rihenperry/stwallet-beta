@@ -1176,7 +1176,7 @@ module.exports.resetpassword = function(req, res) {
 	var password            = req.body.password;
 	var confirm_password    = req.body.confirm_password;
     var publicKey           = req.body.publicKey;
-    var signature           = 'cb2aa4b29c505fe181863a6';
+    var signature           = req.body.signature;
     
     log.info('Email : '+email);
 	log.info('Authentication : '+auth);
@@ -1373,7 +1373,7 @@ module.exports.changePassword = function (req, res) {
 	var new_pass            = req.body.new_password;
     var confirm_new_pass    = req.body.confirm_new_password;
     var publicKey           = req.body.publicKey;
-    var signature           = req.body.signatre;
+    var signature           = req.body.signature;
     
     log.info('Email : ' + email);
     log.info('Old Password : ' + old_pass);
@@ -2813,7 +2813,7 @@ module.exports.firstBuy = function(req, res){
         var amount = parseFloat(retVal[0].amount);
         
         // Find and Update User's First Buy Status
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_app_income:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email}, {first_buy_status:amount}, function(err, result){
 
             if (err)
             {

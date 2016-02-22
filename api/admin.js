@@ -24,11 +24,8 @@ module.exports.getAllTransactions = function(req, res){
 	log.info('Parameters Receiving..');
 	
 	var email = req.body.email;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '5a3f3f02f59d666fbc274347e1776406dd3699ab7def639f3b0ff457802375fc28abe1468f450f8d0c47e6ef984bfd8f3939062559ee3395602e55fb48d42eba';
-	// var signature = 'f217f11ab5df130c54ee1869eb806a174bf6f1fb3c569db7333c737e9cf6645cf69d28eb05dc9ef61d329e51dbe566b1b692c12336924c73cb3aa66adb4e4dce';
+	var publicKey = req.body.publicKey;
+	var signature = req.body.signature;
 	
 	var text = 'publicKey='+publicKey;		
 	var query = {'publicKey': publicKey};
@@ -133,7 +130,7 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                log.info(email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }

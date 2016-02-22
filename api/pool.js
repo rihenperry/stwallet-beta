@@ -19,11 +19,8 @@ var poolvalidate = function(req, cb){
 	log.info('Parameters Receiving..');
 	
 	var amount = req.body.amount;
-	// var publicKey = req.body.publicKey;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
-	var signature = '11916d35d02d3817259d4b8497f4208bd74973946aeafb9acccd26019c45eea39ccae1c24047fbb83791cbf28a723b54211b88480230bc18fc0d09050026094b';
-	// var signature = 'f217f11ab5df130c54ee1869eb806a174bf6f1fb3c569db7333c737e9cf6645cf69d28eb05dc9ef61d329e51dbe566b1b692c12336924c73cb3aa66adb4e4dce';
+	var publicKey = req.body.publicKey;
+	var signature = req.body.signature;
 	
 	var text = 'amount='+amount+'&publicKey='+publicKey;	
 	var reqParam = [amount, publicKey, signature];
