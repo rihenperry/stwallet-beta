@@ -6,16 +6,19 @@ var transactionSchema   = require('../models/transaction_Schema.js');   // Trans
 var crypt               = require('../config/crypt.js');                // Crypt/Signature Related Functionality
 var master              = require('../config/masterfunc.js');           // Master Functions
 
+var bunyan          = require('bunyan'),
+    log             = bunyan.createLogger({name: "ST-Wallet"});
+
 // Transaction API
 
 /*================================= Insert User Transaction ==================================*/
 
 module.exports.insertUserTransaction = function(req, res){
 
-	console.log('Page Name: transaction.js');
-	console.log('API Name : insertUserTransaction');	
-	console.log('Insert Transaction API Hitted');
-	console.log('Parameters Receiving -:');
+	log.info('Page Name: transaction.js');
+	log.info('API Name : insertUserTransaction');	
+	log.info('Insert Transaction API Hitted');
+	log.info('Parameters Receiving -:');
 
 	var sender         = req.body.sender;
 	var receiver       = req.body.receiver;
@@ -33,21 +36,21 @@ module.exports.insertUserTransaction = function(req, res){
 	var publicKey      = req.body.publicKey;
 	var signature      = req.body.signature;
 
-	console.log('Sender (Email) : '+sender);
-	console.log('Receiver (Email) : '+receiver);
-	console.log('Amount : '+amount);
-	console.log('Type : '+type);
-	console.log('Description : '+desc);
-	console.log('Keyword : '+keyword);
-	console.log('Payment Mode : '+payment_mode);
-	console.log('Discount : '+discount);
-	console.log('App Id : '+appId);
-	console.log('Commission : '+commision);
-	console.log('Origin Ip : '+origin_ip);
-	console.log('USD : '+usd);
-	console.log('SGD : '+sgd);
-	console.log('Public Key :'+publicKey);
-	console.log('Signature :'+signature);
+	log.info('Sender (Email) : '+sender);
+	log.info('Receiver (Email) : '+receiver);
+	log.info('Amount : '+amount);
+	log.info('Type : '+type);
+	log.info('Description : '+desc);
+	log.info('Keyword : '+keyword);
+	log.info('Payment Mode : '+payment_mode);
+	log.info('Discount : '+discount);
+	log.info('App Id : '+appId);
+	log.info('Commission : '+commision);
+	log.info('Origin Ip : '+origin_ip);
+	log.info('USD : '+usd);
+	log.info('SGD : '+sgd);
+	log.info('Public Key :'+publicKey);
+	log.info('Signature :'+signature);
 
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -104,7 +107,7 @@ module.exports.insertUserTransaction = function(req, res){
                 return err;
             }
 
-            console.log('Transaction Inserted SuccessFully');
+            log.info('Transaction Inserted SuccessFully');
             master.sendResponse(req, res, 200, -1, newTransaction._id);
             
         })
@@ -118,18 +121,18 @@ module.exports.insertUserTransaction = function(req, res){
 
 module.exports.getUsersTotalTransactions = function(req, res) {
 
-	console.log('Page Name: transaction.js');
-	console.log('API Name : getUsersTotalTransactions');	
-	console.log('Get Users Transactions Count API Hitted');	
-	console.log('Parameters Receiving -:');
+	log.info('Page Name: transaction.js');
+	log.info('API Name : getUsersTotalTransactions');	
+	log.info('Get Users Transactions Count API Hitted');	
+	log.info('Parameters Receiving -:');
     
     var email       = req.body.email;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
     
-    console.log('Email : '+email);
-	console.log('Public Key :'+publicKey);
-	console.log('Signature :'+signature);
+    log.info('Email : '+email);
+	log.info('Public Key :'+publicKey);
+	log.info('Signature :'+signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -154,7 +157,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
 
 	if (!(master.validateEmail(email)))
     {
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -174,14 +177,14 @@ module.exports.getUsersTotalTransactions = function(req, res) {
             
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             
             if(retVal==null || retVal=="" || retVal == undefined) // Email Not Found
             {
-                console.log(email+" Not Registered");
+                log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -192,19 +195,19 @@ module.exports.getUsersTotalTransactions = function(req, res) {
                 
                 if(err)
                 {
-                    console.log(err);
+                    log.error(err);
                     master.sendResponse(req, res, 200, 5, "Database Error");
                     return;
                 }
                 
                 if(retValue == undefined || retValue.length == 0 || retValue == "" || retValue == null)
                 {
-                    console.log('No Transactions of This User')
+                    log.info('No Transactions of This User')
                     master.sendResponse(req, res, 200, -1, 'No transactions of this user');
                     return;
                 }
                 
-                console.log(retValue.length+' Transactions For '+email);
+                log.info(retValue.length+' Transactions For '+email);
                 master.sendResponse(req, res, 200, -1, retValue.length);
             })
             
@@ -218,10 +221,10 @@ module.exports.getUsersTotalTransactions = function(req, res) {
 
 module.exports.getTransactions = function(req, res) {
     
-    console.log('Page Name: transactions.js');
-	console.log('API Name : getTransactions');	
-	console.log('Get Transaction Accessed');	
-	console.log('Parameters Receiving -:');
+    log.info('Page Name: transactions.js');
+	log.info('API Name : getTransactions');	
+	log.info('Get Transaction Accessed');	
+	log.info('Parameters Receiving -:');
     
 	var email      = req.body.email;
 	var from       = req.body.from;
@@ -232,13 +235,13 @@ module.exports.getTransactions = function(req, res) {
 	var type       = req.body.type;
     var order      = 1;
     
-    console.log('Email : '+email);
-	console.log('From Date : '+from);
-	console.log('To Date : '+to);
-	console.log('Number of Transactions : '+n);
-	console.log('Type : '+type);
-	console.log('Public Key :'+publicKey);
-	console.log('Signature :'+signature);
+    log.info('Email : '+email);
+	log.info('From Date : '+from);
+	log.info('To Date : '+to);
+	log.info('Number of Transactions : '+n);
+	log.info('Type : '+type);
+	log.info('Public Key :'+publicKey);
+	log.info('Signature :'+signature);
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -263,7 +266,7 @@ module.exports.getTransactions = function(req, res) {
 
 	if (!(master.validateEmail(email)))
     {
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -284,13 +287,13 @@ module.exports.getTransactions = function(req, res) {
     to   = parseInt(to);
 	from = parseInt(from);
     
-    console.log('From Time : '+from);
-	console.log('To Time : '+to);
+    log.info('From Time : '+from);
+	log.info('To Time : '+to);
     
     // Number of Transactions
 	if(isNaN(n))
 	{
-		console.log('Number is Blank');
+		log.info('Number is Blank');
 		console.log(req.body);
 		n = 50;
 	}
@@ -322,19 +325,19 @@ module.exports.getTransactions = function(req, res) {
             
             if(err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             
             if(retVal == undefined || retVal.length == 0 || retVal == "" || retVal == null)
             {
-                console.log('No Transactions of This User')
+                log.info('No Transactions of This User')
                 master.sendResponse(req, res, 200, -1, 'No transactions of this user');
                 return;
             }
             
-            console.log('Transactions from '+ from +' to ' + to + ': ');
+            log.info('Transactions from '+ from +' to ' + to + ': ');
             master.sendResponse(req, res, 200, -1, retVal);
             
         }).sort({time:order}).limit(n);
