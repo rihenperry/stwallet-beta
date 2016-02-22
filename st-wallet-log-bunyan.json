@@ -17,3 +17,6 @@
 {"name":"myapp","hostname":"Acer-PC","pid":5672,"level":50,"msg":"hi","time":"2016-02-22T05:43:44.440Z","v":0}
 {"name":"myapp","hostname":"Acer-PC","pid":2644,"level":50,"msg":"hi","time":"2016-02-22T05:43:57.756Z","v":0}
 {"name":"myapp","hostname":"Acer-PC","pid":5148,"level":50,"msg":"hi","time":"2016-02-22T05:44:11.952Z","v":0}
+{"name":"myapp","hostname":"Acer-PC","pid":308,"level":50,"msg":"hi","time":"2016-02-22T05:46:47.887Z","v":0}
+{"name":"myapp","hostname":"Acer-PC","pid":2060,"level":50,"msg":"hi","time":"2016-02-22T05:46:55.791Z","v":0}
+{"name":"myapp","hostname":"Acer-PC","pid":5724,"level":50,"msg":"hi","time":"2016-02-22T05:47:21.515Z","v":0}
