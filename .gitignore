@@ -1,3 +1,5 @@
 # Node.
 node_modules
+public
 npm-debug.log
+st-wallet-log-bunyan.json
