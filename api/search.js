@@ -2,13 +2,13 @@
 /*jslint node: true */
 "use strict";
 
-var bunyan          = require('bunyan'),
-    log             = bunyan.createLogger({name: "ST-Wallet"});
+var logger          = require('../config/w_config.js'),
+    log             = logger(),
 
 // Pages
-var userSchema      = require('../models/userSchema.js');       // User Schema
-var poolSchema	  	= require('../models/poolSchema.js');       // Pool Schema
-var master          = require('../config/masterfunc.js');       // Master Functions
+    userSchema      = require('../models/userSchema.js'),       // User Schema
+    poolSchema	  	= require('../models/poolSchema.js'),       // Pool Schema
+    master          = require('../config/masterfunc.js');       // Master Functions
 
 /* Export Fuctions */
 
@@ -30,7 +30,7 @@ module.exports.addSearchEarning = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
-        
+
         // Find and Update User's Search Earning
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_earning:amount}},function(err, result){
 
@@ -148,7 +148,7 @@ module.exports.deductQualifiedSearches = function(req, res){
 
             else
             {
-                log.info('Qualified Searches '+amount+' Successfully Deducted From '+retVal[0].email);
+                log.logger.info('Qualified Searches '+amount+' Successfully Deducted From '+retVal[0].email);
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
 

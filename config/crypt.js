@@ -1,6 +1,9 @@
 // Packages
 var crypto  = require('crypto');
-var token   = require('token');
+var token   = require('token'),
+
+    logger          = require('./w_config.js'),
+    log             = logger();
 
 // Algorithm AND Key
 var algorithm = 'sha512';
@@ -22,7 +25,7 @@ module.exports.generate = function(data) {
 };
 
 module.exports.createKeyPair = function(text, cb) {
-  console.log('createKeyPair');
+  log.info('createKeyPair');
   
   var hash;
   var hmac = crypto.createHmac(algorithm, key);
@@ -34,7 +37,7 @@ module.exports.createKeyPair = function(text, cb) {
   hmac.end(text, function () {
     hash = hmac.read();
     //...do something with the hash...
-    // console.log(hash);
+    // log.info(hash);
     
     cb(hash);
   });
@@ -53,8 +56,8 @@ module.exports.encryptMessage = function(text, k, cb) {
     hmac.end(text, function () {
         hash = hmac.read();
         //...do something with the hash...
-        console.log('signture');
-        console.log(hash);
+        log.info('signture');
+        log.info(hash);
         cb(hash);
     });
 
@@ -66,12 +69,12 @@ module.exports.validateSignature = function(text, signature, privateKey, cb) {
         
         if (signature === hash)
         {
-            console.log('Signature is Valid');
+            log.info('Signature is Valid');
             cb(true);
         }
         else
         {
-            console.log( signature + ' !== \n' + hash);
+            log.info( signature + ' !== \n' + hash);
             cb(false);
         }
         

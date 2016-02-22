@@ -7,10 +7,10 @@ var master          = require('../config/masterfunc.js');       // Master Functi
 /* Device Register*/
 module.exports.deviceRegister = function(req, res){
 
-	console.log('Page Name: Device.js');
-	console.log('API Name : deviceRegister');
-	console.log("Device Register API Hitted");
-  	console.log('Parameters Receiving..');
+	log.info('Page Name: Device.js');
+	log.info('API Name : deviceRegister');
+	log.info("Device Register API Hitted");
+  	log.info('Parameters Receiving..');
 
 	var deviceInfo = req.body.deviceInfo;
 	// var publicKey = req.body.publicKey;
@@ -19,8 +19,8 @@ module.exports.deviceRegister = function(req, res){
 	var signature = 'b7e835a2e7ad371e90167c5e9ce2410371d076943c0f716c9b6a91effa5b36bd709b445892a3c009c67caba9790675b484a3311e0e28ea4aab29143bdabddf99';
 
 	// console.log(deviceInfo);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
 
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -45,7 +45,7 @@ module.exports.deviceRegister = function(req, res){
 	// Checking Device ID in Device Info
 	if ('Device_ID' in deviceInfo && deviceInfo.Device_ID.length > 0 && deviceInfo.IP != NULL) 
 	{
-		console.log('Device ID Found');
+		log.info('Device ID Found');
 		key = deviceInfo.Device_ID;
 
 		if (!('Device_Type' in deviceInfo))
@@ -59,7 +59,7 @@ module.exports.deviceRegister = function(req, res){
 	{
 		if (deviceInfo.IP.length > 0) {
 
-			console.log('IP found '+deviceInfo.IP);	
+			log.info('IP found '+deviceInfo.IP);	
 			key = deviceInfo.IP;
 
 			if (!('Device_Type' in deviceInfo))
@@ -72,7 +72,7 @@ module.exports.deviceRegister = function(req, res){
 	
 	else 
 	{
-		console.log('Device IP and Device Id Both Are Missing');
+		log.info('Device IP and Device Id Both Are Missing');
 		master.sendResponse(req, res, 200, 1, "Mandatory Input Not Found");
 		return;
 	}
@@ -84,14 +84,14 @@ module.exports.deviceRegister = function(req, res){
 		// Error In Finding Server
 		if (err)
 		{
-			console.log('no such server');
+			log.info('no such server');
 			master.sendResponse(req, res, 200, 13, 'Server is not registered');
 			return;
 		}
 
 		// Successfully Find Server
-		console.log('Result: ');
-		console.log(result);
+		log.info('Result: ');
+		log.info(result);
 
 		var privateKey = result[0].privateKey;
 		var txt = 'deviceInfo='+deviceInfo+'&publicKey='+publicKey;
@@ -102,7 +102,7 @@ module.exports.deviceRegister = function(req, res){
 				// Signature Not Match
 				if (!isValid)
 				{
-					console.log('Invalid Signature');
+					log.info('Invalid Signature');
 					master.sendResponse(req, res, 200, 14, 'Invalid Signature');
 					return;
 				}	
@@ -110,28 +110,28 @@ module.exports.deviceRegister = function(req, res){
 				if ('Device_Type' in deviceInfo)
 				{
 					type = deviceInfo.Device_Type;
-					console.log('Device Is '+type);
+					log.info('Device Is '+type);
 				}
 				
 				else if ('Device_ID' in deviceInfo) 
 				{
 					type = deviceInfo.Device_Type;
-					console.log('Device is '+type);
+					log.info('Device is '+type);
 				}
 				
 				else if ('IP' in deviceInfo) 
 				{
 					type = deviceInfo.Device_Type;
-					console.log('Device is '+type);
+					log.info('Device is '+type);
 				}
 
 				var hashID = crypt.hashIt(key);
 				
-				console.log('id: '+hashID);
+				log.info('id: '+hashID);
 						
 					deviceSchema.find({'publicKey': hashID}, function(err, result){
 
-						console.log('Device Information :'+result);
+						log.info('Device Information :'+result);
 			
 						crypt.createKeyPair(deviceInfo.Device_ID, function(hashKeyVal) {
 					  
@@ -156,8 +156,8 @@ module.exports.deviceRegister = function(req, res){
 									else
 									{
 
-										console.log('Device Info Successfully Saved..');
-										console.log("Public Key : "+hashID+" Private Key : "+hashKeyVal);
+										log.info('Device Info Successfully Saved..');
+										log.info("Public Key : "+hashID+" Private Key : "+hashKeyVal);
 										master.sendResponse(req, res, 200, -1, {"publicKey": hashID, "privateKey": hashKeyVal});
 									}
 								
@@ -172,8 +172,8 @@ module.exports.deviceRegister = function(req, res){
 								deviceInfo.privateKey = hashKeyVal;
 								deviceInfo.creationTime = Date.now();
 						
-								console.log('Existing Server');
-								console.log("Public Key : "+hashID+" Private Key : "+hashKeyVal)
+								log.info('Existing Server');
+								log.info("Public Key : "+hashID+" Private Key : "+hashKeyVal)
 								master.sendResponse(req, res, 200, -1, {"publicKey": hashID, "privateKey": hashKeyVal});
 					  
 							}
@@ -197,9 +197,9 @@ module.exports.getPvtKey = function(req, res){
 	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa'; //keyword public key
 	// var pubKey = '705d07596a332c903b552cf9b5ced80d6aeb6a7b';
 	var signature = 'ff065230713974094506bc718e429ed1a86354e1c15ee0b19db06a84c2961c9f292b43924280cb233142ba730ed5ef7633c3ff0d8a1d8791ff6f9072294cd80d';
-	console.log('Device PubKey : '+pubKey);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+	log.info('Device PubKey : '+pubKey);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
 	
 	// Validate Publickey For PrivateKey Access
 	if(!(master.validateParameter(pubKey, 'DevicePubKey')))
@@ -230,7 +230,7 @@ module.exports.getPvtKey = function(req, res){
 		// Error In Finding Server
 		if (!result[0])
 		{
-			console.log('no such server');
+			log.info('no such server');
 			master.sendResponse(req, res, 200, 13, 'Server is not registered');
 			return;
 		}
@@ -244,7 +244,7 @@ module.exports.getPvtKey = function(req, res){
 			// Signature Not Match
 			if (!isValid)
 			{
-				console.log('Invalid Signature');
+				log.info('Invalid Signature');
 				master.sendResponse(req, res, 200, 14, 'Invalid Signature');
 				return;
 			}
@@ -252,17 +252,17 @@ module.exports.getPvtKey = function(req, res){
 			var newQuery = {'publicKey': pubKey};
 			
 			deviceSchema.find(newQuery, function(err, result){
-			console.log(result);
+			log.info(result);
 				// Error In Finding Server
 				if (!result[0])
 				{
-					console.log('Device Not Registered');
+					log.info('Device Not Registered');
 					master.sendResponse(req, res, 200, 13, 'Device Not Registered');
 					return;
 				}
 			
 				var pvtKey = result[0].privateKey;
-				console.log('Private Key : '+pvtKey);
+				log.info('Private Key : '+pvtKey);
 				master.sendResponse(req, res, 200, -1, pvtKey);
 			
 			})

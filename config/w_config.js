@@ -1,4 +1,4 @@
-var bunyan      = require('bunyan');
+//var bunyan      = require('bunyan');
 
 var nconf = require('nconf');
 
@@ -18,9 +18,38 @@ function getOptionsFromConfigFile () {
 
 
 module.exports = {DEFAULTS:getOptionsFromConfigFile ()}
+//
+//
+//var bunyanOpts = {
+//    name: 'myapp',
+//    streams: [
+//    {
+//        level: 'debug',
+//        stream: process.stdout       // log INFO and above to stdout
+//    },
+//    {
+//        level: 'info',
+//        path: 'D:/wallet.json'  // log ERROR and above to a file
+//        // path: 'st-wallet-log-bunyan.json'  // log ERROR and above to a file
+//    }
+//  ]
+//};
+//
+//exports.log = bunyan.createLogger(bunyanOpts);
 
 
-var bunyanOpts = {
+// Bunyan Code Start
+
+var bunyan = require('bunyan'),
+  //mixIn = require('mout/object/mixIn'),
+
+  // add some default options here...
+  defaults = {},
+
+  // singleton
+  logger,
+
+ bunyanOpts = {
     name: 'myapp',
     streams: [
     {
@@ -29,11 +58,31 @@ var bunyanOpts = {
     },
     {
         level: 'info',
-        path: '/home/sudeep/wallet_log.json'  // log ERROR and above to a file
+        path: 'D:/wallet.json'  // log ERROR and above to a file
         // path: 'st-wallet-log-bunyan.json'  // log ERROR and above to a file
     }
   ]
-};
+},   
+    
+    
+  createLogger = function createLogger(options) {
+    var opts;
 
-var log = bunyan.createLogger(bunyanOpts);
-log.error('hi');
+    if (logger) {
+      return logger;
+    }
+
+
+
+
+    logger = bunyan.createLogger(bunyanOpts);
+
+    return logger;
+  };
+
+module.exports = createLogger;
+
+
+
+//var logger = module.exports.log;
+//log.error('hi');
