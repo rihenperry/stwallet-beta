@@ -224,7 +224,6 @@ module.exports.resetTotalNumberOfQualifiedSearches = function (req, res){
 	var value = true;
 	
 	// Get Pool Results Function
-	// db.setUserQualifiedSearches(value, function(retVal){
 	var query = {$set: {"no_of_qualified_searches_pending": 40, "last_hour_search_time":0, "total_no_of_searches_in_last_hour":0}};
 	
 	userSchema.update({'active':1}, query, {multi:true}, function(err, retVal){
@@ -256,11 +255,9 @@ module.exports.userManage = function (req, res){
 	log.info('No Parameters Receiving...');
 	
 	var email = req.body.email;
-	// var publicKey = req.body.publicKey;
 	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	// var signature = req.body.signature;
 	var signature = 'f0c74ba483ad72f57317618c6f7ec5e016d57f2f61e8297a515c2a66b34203b45afd8c1ac8be486f606cfb9c9d6d461f758f2a3ff5a5e735e1d86c5949bce95f';
-	// var signature = 'f217f11ab5df130c54ee1869eb806a174bf6f1fb3c569db7333c737e9cf6645cf69d28eb05dc9ef61d329e51dbe566b1b692c12336924c73cb3aa66adb4e4dce';
+	
 	var skip = req.body.skip;
 	var order = req.body.order;
 	var column = req.body.column;
@@ -539,23 +536,21 @@ module.exports.getExpenceTransactions = function(req, res) {
 				});
 
 			}else{
-
-				transSchema.find(query, function(err, retTrans){
 				// Get Transaction
-				// db.expenceTransactions(query, n, function(retTrans) {
-					
-				// No Transaction
-				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-				{	
-					log.info('No Transactions');
-					master.sendResponse(req, res, 200, -1, 'No Transactions');
-					return;
-				}
+				transSchema.find(query, function(err, retTrans){
 				
-				// Transactions Found
-				log.info('Transaction Found Successfully');
-				master.sendResponse(req, res, 200, -1, retTrans);
-				return;
+					// No Transaction
+					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+					{	
+						log.info('No Transactions');
+						master.sendResponse(req, res, 200, -1, 'No Transactions');
+						return;
+					}
+					
+					// Transactions Found
+					log.info('Transaction Found Successfully');
+					master.sendResponse(req, res, 200, -1, retTrans);
+					return;
 				
 				}).limit(n);
 			}
@@ -1104,7 +1099,7 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 			// Get Transaction
 			if(n==0){
 
-				transSchema.find(query, function(retTrans){
+				transSchema.find(query, function(err, retTrans){
 					// No Transaction
 					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
 					{	
@@ -1122,8 +1117,9 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 			}
 			else{
 
-				transSchema.find(query, function(retTrans){				
+				transSchema.find(query, function(err, retTrans){				
 					// No Transaction
+					console.log(retTrans);
 					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
 					{	
 						log.info('No Transactions');
