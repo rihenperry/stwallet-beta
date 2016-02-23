@@ -170,7 +170,6 @@ module.exports.deductFromkwdIncome = function (req, res){
 		
 };
 	
-
 /*Add To Cashback Outflow*/
 module.exports.addTocashbackOutflow = function (req, res){
 	
@@ -355,20 +354,22 @@ module.exports.decreaseTotalFeesEarning = function (req, res){
 			var query = { $inc: {'total_fees_earning': -parseFloat(retVal[0].amount)}};
 
 			// // Update Pool Fees Income Function
-			poolSchema.findOneAndUpdate({}, query, function(retVals){
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
 				
+                if(err)
+                {
+                    log.error(err);
+                    master.sendResponse(req, res, 200, 5, "Database Error");
+                    return;
+                }
+                
 				// Successfully Updated
 				if(retVals)
 				{
 					log.info('Deducted Fees Amount '+retVal[0].amount+' From Pool Successfully');
 					master.sendResponse(req, res, 200, -1, "Success");
 				}
-				
-				// Error In Updating Pool Fees
-				else
-				{
-					master.sendResponse(req, res, 200, 5, "Database Error");
-				}
+
 			})
 			
 	});		
@@ -392,10 +393,10 @@ module.exports.addTotalKeywordOwnerPayout = function (req, res){
 
 		log.info('Parameters are valid');
 
-		log.info('Credit Keyword Owner Payout Amount : '+retVal.amount);
+		log.info('Credit Keyword Owner Payout Amount : '+retVal[0].amount);
 
 			// Update Pool Fees Income Function
-			poolSchema.findOneAndUpdate({}, {$inc:{"total_kwd_owner_payout":retVal.amount}}, function(err, retVals){
+			poolSchema.findOneAndUpdate({}, {$inc:{"total_kwd_owner_payout":retVal[0].amount}}, function(err, retVals){
 					
 				// Successfully Updated
 				if(err){
@@ -404,7 +405,7 @@ module.exports.addTotalKeywordOwnerPayout = function (req, res){
 				}
 
 				if(retVals){
-					log.info('Credited Keyword Owner Payout Amount '+retVal.amount+' To Pool Successfully');
+					log.info('Credited Keyword Owner Payout Amount '+retVal[0].amount+' To Pool Successfully');
 					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
@@ -527,7 +528,7 @@ module.exports.deductNoOfQualifeidSearches = function (req, res){
 		
 		log.info('Deduct Qualified Searches Value : '+retVal[0].amount);
 			
-			var query = {$inc:{"no_of_unQualified_searches": -parseFloat(retVal[0].amount)}};
+			var query = {$inc:{"no_of_qualified_searches": -parseFloat(retVal[0].amount)}};
 
 			// Update Pool Qualified Searches
 			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
@@ -859,13 +860,10 @@ module.exports.addUnsoldKwdRefund = function (req, res){
 		
 }
 
-
 /*Get Pool Stats*/
 module.exports.getPoolStats = function (req, res){
 	
 	log.info('Get Pool Status API Hitted');
-	
-	var value = true;
 	
 	// Get Pool Results Function
 	poolSchema.find({}, function(err, retVal){

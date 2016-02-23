@@ -102,7 +102,7 @@ module.exports.insertUserTransaction = function(req, res){
             
             if(err)
             {
-                log.info(err);
+                log.error(err);
                 return err;
             }
 

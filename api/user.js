@@ -3,6 +3,7 @@
 "use strict";
 
 // Pages
+var poolSchema	  	= require('../models/poolSchema.js');
 var userSchema      = require('../models/userSchema.js');       // User Schema
 var master          = require('../config/masterfunc.js');       // Master Functions
 var crypt           = require('../config/crypt.js');            // Crypt/Signature Related Functionality
@@ -134,8 +135,8 @@ module.exports.secureRegister = function (req, res) {
     var flag               = req.body.flag;
     var mobile_number      = req.body.mobile_number;
     var referral           = req.body.referral;
-    var  publicKey         = req.body.publicKey;
-    var  signature         = req.body.signature;
+    var publicKey          = req.body.publicKey;
+    var signature          = req.body.signature;
         
     var creationTime = Date.now();
     var accountID;
@@ -460,7 +461,7 @@ module.exports.verifyAccount = function(req, res){
 
             else
             {
-                var tokenTest= crypt.token.verify(emailresults[0]._id, auth);
+                var tokenTest= crypt.token.verify(result[0]._id, auth);
 
                 if (tokenTest== 2)
                 {
@@ -516,9 +517,27 @@ module.exports.verifyAccount = function(req, res){
                         }
 
                         else
-                        {
-                            log.info('Total Active Users Successfully Updated');
-                            master.sendResponse(req, res, 200, -1, "Success");
+                        {                            
+                            // Update Pool totalActiveUsers
+                            poolSchema.findOneAndUpdate({}, {$inc:{totalActiveUsers:1}}, function(err, retVals){
+
+                                // Error In Updating Database
+                                if(err)
+                                {
+                                    log.error(err);
+                                    master.sendResponse(req, res, 200, 5, 'Database Error');
+                                    return;
+                                }
+                                
+                                // Successfully Updated
+                                if(retVals)
+                                {
+                                    log.info('User Account Successfully Activated');
+                                    master.sendResponse(req, res, 200, -1, "Success");
+                                }
+
+                            });
+                            
                         }
 
                     })
@@ -1308,7 +1327,7 @@ module.exports.resetpassword = function(req, res) {
                 
                 // Generated Salt
                 var chars = '0123456789abcdefghijklmnopqrstuvwxyz';
-                var sat   = '';
+                var salt  = '';
                 for(var i = 12; i > 0; --i) 
                 {
                     salt += chars[Math.round(Math.random() * (chars.length - 1))];
@@ -1719,6 +1738,8 @@ module.exports.getAppId = function (req, res) {
     })
     
 }
+
+/*============================= Edit Profile Pic =============================*/
 
 module.exports.editProfilePic = function(req, res){
   
@@ -2723,7 +2744,7 @@ module.exports.deductApprovedWithdrawals = function(req, res){
         var amount = -parseFloat(retVal[0].amount);
         
         // Find and Update User's Approved Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
 
             if (err)
             {

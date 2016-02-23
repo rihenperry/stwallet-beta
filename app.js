@@ -90,7 +90,6 @@ app.post('/secure/setAppId', user.setAppId);                                    
 app.post('/secure/getAppId', user.getAppId);                                                    // Get USer's App Id
 app.post('/secure/editProfilePic', user.editProfilePic);										// Edit Profile Picture API
 
-
 // Account Related API
 app.post('/secure/creditAmount', user.creditUserAmount);			                            // Credit User Amount API
 app.post('/secure/deductAmount', user.deductUserAmount);                                        // Deduct User Amount API
@@ -114,17 +113,17 @@ app.post('/secure/addTotalAppIncome', user.addTotalAppIncome);                  
 app.post('/secure/firstBuy', user.firstBuy);													// FirstBuy API
 app.post('/secure/addBlockedForBids', user.addBlockedForBids);									// Add Blocked For Bids API
 app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// Deduct Blocked Bids API
-
+app.post('/secure/rejectBlockedBids', user.rejectBlockedBids);                                  // Reject Blocked Bids API (In cases of Accept bid and Buy now)
 
 /*============================== Pool Related API ==================================*/
 
-app.post('/secure/decreaseTotalFeesEarning', pool.decreaseTotalFeesEarning);                    // Decrease Total Fees Earning API
 app.post('/secure/creditPoolAmountKeywords', pool.addTokwdIncome);                              // Add To Keyword Income API
 app.post('/secure/deductPoolAmountKeywords', pool.deductFromkwdIncome);                         // Deduct From Keyword Income API
 app.post('/secure/addTocashbackOutflow', pool.addTocashbackOutflow);                            // Add To Cashback OutFlow API
 app.post('/secure/deductcashbackOutflow', pool.deductcashbackOutflow);                          // Deduct From Cashback OutFlow API
 app.post('/secure/addToaffiliateOutflow', pool.addToaffiliateOutflow);                          // Add To Affiliate OutFlow API
 app.post('/secure/increaseTotalFeesEarning', pool.increaseTotalFeesEarning);                    // Increase Total Fees Earning API
+app.post('/secure/decreaseTotalFeesEarning', pool.decreaseTotalFeesEarning);                    // Decrease Total Fees Earning API
 app.post('/secure/addTotalKeywordOwnerPayout', pool.addTotalKeywordOwnerPayout);                // Add Total Keyword Owner Payout API
 app.post('/secure/deductTotalKeywordOwnerPayout', pool.deductTotalKeywordOwnerPayout);          // Deduct Total Keyword Owner Payout API
 app.post('/secure/addNoOfQualifeidSearches', pool.addNoOfQualifeidSearches);                    // Add Qualified Searches API

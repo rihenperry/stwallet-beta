@@ -43,7 +43,7 @@ module.exports.addSearchEarning = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                log.info(email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -91,7 +91,7 @@ module.exports.deductSearchEarning = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                log.info(email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -141,7 +141,7 @@ module.exports.deductQualifiedSearches = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                log.info(email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
@@ -189,7 +189,7 @@ module.exports.addunQualifiedSearches = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                log.info(email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }

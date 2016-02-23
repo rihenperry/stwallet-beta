@@ -4,20 +4,20 @@ var mongoose    = require('mongoose');          // For Mongoose
 //Schema
 var trans_Schema = mongoose.Schema({
     
-    "time":         {type: Number},
-    "sender":       {type: String},
-    "receiver":     {type: String},
-    "amount":       {type: Number},
-    "type":         {type: String},
-    "desc":         {type: String},
-    "app_id":       {type: String},
-    "keyword":      {type: String},
-    "payment_mode": {type: String},
-    "discount":     {type: Number},
-    "commision":    {type: Number},
-    "origin_ip":    {type: Number},
-    "usd":          {type: String},
-    "sgd":          {type: String},
+    "time":         {type: Number, default:0},
+    "sender":       {type: String, default:''},
+    "receiver":     {type: String, default:''},
+    "amount":       {type: Number, default:0},
+    "type":         {type: String, default:''},
+    "desc":         {type: String, default:''},
+    "app_id":       {type: String, default:''},
+    "keyword":      {type: String, default:''},
+    "payment_mode": {type: String, default:''},
+    "discount":     {type: Number, default:0},
+    "commision":    {type: Number, default:0},
+    "origin_ip":    {type: Number, default:0},
+    "usd":          {type: Number, default:0},
+    "sgd":          {type: Number, default:0},
     "status":       {type: String}  
 },{versionKey: false});
 
