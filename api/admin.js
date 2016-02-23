@@ -1139,3 +1139,56 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 	});
 		
 };
+
+module.exports.paymentModeCount = function(req, res) {
+    
+    log.info('Page Name: admin.js');
+	log.info('API Name : paymentModeCount');
+	log.info('Payment Mode Count Accessed');
+	log.info('Parameters Receiving..');
+
+	var publicKey  = req.body.publicKey;
+	var signature  = req.body.signature;
+	var mode       = req.body.mode;
+	
+	log.info('Payment Mode : '+mode);
+	log.info('Public Key :'+publicKey);
+	log.info('Signature :'+signature);
+    
+    var query = {'publicKey': publicKey};
+	var text = "mode="+mode+"&publicKey="+publicKey;
+
+    master.secureAuth(query, text, signature, function (result){
+
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+    
+        var query = {$and:[{"type":"keyword_purchase"},{"payment_mode":mode}]}
+        
+        transSchema.find(query, function(err, retTrans){
+            
+            if(err)
+            {
+                log.error(err);
+                master.sendResponce(req, res, 200, 5, "Database Error");
+                return;
+            }
+            
+            if(retTrans==null || retTrans==undefined || retTrans=="")
+            {
+                log.info('No Transactions')
+                master.sendResponce(req, res, 200, 5, 0);
+                return;
+            }
+            
+            log.info(retTrans.length+' Transactions Found');
+            master.sendResponce(req, res, 200, 5, retTrans.length);
+            
+        })
+        
+    })
+    
+}
