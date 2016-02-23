@@ -148,7 +148,7 @@ module.exports.deductQualifiedSearches = function(req, res){
 
             else
             {
-                log.logger.info('Qualified Searches '+amount+' Successfully Deducted From '+retVal[0].email);
+                log.info('Qualified Searches '+amount+' Successfully Deducted From '+retVal[0].email);
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
 

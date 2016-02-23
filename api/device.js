@@ -1,7 +1,8 @@
 var deviceSchema = require('../models/deviceInfoSchema.js');
 var crypt = require("../config/crypt");			// Crypt Connectivity.
 var master          = require('../config/masterfunc.js');       // Master Functions
-
+    logger              = require('../config/w_config.js'),
+    log                 = logger();
 
 //========================= Export Functions ========================= //
 /* Device Register*/
@@ -13,10 +14,10 @@ module.exports.deviceRegister = function(req, res){
   	log.info('Parameters Receiving..');
 
 	var deviceInfo = req.body.deviceInfo;
-	// var publicKey = req.body.publicKey;
-	// var signature = req.body.signature;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	var signature = 'b7e835a2e7ad371e90167c5e9ce2410371d076943c0f716c9b6a91effa5b36bd709b445892a3c009c67caba9790675b484a3311e0e28ea4aab29143bdabddf99';
+    var publicKey = req.body.publicKey;
+    var signature = req.body.signature;
+//	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
+//	var signature = 'b7e835a2e7ad371e90167c5e9ce2410371d076943c0f716c9b6a91effa5b36bd709b445892a3c009c67caba9790675b484a3311e0e28ea4aab29143bdabddf99';
 
 	// console.log(deviceInfo);
 	log.info('Public Key : '+publicKey);
@@ -43,7 +44,7 @@ module.exports.deviceRegister = function(req, res){
 	}
 	
 	// Checking Device ID in Device Info
-	if ('Device_ID' in deviceInfo && deviceInfo.Device_ID.length > 0 && deviceInfo.IP != NULL) 
+	if ('Device_ID' in deviceInfo && deviceInfo.Device_ID.length > 0) 
 	{
 		log.info('Device ID Found');
 		key = deviceInfo.Device_ID;
@@ -193,10 +194,10 @@ module.exports.getPvtKey = function(req, res){
 
 	var pubKey = req.body.pubKey; //Device public key
 	var publicKey = req.body.publicKey;
-	// var signature = req.body.signature;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa'; //keyword public key
+	var signature = req.body.signature;
+	//var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa'; //keyword public key
 	// var pubKey = '705d07596a332c903b552cf9b5ced80d6aeb6a7b';
-	var signature = 'ff065230713974094506bc718e429ed1a86354e1c15ee0b19db06a84c2961c9f292b43924280cb233142ba730ed5ef7633c3ff0d8a1d8791ff6f9072294cd80d';
+	//var signature = 'e78d2967f9c4490306d8b40ca6bb1c3af849e9d3741b1067b5a58225295b3728f4fa75842b83fde1dceccf00f9e9182850c881e0903dc1e7a57c856a461c4bfe';
 	log.info('Device PubKey : '+pubKey);
 	log.info('Public Key : '+publicKey);
 	log.info('Signature : '+signature);

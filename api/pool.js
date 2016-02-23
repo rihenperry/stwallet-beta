@@ -21,6 +21,7 @@ var poolvalidate = function(req, cb){
 	var amount = req.body.amount;
 	var publicKey = req.body.publicKey;
 	var signature = req.body.signature;
+	var signature = req.body.signature;
 	
 	var text = 'amount='+amount+'&publicKey='+publicKey;	
 	var reqParam = [amount, publicKey, signature];
@@ -118,9 +119,9 @@ module.exports.addTokwdIncome = function (req, res){
 
 			// Successfully Updated
 			if(retVals){
-				log.info('Credited Keyword Income Amount '+retVal[0].amount+' To Pool Successfully');
-				master.sendResponse(req, res, 200, -1, "Success");
-			}
+			    log.info('Credited Keyword Income Amount '+retVal[0].amount+' To Pool Successfully');
+			    master.sendResponse(req, res, 200, -1, "Success");
+			   }
 			
 		});
 
@@ -611,7 +612,7 @@ module.exports.deductNoOfunQualifeidSearches = function (req, res){
 
 		log.info('Parameters are valid');
 		
-		log.info('Deduct unQualified Searches Value : '+amount);
+		log.info('Deduct unQualified Searches Value : '+retVal[0].amount);
 			
 			// Update Pool unQualified Searches
 			var query = {$inc:{"no_of_unQualified_searches": -parseFloat(retVal[0].amount)}};
@@ -622,13 +623,13 @@ module.exports.deductNoOfunQualifeidSearches = function (req, res){
 				if(retVals)
 				{
 					log.info('Deducted unQualified Searches Value '+retVal[0].amount+' From Pool Successfully');
-					sendResponse(req, res, 200, -1, "Success");
+					master.sendResponse(req, res, 200, -1, "Success");
 				}
 				
 				// Error In Updating Database
 				else
 				{
-					sendResponse(req, res, 200, 5, "Database Error");
+					master.sendResponse(req, res, 200, 5, "Database Error");
 				}
 
 			})
@@ -789,7 +790,7 @@ module.exports.deductSearchTradePayout = function (req, res){
 		
 		log.info('Deducted Searchtrade Payout Amount : '+retVal[0].amount)
 			
-			var query = {$inc:{"total_searchtrade_payout": parseFloat(retVal[0].amount)}};
+			var query = {$inc:{"total_searchtrade_payout": -parseFloat(retVal[0].amount)}};
 
 			// Update Pool SearchTrade Payout
 			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
