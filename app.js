@@ -155,29 +155,6 @@ app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Ge
 
 app.post('/secure/cron', cron_api.cron);
 
-var file = 'D:/test_json_data.json';
-var jsondata_wallet =  jsonfile.readFileSync(file);
-//console.dir(jsonfile.readFileSync(file))
-
-
-    var length = jsondata_wallet.length;
-
-    for(var i = 0; i<length; i++){
-	request.post({url: 'http://localhost:5000/secure/register',
-	 body: jsondata_wallet[i],
-	 json: true,
-	 headers: {
-	        "content-type": "application/json",
-	 },
-	},
-	function optionalCallback(err, httpResponse, body) {
-	  if (err) {
-	    return log.error('Test Failed: \n', err);
-	  }
-        log.info('Test successful!  Server responded with: \n', body);
-	});
-    }
-
 
 // Server Connectivity
 app.listen('5000', function () {
