@@ -1,3 +1,59 @@
+
+var file = 'D:/test_json_data.json';
+var jsondata_wallet =  jsonfile.readFileSync(file);
+console.dir(jsonfile.readFileSync(file))
+
+//var requestData_register = [{
+//	  "first_name": "Swanand",
+//	  "last_name" :"Pingle",
+//	  "email": "swanand.searchtrade@gmail.com",
+//	  "password": "123456",
+//	  "confirm_new_password": "123456",
+//	  "country": "india",
+//	  "flag": "1",
+//	  "mobile_number": "123456789",
+//	  "referral": "",
+//	  "publicKey": "8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa",
+//	  "signature": "e06a531ca3f187661d4ed84bfd6c624cb0d1fb075640eea7393af939dcefa7df6c46fc00fcbba9c9773e0ff523c15e4508821c5293aa06b4604c00fac5a365a4",
+//	},
+//    {
+//	  "first_name": "prashant",
+//	  "last_name" :"tapase",
+//	  "email": "prashant.bitstreet2@gmail.com",
+//	  "password": "123456",
+//	  "confirm_new_password": "123456",
+//	  "country": "india",
+//	  "flag": "1",
+//	  "mobile_number": "123456789",
+//	  "referral": "",
+//	  "publicKey": "8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa",
+//	  "signature": "11c8e32254d14cdbbb1bdefbb58dbcdc20a5438b008dbf6a07eb5f6246c694dd44e7a3d1d3d032a73c783dc755808fd1c49945c7494cf772e067ced9815888d7",
+//	}]
+
+    var length = jsondata_wallet.length;
+
+    for(var i = 0; i<length; i++){
+	request.post({url: 'http://localhost:5000/secure/register',
+	 body: jsondata_wallet[i],
+	 json: true,
+	 headers: {
+	        "content-type": "application/json",
+	 },
+	},
+	function optionalCallback(err, httpResponse, body) {
+	  if (err) {
+	    return console.error('Test Failed: \n', err);
+	  }
+	  console.log('Test successful!  Server responded with: \n', body);
+	});
+    }
+
+
+
+
+
+
+
 //========================Admin===========================//
 
 
