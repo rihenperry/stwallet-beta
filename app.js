@@ -3,32 +3,17 @@
 "use strict";
 
 // Framwork
-var  express     = require('express'),      
-	 app         = express(),
-	 nconf 	     = require('nconf'),
-	 fs          = require('fs'),
-	 request 	 = require('request'),
+var  express     	 = require('express'),      
+	 app        	 = express(),
+	 nconf 	    	 = require('nconf'),
+	 fs         	 = require('fs'),
+	 request 		 = require('request'),
 
-	// Packages
-	 bodyParser  = require('body-parser'),
-
-	// Pages
-	 mongoose    = require('./config/mongoose.js'),
-	 user        = require('./api/user.js'),
-	 device      = require('./api/device.js'),
-	 pool        = require('./api/pool'),                    // Get Pool API
-	 W_transaction =  require("./api/transaction"),
-	 search		  =  require("./api/search"),
-	 admin     	= require("./api/admin"),    	// Get Admin API
-
-	 // fs          = require('fs'), 
 // Packages
-     bodyParser  = require('body-parser'),
-     nconf 		 = require('nconf'),
-     //bunyan      = require('bunyan'),
-    logger             = require('./config/w_config.js'),
-    log                = logger(),
-
+     bodyParser  	 = require('body-parser'),
+     nconf 			 = require('nconf'),
+     logger          = require('./config/w_config.js'),
+     log             = logger(),
 
 // Pages
 	 mongoose        = require('./config/mongoose.js'),          // Moongoose
@@ -36,17 +21,17 @@ var  express     = require('express'),
 	 device          = require('./api/device.js'),               // Device API
 	 search          = require('./api/search.js'),               // Search API
 	 pool            = require('./api/pool'),                    // Get Pool API
-	 W_transaction   =  require("./api/transaction.js"),         // Transaction API
-     admin     	     = require("./api/admin");    	             // Get Admin API
-
+	 W_transaction   = require("./api/transaction.js"),          // Transaction API
+     admin     	     = require("./api/admin"),  	             // Get Admin API
+     cron_api    	 = require("./api/cron_api.js");    	     // Get Admin API
 
 
 // code to set ENV for node app
 var loadconfig = require('./config/w_config.js')
 
 var defaultOptions = loadconfig.DEFAULTS
-console.log("Configuration read from the JSON file using nconf is :")
-console.log(defaultOptions)
+log.info("Configuration read from the JSON file using nconf is :")
+log.info(defaultOptions)
 
 // Middleware
 app.use(bodyParser.json({limit: '10mb'}));
@@ -56,8 +41,8 @@ app.use(bodyParser.urlencoded({limit: '10mb', extended: false}));
 app.use(express.static(__dirname + '/public'));
 
 app.use(function (req, res, next) {
-    console.log('==================================');
-    console.log(req.url);
+    log.info('==================================');
+    log.info(req.url);
     next();
 });
 
@@ -166,7 +151,11 @@ app.post('/secure/admin/userManage', admin.userManage);											// Get Specifi
 app.post('/secure/admin/userKwdPurchaseTrans', admin.userKwdPurchaseTrans);						// Get User Keyword Purchase Transactions
 app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Get User Transaction Count On Payment Mode
 
+
+app.post('/secure/cron', cron_api.cron);	
+
+
 // Server Connectivity
 app.listen('5000', function () {
-    log.info('Connected To Server');
+    log.info('Connected To Server'); 
 });

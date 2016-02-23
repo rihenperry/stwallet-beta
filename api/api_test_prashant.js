@@ -1108,3 +1108,27 @@ function optionalCallback(err, httpResponse, body) {
 //   }
 //   console.log('Test successful!  Server responded with: \n', body);
 // });
+
+/*http://localhost:5000/secure/admin/userKwdPurchaseTrans*/
+// var requestData = {
+//   "email": "retestingdemoapp@gmail.com",
+//   "from": "1/1/2016",
+//   "to": "",
+//   "number": 10,
+//   "mode":"All",
+//   "publicKey" :"8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa",
+//   "signature": "5ec5b9b30bd0b8b339cfa8cdb00ca8b5588bf12755bf94dde529e146882c83d8dc0dc5bb064462a74f1f231452c529fa416a946ddf4261793ecb1791f51cdd66"
+// }
+// request.post({url: 'http://localhost:5000/secure/admin/userKwdPurchaseTrans',
+//  body: requestData,
+//  json: true,
+//  headers: {
+//         "content-type": "application/json",
+//  },
+// },
+// function optionalCallback(err, httpResponse, body) {
+//   if (err) {
+//     return console.error('Test Failed: \n', err);
+//   }
+//   console.log('Test successful!  Server responded with: \n', body);
+// });
