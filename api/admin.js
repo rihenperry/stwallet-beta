@@ -187,7 +187,7 @@ module.exports.deductunQualifiedSearches = function(req, res){
 
             if (result==null || result=="") // Email Not Found
             {
-                log.info(email+" Not Registered");
+                log.info(retVal[0].email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
