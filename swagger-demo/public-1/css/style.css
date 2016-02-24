@@ -1,24 +1,27 @@
-
 table {
-    border-collapse: collapse;
+	border-collapse: collapse;
 }
 
 td,tr{
 	padding: 10px;
 }
 
-
 pre span {
-     text-align: left;
-    color: #65b042;
-    display: block;
-    line-height: 0;
+	text-align: left;
+	color: #65b042;
+	display: block;
+	line-height: 0;
 }
 
 .code-color {
 	background-color: #000;
-	/*color:#f8f8f8;*/
 }
+
 .glyphicon {
-    display: block;
+	display: block;
+	line-height: 1.42857143;
+}
+
+.text-center{
+	text-align: center;
 }

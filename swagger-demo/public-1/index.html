@@ -17,7 +17,7 @@
 		<div class="container">
 
 			<div id="main">
-				<div class="api-block">
+<!-- 				<div class="api-block">
 					<div class="api-name"><h3>API Name : GetPoolStats</h3></div><hr>
 					
 					<div class="api-area">
@@ -26,16 +26,22 @@
 							<tr><td>No Parameters</td><td>Value</td><td></td><td>No</td></tr>
 						</table>
 					</div>
-				</div>
+				</div> -->
 				<div class="api-block">
 					<div class="api-name"><h3>API Name : Register</h3></div><hr>
 					<pre  class="code-color">
-					<span>{</span>
-						  <span >"email" :"test@gmail.com" ,</span>
-						  <span >"publicKey":"8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa" ,</span>
-						  <span >"signature" :"f0ca9c89be805c8c84e3fc619156fbcaefa305c77748cbf8e014df2810f596748772e9f5e3928401acc44541d17e276d58547a2badef10ad9ea50a058ab2b969" ,</span>
-						  <span >"amount" :"10"</span>
-					<span>}</span>
+						<span>{</span>
+							  <span >"first_name" :"test" ,</span>
+							  <span >"last_name" :"test1" ,</span>
+							  <span >"email" :"test@gmail.com" ,</span>
+							  <span >"password" :"123456" ,</span>
+							  <span >"confirm_new_password" :"123456" ,</span>
+							  <span >"country" :"India" ,</span>
+							  <span >"flag" :1 ,</span>
+							  <span >"referral" :test ,</span>
+							  <span >"publicKey":"###################################" ,</span>
+							  <span >"signature" :"##################################################" ,</span>
+						<span>}</span>
 					</pre>
 					<div class="api-area">
 						<table class="table table-bordered">
@@ -51,10 +57,19 @@
 									<div>first_name of user</div><div>last_name of user</div><div>email of user</div><div>six char of password</div><div>confirm_new_password</div>
 									<div>country</div><div>flag</div><div>mobile_number</div><div>referral</div><div>publicKey</div>
 									<div>signature</div></td>
-									<td>
+									<td class="text-center">
 										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
-									 	<div class="glyphicon glyphicon-remove" aria-hidden="true"></div>
-									 </td>
+										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+										<div class="glyphicon glyphicon-remove" aria-hidden="true"></div>
+										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+									</td>
 							</tr>
 						</table>
 					</div>
@@ -63,16 +78,16 @@
 				<div class="api-block">
 					<div class="api-name"><h3>API Name : Login</h3></div><hr>
 					<pre  class="code-color">
-					<span>{</span>
-						  <span >"email" :"test@gmail.com" ,</span>
-						  <span >"publicKey":"8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa" ,</span>
-						  <span >"signature" :"f0ca9c89be805c8c84e3fc619156fbcaefa305c77748cbf8e014df2810f596748772e9f5e3928401acc44541d17e276d58547a2badef10ad9ea50a058ab2b969" ,</span>
-						  <span >"amount" :"10"</span>
-					<span>}</span>
+						<span>{</span>									 	  
+						  <span>"email": "prashant.bitstreet@gmail.com", </span>
+						  <span>"password": "123456", </span>
+						  <span>"publicKey": "8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa", </span>
+						  <span>"signature": "f705db58bf82f21f59ce8011633e9523da66d38fa513865dfa74fa0efe5f7b3b68f1155f074c291623b9a5ebaac4ff52846ceb58408017fb239f2020a278e1bb", </span>
+						<span>}</span>
 					</pre>
 					<div class="api-area">
 						<table class="table table-bordered">
-							<tr><td>Parameters</td><td>Value</td><td>Description</td><td>Mandatory</td><td>Datatype</td></tr>
+							<tr><td>Parameters</td><td>Value</td><td>Description</td><td class="text-center">Mandatory</td><td>Datatype</td></tr>
 							<tr>
 								<td>
 									<div>Email</div><div>publicKey</div><div>signature</div>
@@ -82,10 +97,12 @@
 									<div>email of user</div><div>six char of password</div><div>publicKey</div>
 									<div>signature</div>
 								</td>
-									<td>
+									<td class="text-center">
 										<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
-									 	<div class="glyphicon glyphicon-remove" aria-hidden="true"></div>
-									 </td>
+									 	<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+									 	<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+									 	<div class="glyphicon glyphicon-ok" aria-hidden="true"></div> 
+									</td>
 							</tr>
 						</table>
 					</div>

@@ -11,3 +11,5 @@ app.use(express.compress());
 app.use(express.static(__dirname + '/public-1', { maxAge: oneDay }));
 
 app.listen(process.env.PORT || 3000);
+
+console.log('Server started at port 3000');
