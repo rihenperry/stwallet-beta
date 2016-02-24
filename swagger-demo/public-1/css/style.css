@@ -15,11 +15,14 @@ pre span {
 
 .code-color {
 	background-color: #000;
+	height: 250px;
+	overflow-y: scroll;
 }
 
 .glyphicon {
 	display: block;
 	line-height: 1.42857143;
+	top:0;
 }
 
 .text-center{
