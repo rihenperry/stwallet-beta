@@ -23,15 +23,13 @@ module.exports.getAllTransactions = function(req, res){
 	log.info('Get All Transactions API Hitted');
 	log.info('Parameters Receiving..');
 	
-	var email = req.body.email;
-	var publicKey = req.body.publicKey;
-	var signature = req.body.signature;
+	var email      = req.body.email;
+	var publicKey  = req.body.publicKey;
+	var signature  = req.body.signature;
 	
-	var text = 'publicKey='+publicKey;		
-	var query = {'publicKey': publicKey};
-
-	log.info('PublicKey  : '+publicKey);
-	log.info('Signature  : '+signature);
+    log.info('Email : '+email);
+    log.info('PublicKey  : '+publicKey);
+	log.info('Signature  : '+signature);	
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -47,56 +45,40 @@ module.exports.getAllTransactions = function(req, res){
 		return;
 	}
 
-	  master.secureAuth(query, text, signature, function (result){
+    var query = {'publicKey': publicKey};
+    var text = 'email='+email+'&publicKey='+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
          
         if(result[0].error == true || result[0].error == 'true')
         {
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
-    
-    	var query = {'publicKey': publicKey};
 
-        deviceSchema.find({}, query, function(err, result){
+        transSchema.find({}, function(err, results){
 
-            if(err)
+            // Error In Fetching Data
+            if (err)
             {
                 log.error(err);
-                return err;
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
-
-            if(result==null || result=="") // Email Not Found
+            
+            if(results == "" || results == undefined || results.length<=0)
             {
-                log.info(email+" Not Registered");
-                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                log.info('No Transactions');
+                master.sendResponse(req, res, 200, 9, "No Result");
                 return;
             }
 
-            	transSchema.find({}, function(err, results){
+            log.info('Total '+results.length+' Transactions Found');
+            master.sendResponse(req, res, 200, -1, results);
 
-					log.info(results);
-					// Error In Fetching Data
-					if (err)
-					{
-					  log.info('Error In Fetching Data');
-					  log.error(err);
-					  return;
-					}
-					if(results == "" || results == undefined || results.length<=0)
-					{
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, 9, "No Result");
-						return;
-					}
-					
-					log.info('Total '+results.length+' Transactions Found');
-					master.sendResponse(req, res, 200, -1, results);
+        });
 
-				}).sort({'time':-1}).limit(50);
-
-       	});     
-
-    });
+    });     
 	
 }
 
@@ -254,17 +236,12 @@ module.exports.userManage = function (req, res){
 	log.info('User Manage API Hitted');
 	log.info('No Parameters Receiving...');
 	
-	var email = req.body.email;
-	var publicKey = '8b428ac0a0ae1be15a6e75d69fbc15a9129909ed261a1aeb4d1e087592659daa';
-	var signature = 'f0c74ba483ad72f57317618c6f7ec5e016d57f2f61e8297a515c2a66b34203b45afd8c1ac8be486f606cfb9c9d6d461f758f2a3ff5a5e735e1d86c5949bce95f';
-	
-	var skip = req.body.skip;
-	var order = req.body.order;
-	var column = req.body.column;
-
-	var text = 'email='+email+'&publicKey='+publicKey;		
-
-	var query = {'publicKey': publicKey};
+	var email      = req.body.email;	
+	var skip       = req.body.skip;
+	var order      = req.body.order;
+	var column     = req.body.column;
+    var publicKey  = req.body.publicKey;
+    var signature  = req.body.signature;
 
 	log.info('PublicKey  : '+publicKey);
 	log.info('Signature  : '+signature);
@@ -284,11 +261,18 @@ module.exports.userManage = function (req, res){
 		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
-
+		
+	var query = {'publicKey': publicKey};
+    var text = 'email='+email+'&publicKey='+publicKey;
+    
 	// Validate Signature
 	master.secureAuth(query, text, signature, function (result){
 
-        log.info(result);
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
 
         if(email == '' || email == undefined || email == null)
 		{
@@ -306,6 +290,7 @@ module.exports.userManage = function (req, res){
 		}
 	
 		order = parseInt(order);
+        skip  = parseInt(skip);
 
 		var sort;
 	
@@ -329,33 +314,29 @@ module.exports.userManage = function (req, res){
 			sort = {"active":order};
 		}
 
-		log.info(sort);
+        var selectQuery = {"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1};
 
-			var selectQuery = {"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1};
-
-			userSchema.find({}, selectQuery, function(err, results){
+        userSchema.find(query, selectQuery, function(err, results){
 				
-				if (err)
-				{
-				   log.info('Error In Getting Active Emails');
-				   log.error(err);
-				   return;
-				}
+            if (err)
+            {
+                console.log(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
 
-				// Successfully Fetched
-				if(results)
-				{
-					log.info('User Results Found Successfully');
-					master.sendResponse(req, res, 200, -1, results);
-				}
-				
-				// Error In Fetching
-				else
-				{
-					log.info('Failed to Found Users Results');
-					master.sendResponse(req, res, 200, 5, "Database Error");
-				}
-			}).sort(sort).limit(10);
+            // Successfully Fetched
+            if(results=="" || results==undefined || results.length==0)
+            {
+                log.info('No Results Found Successfully');
+                master.sendResponse(req, res, 200, -1, "No Results");
+                return;
+            }
+            
+            log.info('Transactions Found Successfully');
+            master.sendResponse(req, res, 200, -1, results);
+
+        }).sort(sort).skip(skip).limit(10);
         
     });
 
@@ -376,7 +357,6 @@ module.exports.getExpenceTransactions = function(req, res) {
 	var n = req.body.number;
 	var publicKey = req.body.publicKey;
 	var signature = req.body.signature;
-	
 	var type = vars.type;
 	
 	log.info('Email : '+email);
@@ -555,70 +535,6 @@ module.exports.getExpenceTransactions = function(req, res) {
 				}).limit(n);
 			}
     		
-	});
-
-}
-
-/*Payment Mode Count*/
-module.exports.paymentModeCount = function (req, res){
-	
-	log.info('Page Name: admin.js');
-	log.info('API Name : paymentModeCount');	
-	log.info('User Manage API Hitted');
-	log.info('No Parameters Receiving...');
-	
-	var mode = req.body.mode;
-	var publicKey = req.body.publicKey;
-	var signature = req.body.signature;
-
-	log.info('Mode : '+mode);
-	
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	var query = {'publicKey':publicKey};
-
-	var text = "mode="+mode+"&publicKey="+publicKey;
-
-	master.secureAuth(query, text, signature, function (result){
-
-		if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-
-		var query = {$and:[{"type":"keyword_purchase"},{"payment_mode":mode}]}
-	
-			// Get Pool Results Function
-			transSchema.find(query, function(err, results){
-				
-				// Successfully Fetched
-				if(results)
-				{
-					log.info('Total '+results.length+' Transactions Found By Payment Mode '+mode);
-					master.sendResponse(req, res, 200, -1, results.length);
-				}
-				
-				// Error In Fetching
-				else
-				{
-					log.info('Failed to Found Users Results');
-					master.sendResponse(req, res, 200, 5, "Database Error");
-				}
-			});
-		
 	});
 
 }
@@ -1095,6 +1011,8 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 				}
 				
 			}
+        
+        console.dir(query);
     
 			// Get Transaction
 			if(n==0){
@@ -1173,19 +1091,19 @@ module.exports.paymentModeCount = function(req, res) {
             if(err)
             {
                 log.error(err);
-                master.sendResponce(req, res, 200, 5, "Database Error");
+                master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
             
             if(retTrans==null || retTrans==undefined || retTrans=="")
             {
-                log.info('No Transactions')
-                master.sendResponce(req, res, 200, 5, 0);
+                log.info('No Transactions');
+                master.sendResponse(req, res, 200, 5, 0);
                 return;
             }
             
             log.info(retTrans.length+' Transactions Found');
-            master.sendResponce(req, res, 200, 5, retTrans.length);
+            master.sendResponse(req, res, 200, 5, retTrans.length);
             
         })
         
