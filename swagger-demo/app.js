@@ -8,6 +8,8 @@ var oneDay = 86400000;
 app.use(express.compress());
 
 // Serve up content from public directory
-app.use(express.static(__dirname + '/public', { maxAge: oneDay }));
+app.use(express.static(__dirname + '/public-1', { maxAge: oneDay }));
 
 app.listen(process.env.PORT || 3000);
+
+console.log('Server started at port 3000');

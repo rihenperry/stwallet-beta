@@ -1,0 +1,30 @@
+table {
+	border-collapse: collapse;
+}
+
+td,tr{
+	padding: 10px;
+}
+
+pre span {
+	text-align: left;
+	color: #65b042;
+	display: block;
+	line-height: 0;
+}
+
+.code-color {
+	background-color: #000;
+	height: 250px;
+	overflow-y: scroll;
+}
+
+.glyphicon {
+	display: block;
+	line-height: 1.42857143;
+	top:0;
+}
+
+.text-center{
+	text-align: center;
+}
