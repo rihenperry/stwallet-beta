@@ -15,14 +15,14 @@ app.set('view engine', 'ejs');
 app.get('/', function(req, res){
 
 	var fs 	= require('fs');
-	var obj = fs.readFileSync('D:/wallet.json', 'utf8');
+	var obj = fs.readFileSync('D:/wallet_logs/wallet_25_feb_2016.json', 'utf8');
 	var array = obj.replace(/\}\n{/g,'}secureSpacing{');
 	
 	//array = array.replace(/\{/g,' {');
 	array   = array.split("secureSpacing");
 
 	var length = array.length;
-	console.log(length);
+	console.log(array);
 
 	//var data = JSON.parse(array);
 

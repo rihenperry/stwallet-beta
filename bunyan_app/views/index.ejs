@@ -1,41 +1,44 @@
 <!DOCTYPE html>  
 <html lang="en">  
-  <head>
-    <meta charset="utf-8">
-    <title>Pivotal Search</title>
-    <meta name="description" content="">
-    <meta name="author" content="">
+<% include header %>
 
-    <!-- HTML5 shim, for IE6-8 support of HTML elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <!-- styles -->
-    <link href="stylesheets/style.css" rel="stylesheet">
-
-  </head>
   <body>
     <div class="container">  
-
-    <%- data %>
-    <%= length %>
+      <div class="col-md-12">
+    <!--<%= data %>
+    <%= length %>-->
 
         <%if (length > 0) { %>
           
-          <!-- <table>
+           <table class="table table-hover">
+             <thead>
+                <th>No.</th>
+                <th>Name</th>
+                <th>HostName</th>
+                <th>PID</th>
+                <th>Level</th>
+                <th>Error</th>
+                <th>Message</th>
+             </thead>
 
-            <% for(var i=0; i < length; i++) { %>
-               <tr>
-                 <td><%= data[i].name %></td>
-                 <td><%= data[i].name %></td>
-               </tr>
-            <% } %>
+              <% for(var i=0,p=1; i < length; i++) { %>
+                 <tr>
+                   <td><%= p %></td>
+                   <td><%= JSON.parse(data[i]).name %></td>
+                   <td><%= JSON.parse(data[i]).hostname %></td>
+                   <td><%= JSON.parse(data[i]).pid %></td>
+                   <td><%= JSON.parse(data[i]).level %></td>
+                   <td><%= JSON.parse(data[i]).error %></td>
+                   <td><%= JSON.parse(data[i]).msg %></td>
+                 </tr>
+              <% p++;} %>
 
-          </table> -->
+          </table> 
 
         <% } %>
-          
+        </div>  
     </div>  
   </body>
+
+<% include footer %>
 </html>
