@@ -29,9 +29,10 @@
                 <th>Level</th>
                 <th>Error</th>
                 <th>Message</th>
+                <th>Time</th>
              </thead>
 
-              <% for(var i=0,p=1; i < length; i++) { %>
+              <% for(var i=length-1,p=1; i >=0; i--) { %>
                  <tr>
                    <td><%= p %></td>
                    <td><%= JSON.parse(data[i]).name %></td>
@@ -40,6 +41,7 @@
                    <td><%= JSON.parse(data[i]).level %></td>
                    <td><%= JSON.parse(data[i]).error %></td>
                    <td><%= JSON.parse(data[i]).msg %></td>
+                   <td><%= JSON.parse(data[i]).time %></td>
                  </tr>
               <% p++;} %>
 
