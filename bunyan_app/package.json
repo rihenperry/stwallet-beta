@@ -1,0 +1,9 @@
+{
+  "name": "ServeStaticContent",
+  "version": "0.0.1",
+  "dependencies": {
+    "datatable": "^2.0.2",
+    "express": "3.x",
+      "nodemon": "^1.8.1"
+  }
+}
