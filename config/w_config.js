@@ -57,9 +57,12 @@ var bunyan = require('bunyan'),
         stream: process.stdout       // log INFO and above to stdout
     },
     {
+        type: 'rotating-file',
         level: 'info',
+        period: '30000ms',
          //path: '/home/sudeep/wallet_log.json'  // log ERROR and above to a file
-         path: 'D:/wallet.json'  // log ERROR and above to a file
+        path: 'D:/wallet.json',  // log ERROR and above to a file
+        count : 10
     }
   ]
 },   
