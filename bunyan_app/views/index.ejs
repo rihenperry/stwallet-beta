@@ -1,8 +1,18 @@
 <!DOCTYPE html>  
 <html lang="en">  
 <% include header %>
+<% include footer %>
+  <script type="text/javascript">
+        $(document).ready(function() {
+            $('#datatable_wallet').DataTable();
 
-  <body>
+              // Add event listeners to the two range filtering inputs
+              // $('#min').keyup( function() {alert('draw'); table.draw(); } );
+              // $('#max').keyup( function() { table.draw(); } );
+        } );
+    </script>
+
+  <body>  
     <div class="container">  
       <div class="col-md-12">
     <!--<%= data %>
@@ -10,7 +20,7 @@
 
         <%if (length > 0) { %>
           
-           <table class="table table-hover">
+           <table class="table table-hover" id="datatable_wallet">
              <thead>
                 <th>No.</th>
                 <th>Name</th>
@@ -39,6 +49,4 @@
         </div>  
     </div>  
   </body>
-
-<% include footer %>
 </html>
