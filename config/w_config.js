@@ -64,9 +64,9 @@ var bunyan = require('bunyan'),
         level: 'info',
         period: '30000ms',
          //path: '/home/sudeep/wallet_log.json'  // log ERROR and above to a file
-         // path: 'D:/wallet.json',  // log ERROR and above to a file
+          path: 'D:/wallet.json',  // log ERROR and above to a file
          count : 10 ,
-         path: '/home/sudeep/wallet_log.json'  // log ERROR and above to a file
+         //path: '/home/sudeep/wallet_log.json'  // log ERROR and above to a file
          // path: 'D:/wallet.json'  // log ERROR and above to a file
     }
   ]
