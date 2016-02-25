@@ -14,6 +14,39 @@
 	</head>
 	<body>
 		<div class="container">
+
+			<nav class="navbar navbar-inverse">
+			  <div class="container-fluid">
+			    <!-- Brand and toggle get grouped for better mobile display -->
+			    <div class="navbar-header">
+			      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+			        <span class="sr-only">Toggle navigation</span>
+			        <span class="icon-bar"></span>
+			        <span class="icon-bar"></span>
+			        <span class="icon-bar"></span>
+			      </button>
+			      <a class="navbar-brand" href="#">Search Trade</a>
+			    </div>
+
+			    <!-- Collect the nav links, forms, and other content for toggling -->
+			    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			      <ul class="nav navbar-nav">
+			        <li><a href="errorList.html">Error List</a></li>
+			       <!--  <li class="dropdown">
+			          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+			          <ul class="dropdown-menu">
+			            <li><a href="#">Action</a></li>
+			            <li><a href="#">Another action</a></li>
+			            <li><a href="#">Something else here</a></li>
+			            <li role="separator" class="divider"></li>
+			            <li><a href="#">Separated link</a></li>
+			          </ul>
+			        </li> -->
+			      </ul>
+			    </div><!-- /.navbar-collapse -->
+			  </div><!-- /.container-fluid -->
+			</nav>
+
 			<div id="main">
 			<!-- 	<div class="api-block">
 					<div class="api-name"><h3>API Name : GetPoolStats</h3></div><hr>
@@ -37,10 +70,19 @@
 						  <span >"password" :"123456" ,</span>
 						  <span >"confirm_new_password" :"123456" ,</span>
 						  <span >"country" :"India" ,</span>
-						  <span >"flag" :1 ,</span>
+						  <span >"Flag" :1 ,</span>
 						  <span >"referral" :test ,</span>
 						  <span >"publicKey":"###################################" ,</span>
 						  <span >"signature" :"##################################################" ,</span>
+						<span>}</span>
+					</pre>
+					<pre  class="code-color">
+						<span>{</span>
+						  
+							  <span>"errCode": -1,</span>
+							  <span >"errMsg": "Success",</span>
+							  <span >"dbDate": "Wed Feb 24 2016 15:40:54 GMT+0530 (India Standard Time)"</span>
+							
 						<span>}</span>
 					</pre>
 					<div class="api-area">
@@ -78,14 +120,14 @@
 							<tr>
 								<td>password</td>
 								<td>123456</td>
-								<td>six char of password</td>
+								<td>Password must be six character</td>
 								<td class="glyphicon glyphicon-ok" aria-hidden="true"></td>
 								<td>String</td>
 							</tr>
 							<tr>
 								<td>confirm_new_password</td>
 								<td>123456</td>
-								<td>six char of password</td>
+								<td>Password must be six character and match with password</td>
 								<td class="glyphicon glyphicon-ok" aria-hidden="true"></td>
 								<td>String</td>
 							</tr>
@@ -99,7 +141,7 @@
 							<tr>
 								<td>flag</td>
 								<td>1</td>
-								<td>flag</td>
+								<td>flag (1 - Web, 2 - wallet)</td>
 								<td class="glyphicon glyphicon-ok" aria-hidden="true"></td>
 								<td>Number</td>
 							</tr>
@@ -152,7 +194,7 @@
 									<tr>
 										<th>Parameters</th>
 										<th>Value</th>
-										<th>Description</th>
+										<th>Description/Validation</th>
 										<th>Mandatory</th>
 										<th>Datatype</th>
 									</tr>
@@ -167,7 +209,7 @@
 								<tr>
 									<td>password</td>
 									<td>123456</td>
-									<td>six char of password</td>
+									<td>Password must be six character</td>
 									<td class="glyphicon glyphicon-ok" aria-hidden="true"></td>
 									<td>String</td>
 								</tr>											
