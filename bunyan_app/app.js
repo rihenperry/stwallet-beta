@@ -16,6 +16,8 @@ app.get('/', function(req, res){
 
 	var fs 	= require('fs');
 	var obj = fs.readFileSync('D:/wallet_logs/wallet_25_feb_2016.json', 'utf8');
+	// var obj = fs.readFileSync('D:/wallet.json', 'utf8');
+	// var obj = fs.readFileSync('/home/sudeep/wallet_log.json', 'utf8');
 	var array = obj.replace(/\}\n{/g,'}secureSpacing{');
 	
 	//array = array.replace(/\{/g,' {');
