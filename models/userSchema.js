@@ -37,7 +37,7 @@ var userDetails = mongoose.Schema({
     trade_fees:                       {type: Number, default:0},							// Trading Amount
     purchases:                        {type: Number, default:0},							// Purchase Amount
     search_earning:                   {type: Number, default:0},                            // search earning
-    recent_searches:                  {type: String, default:''},                           // Recent Searches Array
+    recent_searches:                  {type: Array, default:''},                           // Recent Searches Array
     no_of_qualified_searches_pending: {type: Number, default:40},                           // Total Available Paid Searches in Day
     no_of_unQualified_searches:       {type: Number, default:0},                            // No of Unpaid Searches
     favourite_search_app:             {type: String, default:''},                           // Favourite Search App
