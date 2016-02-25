@@ -270,6 +270,13 @@ module.exports.getTransactions = function(req, res) {
 		return;
     }
     
+    // Validate Number
+	if(!(master.validateParameter(n, 'Number')))
+	{
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+	}
+    
     // Validate From Date
 	if(from == "" || from == undefined)
 	{
