@@ -4,57 +4,21 @@
 <% include footer %>
   <script type="text/javascript">
 
-      //  // Function for converting a mm/dd/yyyy date value into a numeric string for comparison (example 08/12/2010 becomes 20100812
+      // Function for converting a mm/dd/yyyy date value into a numeric string for comparison (example 08/12/2010 becomes 20100812
       function parseDateValue(rawDate) {
-        var dateArray= rawDate.split("/");
-        var parsedDate= dateArray[2] + dateArray[0] + dateArray[1];
+        var dateArray= rawDate.split("-");
+        var parsedDate= dateArray[0] + dateArray[1] + dateArray[2];
         return parsedDate;
       }
 
       $(document).ready(function() {
 
           var table = $('#datatable_wallet').DataTable();
-          var info = table.page.info();
           //alert(info.recordsTotal);
 
           // Event listener to the two range filtering inputs to redraw on input
             $('#min, #max').keyup( function() {
-                //alert('try');
-                 
-
-                //if($('#min').val()== "" && $('#max').val()== "")
-                // {
-                //     alert('Hello');
-                //     table.draw();
-                    //window.location.href = '/'
-
-                    //$('#datatable_wallet').DataTable();
-
-
-                    //table.draw();
-
-                    // $.fn.dataTable.ext.search.push(
-                    //     function( settings, data, dataIndex ) {
-                    //       alert('Date');
-                    //         var dateStart = 0;
-                    //         var dateEnd = parseInt(info.recordsTotal);
-                    //         // aData represents the table structure as an array of columns, so the script access the date value 
-                    //         // in the first column of the table via aData[0]
-                    //         var evalDate= parseInt(data[0]);
-                    //         alert(dateEnd);
-                            
-                    //         if (evalDate >= dateStart && evalDate <= dateEnd) {
-                    //             return true;
-                    //         }
-                    //         else {
-                    //             return false;
-                    //         }
-                    //     }
-                    // );
-                //}
-
-               // else
-               // {
+                
                     table.draw();
 
                     $.fn.dataTable.ext.search.push(
@@ -65,34 +29,35 @@
                           //alert('Date');
                           if($("#min").val()=="" || $("#min").val() == undefined)
                           {
-                              dateStart = 1;
+                              dateStart = 20150101; //start Date is fixed to 1/1/2015 if it is mention blank
                           }
 
                           else
                           {
-                              dateStart = parseInt($("#min").val());
+                              dateStart = parseDateValue($("#min").val());
                           }
 
                           if($("#max").val()=="" || $("#max").val() == undefined)
                           {
-                              dateEnd = info.recordsTotal;
+                              dateEnd = 20171231; //End Date is fixed to 31/12/2017 if it is mention blank
                           }
 
                           else
                           {
-                              dateEnd = parseInt($("#max").val());
+                              dateEnd = parseDateValue($("#max").val());
                           }
 
-
-                           // var dateEnd = parseInt($("#max").val());
-                            // aData represents the table structure as an array of columns, so the script access the date value 
-                            // in the first column of the table via aData[0]
-                            var evalDate= parseInt(data[0]);
+                            // Data represents the table structure as an array of columns, so the script access the date value 
+                            // in the Seven column of the table via Data[7]
+                            var evalDate= parseDateValue(data[7].slice(0, 10)); //only first digit we require
+                            // alert('Eval date: '+evalDate +'\n'+'Start date: '+dateStart);
                             
                             if (evalDate >= dateStart && evalDate <= dateEnd) {
+                              // alert('condition true');
                                 return true;
                             }
                             else {
+                               // alert('condition false');
                                 return false;
                             }
                         }
@@ -106,13 +71,13 @@
   <body>  
     <div class="container">  
       <div class="col-md-12">
-      <table border="0" cellpadding="5" cellspacing="5">
-        <tbody><tr>
-            <td>Minimum age:</td>
+      <table border="0" cellpadding="5" cellspacing="5" style="margin: 10px 0px;">
+        <tbody>
+          <tr>
+            <td>From : </td>
             <td><input id="min" name="min" type="text"></td>
-        </tr>
-        <tr>
-            <td>Maximum age:</td>
+            <td>&nbsp;</td> <td>&nbsp;</td>
+            <td>To : </td>
             <td><input id="max" name="max" type="text"></td>
         </tr>
     </tbody>
