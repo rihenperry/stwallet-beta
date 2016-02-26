@@ -1,121 +1,112 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<% include header %>
-<% include footer %>
+<!DOCTYPE html>
+<html lang="en">
+  <% include header %>
+  <% include footer %>
   <script type="text/javascript">
+  // Function for converting a mm/dd/yyyy date value into a numeric string for comparison (example 08/12/2010 becomes 20100812
+  function parseDateValue(rawDate) {
+     var dateArray = rawDate.split("-");
+     var parsedDate = dateArray[0] + dateArray[1] + dateArray[2];
+     return parsedDate;
+ }
 
-      // Function for converting a mm/dd/yyyy date value into a numeric string for comparison (example 08/12/2010 becomes 20100812
-      function parseDateValue(rawDate) {
-        var dateArray= rawDate.split("-");
-        var parsedDate= dateArray[0] + dateArray[1] + dateArray[2];
-        return parsedDate;
-      }
+ $(document).ready(function() {
 
-      $(document).ready(function() {
+     var table = $('#datatable_wallet').DataTable();
+     //alert(info.recordsTotal);
+     // Event listener to the two range filtering inputs to redraw on input
+     // $('#min, #max').onSelect(function() {
+      $('.wallet-date').datepicker({format: "yyyy-mm-dd"}).on("input change", function (e) {
 
-          var table = $('#datatable_wallet').DataTable();
-          //alert(info.recordsTotal);
-
-          // Event listener to the two range filtering inputs to redraw on input
-            $('#min, #max').keyup( function() {
-                
-                    table.draw();
-
-                    $.fn.dataTable.ext.search.push(
-                        function( settings, data, dataIndex ) {
-
-                          var dateStart;
-                          var dateEnd;
-                          //alert('Date');
-                          if($("#min").val()=="" || $("#min").val() == undefined)
-                          {
-                              dateStart = 20150101; //start Date is fixed to 1/1/2015 if it is mention blank
-                          }
-
-                          else
-                          {
-                              dateStart = parseDateValue($("#min").val());
-                          }
-
-                          if($("#max").val()=="" || $("#max").val() == undefined)
-                          {
-                              dateEnd = 20171231; //End Date is fixed to 31/12/2017 if it is mention blank
-                          }
-
-                          else
-                          {
-                              dateEnd = parseDateValue($("#max").val());
-                          }
-
-                            // Data represents the table structure as an array of columns, so the script access the date value 
-                            // in the Seven column of the table via Data[7]
-                            var evalDate= parseDateValue(data[7].slice(0, 10)); //only first digit we require
-                            // alert('Eval date: '+evalDate +'\n'+'Start date: '+dateStart);
-                            
-                            if (evalDate >= dateStart && evalDate <= dateEnd) {
-                              // alert('condition true');
-                                return true;
-                            }
-                            else {
-                               // alert('condition false');
-                                return false;
-                            }
-                        }
-                    );
-                //}
-
-            });
-      } );
+         table.draw();
+         
+         $.fn.dataTable.ext.search.push(
+             function(settings, data, dataIndex) {
+                 var dateStart;
+                 var dateEnd;
+                 //alert('Date');
+                 if ($("#min").val() == "" || $("#min").val() == undefined) {
+                     dateStart = 20150101; //start Date is fixed to 1/1/2015 if it is mention blank
+                 } else {
+                     dateStart = parseDateValue($("#min").val());
+                 }
+                 if ($("#max").val() == "" || $("#max").val() == undefined) {
+                     dateEnd = 20171231; //End Date is fixed to 31/12/2017 if it is mention blank
+                 } else {
+                     dateEnd = parseDateValue($("#max").val());
+                 }
+                 // Data represents the table structure as an array of columns, so the script access the date value
+                 // in the Seven column of the table via Data[7]
+                 var evalDate = parseDateValue(data[7].slice(0, 10)); //only first digit we require
+                 // alert('Eval date: '+evalDate +'\n'+'Start date: '+dateStart);
+                 if (evalDate >= dateStart && evalDate <= dateEnd) {
+                     // alert('condition true');
+                     return true;
+                 } else {
+                     // alert('condition false');
+                     return false;
+                 }
+             }
+         );
+         
+     });
+ });
   </script>
-
-  <body>  
-    <div class="container">  
+  <body>
+    <div class="container">
       <div class="col-md-12">
-      <table border="0" cellpadding="5" cellspacing="5" style="margin: 10px 0px;">
-        <tbody>
-          <tr>
-            <td>From : </td>
-            <td><input id="min" name="min" type="text"></td>
-            <td>&nbsp;</td> <td>&nbsp;</td>
-            <td>To : </td>
-            <td><input id="max" name="max" type="text"></td>
-        </tr>
-    </tbody>
-    </table>
-    <!--<%= data %>
-    <%= length %>-->
+        
+        <form class="form-inline well" method="POST" action="/" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="exampleInputEmail2">Select File</label>
+            <div class="fileUpload btn btn-primary">
+              <span>Upload</span>
+              <input type="file"  name="uploadFile" class="upload"></input>
+            </div>
+            <input class="btn btn-default" type="submit" name="ok" value="Send" disable>
+            <input type="reset" name="ok" class="btn btn-default" value="Cancel">
+            </div>
+          </form>
 
-        <%if (length > 0) { %>
+          <form class="form-inline well">
+            <div class="form-group">
+              <label for="exampleInputName2" >Select From Date</label>
+              <input id="min" class="wallet-date"  name="min" type="date" placeholder="Select Date">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputName2" >Select To Date</label>
+              <input id="max" name="max"  class="wallet-date"  placeholder="Select Date" type="date">
+            </div>
+          </form>
+
+          <%if (length > 0) { %>
           
-           <table class="table table-hover" id="datatable_wallet">
-             <thead>
-                <th>No.</th>
-                <th>Name</th>
-                <th>HostName</th>
-                <th>PID</th>
-                <th>Level</th>
-                <th>Error</th>
-                <th>Message</th>
-                <th>Time</th>
-             </thead>
-
-              <% for(var i=length-1,p=1; i >=0; i--) { %>
-                 <tr>
-                   <td><%= p %></td>
-                   <td><%= JSON.parse(data[i]).name %></td>
-                   <td><%= JSON.parse(data[i]).hostname %></td>
-                   <td><%= JSON.parse(data[i]).pid %></td>
-                   <td><%= JSON.parse(data[i]).level %></td>
-                   <td><%= JSON.parse(data[i]).error %></td>
-                   <td><%= JSON.parse(data[i]).msg %></td>
-                   <td><%= JSON.parse(data[i]).time %></td>
-                 </tr>
-              <% p++;} %>
-
-          </table> 
-
-        <% } %>
-        </div>  
-    </div>  
-  </body>
-</html>
+          <table class="table table-hover" id="datatable_wallet">
+            <thead>
+              <th>No.</th>
+              <th>Name</th>
+              <th>HostName</th>
+              <th>PID</th>
+              <th>Level</th>
+              <th>Error</th>
+              <th>Message</th>
+              <th>Time</th>
+            </thead>
+            <% for(var i=length-1,p=1; i >=0; i--) { %>
+            <tr>
+              <td><%= p %></td>
+              <td><%= JSON.parse(data[i]).name %></td>
+              <td><%= JSON.parse(data[i]).hostname %></td>
+              <td><%= JSON.parse(data[i]).pid %></td>
+              <td><%= JSON.parse(data[i]).level %></td>
+              <td><%= JSON.parse(data[i]).error %></td>
+              <td><%= JSON.parse(data[i]).msg %></td>
+              <td><%= JSON.parse(data[i]).time %></td>
+            </tr>
+            <% p++;} %>
+          </table>
+          <% } %>
+        </div>
+      </div>
+    </body>
+  </html>
