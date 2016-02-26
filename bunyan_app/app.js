@@ -15,16 +15,16 @@ app.set('view engine', 'ejs');
 app.get('/', function(req, res){
 
 	var fs 	= require('fs');
-	var obj = fs.readFileSync('D:/wallet_logs/wallet_25_feb_2016.json', 'utf8');
+	// var obj = fs.readFileSync('D:/wallet_logs/wallet_25_feb_2016.json', 'utf8');
 	// var obj = fs.readFileSync('D:/wallet.json', 'utf8');
-	// var obj = fs.readFileSync('/home/sudeep/wallet_log.json', 'utf8');
+	var obj = fs.readFileSync('/media/sudeep/546AF16F6AF14DEC/wallet_log.json', 'utf8');
 	var array = obj.replace(/\}\n{/g,'}secureSpacing{');
 	
 	//array = array.replace(/\{/g,' {');
 	array   = array.split("secureSpacing");
 
 	var length = array.length;
-	console.log(array);
+	// console.log(array);
 
 	//var data = JSON.parse(array);
 
@@ -64,6 +64,7 @@ app.get('/', function(req, res){
 
 	// res.send(htmltable);
 	res.render('index', { data: array, length : length })
+	console.log('Log read sucessfully');
 
 })
 
