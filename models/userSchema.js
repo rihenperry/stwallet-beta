@@ -37,7 +37,7 @@ var userDetails = mongoose.Schema({
     trade_fees:                       {type: Number, default:0},							// Trading Amount
     purchases:                        {type: Number, default:0},							// Purchase Amount
     search_earning:                   {type: Number, default:0},                            // search earning
-    recent_searches:                  {type: Array, default:''},                           // Recent Searches Array
+    recent_searches:                  {type: Array, default:''},                            // Recent Searches Array
     no_of_qualified_searches_pending: {type: Number, default:40},                           // Total Available Paid Searches in Day
     no_of_unQualified_searches:       {type: Number, default:0},                            // No of Unpaid Searches
     favourite_search_app:             {type: String, default:''},                           // Favourite Search App
@@ -46,6 +46,7 @@ var userDetails = mongoose.Schema({
     last_hour_search_time:            {type: Number, default:0},                            // Last Hour Time
     total_kwd_income:                 {type: Number, default:0},                            // Total Keyword Income
     total_app_income:                 {type: Number, default:0},                            // Total App Income
+    search_affiliate_earnings:        {type: Number, default:0},                            // Total Search Affiliate Earn
     total_qualified_searches:         {type: Number, default:0},                            // No of Paid Searches
     gender:                           {type: String, default:''},							// Gender
     country:                          {type: String, default:''},						    // Country
