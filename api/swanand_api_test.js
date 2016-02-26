@@ -1,5 +1,5 @@
 
-var file = 'D:/test_json_data.json';
+var file = 'D:/test.json';
 var jsondata_wallet =  jsonfile.readFileSync(file);
 console.dir(jsonfile.readFileSync(file))
 

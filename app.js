@@ -109,6 +109,7 @@ app.post('/secure/deductBlockedPendingWithdrawals', user.deductBlockedPendingWit
 app.post('/secure/addApprovedWithdrawals', user.addApprovedWithdrawals);						// Add Approved Withdrawal To User Account API
 app.post('/secure/deductApprovedWithdrawals', user.deductApprovedWithdrawals);					// Deduct Approved Withdrawal From User Account API
 app.post('/secure/addTotalAppIncome', user.addTotalAppIncome);                                  // Add User Total App Income API
+app.post('/secure/addSearchAffEarning', user.addSearchAffEarning);								// Add User's Search Affiliate Earning API
 app.post('/secure/firstBuy', user.firstBuy);													// FirstBuy API
 app.post('/secure/addBlockedForBids', user.addBlockedForBids);									// Add Blocked For Bids API
 app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// Deduct Blocked Bids API
