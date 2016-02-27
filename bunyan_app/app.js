@@ -45,13 +45,8 @@ app.post('/', function(req, res){
 app.get('/', function(req, res){
 
 	var obj = fs.readFileSync('D:/wallet_logs/wallet_25_feb_2016.json', 'utf8');
-	// var obj = fs.readFileSync('D:/wallet_logs/wallet_25_feb_2016.json', 'utf8');
-
-	// var obj = fs.readFileSync('D:/wallet.json', 'utf8');
-	// var obj = fs.readFileSync('/media/sudeep/546AF16F6AF14DEC/wallet_log.json', 'utf8');
 	var array = obj.replace(/\}\n{/g,'}secureSpacing{');
 	
-	//array = array.replace(/\{/g,' {');
 	array   = array.split("secureSpacing");
 
 	var length = array.length;

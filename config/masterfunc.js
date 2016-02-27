@@ -163,7 +163,7 @@ module.exports.validation  = function(req, cb){
     }
     
     // Validate Amount
-    if(!(validate(amount, 'amount')) || isNaN(amount)){
+    if(!(validate(amount, 'Amount')) || isNaN(amount)){
         if(isNaN(amount)){
             log.info('Amount is Invalid');
         }
@@ -177,7 +177,7 @@ module.exports.validation  = function(req, cb){
     }
 
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&amount='+encodeURIComponent(amount)+'&publicKey='+encodeURIComponent(publicKey);
     
     secureAuth(query, text, signature, function (result){
         if(result[0].error == 'false'){

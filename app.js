@@ -168,7 +168,6 @@ app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Ge
 
 app.post('/secure/cron', cron_api.cron);
 
-
 // Server Connectivity
 app.listen('5000', function () {
     log.info('Connected To Server'); 
