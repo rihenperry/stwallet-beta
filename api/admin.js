@@ -263,7 +263,7 @@ module.exports.userManage = function (req, res){
 	}
 		
 	var query = {'publicKey': publicKey};
-    var text = 'email='+email+'&publicKey='+publicKey;
+    var text = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
     
 	// Validate Signature
 	master.secureAuth(query, text, signature, function (result){
@@ -452,7 +452,7 @@ module.exports.getExpenceTransactions = function(req, res) {
 
 	var query = {'publicKey': publicKey};
     
-    var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&number="+n+"&type="+type+"&publicKey="+publicKey;
+    var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&type="+encodeURIComponent(type)+"&publicKey="+encodeURIComponent(publicKey);
 
 	// Validate Signature
 	master.secureAuth(query, text, signature, function (result){
@@ -574,7 +574,7 @@ module.exports.getActiveEmails = function(req, res){
 
 	var query = {'publicKey':publicKey};
 
-	var text = "flag="+flag+"&publicKey="+publicKey;
+	var text = "flag="+encodeURIComponent(flag)+"&publicKey="+encodeURIComponent(publicKey);
 
 	master.secureAuth(query, text, signature, function (result){
 
@@ -750,7 +750,7 @@ module.exports.getIncomeTransactions = function(req, res) {
 
 	var query = {'publicKey': publicKey};
 
-	var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&number="+n+"&payment_mode="+payment_mode+"&publicKey="+publicKey;
+	var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&payment_mode="+encodeURIComponent(payment_mode)+"&publicKey="+encodeURIComponent(publicKey);
 
 	//Validate signature
 	master.secureAuth(query, text, signature, function (result){
@@ -857,6 +857,7 @@ module.exports.getIncomeTransactions = function(req, res) {
 		
 }
 
+/*User Keyword Purchase Transactions*/
 module.exports.userKwdPurchaseTrans = function(req, res) {
 
 	log.info('Page Name: admin.js');
@@ -968,7 +969,7 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 	n = parseInt(n);
 
 	var query = {'publicKey': publicKey};
-	var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&mode="+mode+"&publicKey="+publicKey;
+	var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&mode="+encodeURIComponent(mode)+"&publicKey="+encodeURIComponent(publicKey);
 
 	// Find Server
     master.secureAuth(query, text, signature, function (result){
@@ -1058,6 +1059,7 @@ module.exports.userKwdPurchaseTrans = function(req, res) {
 		
 };
 
+/*Payment Mode Count*/
 module.exports.paymentModeCount = function(req, res) {
     
     log.info('Page Name: admin.js');
@@ -1074,7 +1076,7 @@ module.exports.paymentModeCount = function(req, res) {
 	log.info('Signature :'+signature);
     
     var query = {'publicKey': publicKey};
-	var text = "mode="+mode+"&publicKey="+publicKey;
+	var text = "mode="+encodeURIComponent(mode)+"&publicKey="+encodeURIComponent(publicKey);
 
     master.secureAuth(query, text, signature, function (result){
 

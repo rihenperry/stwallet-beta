@@ -130,7 +130,7 @@ module.exports.secureRegister = function (req, res) {
     var last_name          = req.body.last_name;
     var email              = req.body.email;
     var password           = req.body.password;
-    var confirm_password   = req.body.confirm_new_password;
+    var confirm_password   = req.body.confirm_password;
     var country            = req.body.country;
     var flag               = req.body.flag;
     var mobile_number      = req.body.mobile_number;
@@ -151,6 +151,7 @@ module.exports.secureRegister = function (req, res) {
 	log.info('Last Name :' + last_name);
 	log.info('Email : ' + email);
 	log.info('Password : ' + password);
+    log.info('Confirm Password : ' + confirm_password);
     log.info('Country :' + country);
     log.info('Flag : ' + flag);
     log.info('Mobile Number : ' + mobile_number);
@@ -232,7 +233,7 @@ module.exports.secureRegister = function (req, res) {
 	}
     
     var query = {publicKey:publicKey};
-    var text  = 'first_name='+first_name+'&last_name='+last_name+'&email='+email+'&password='+req.body.password+'&confirm_password='+confirm_password+'&country='+country+'&mobile_number='+mobile_number+'&referral='+referral+'&flag='+flag+'&publicKey='+publicKey;
+    var text  = 'first_name='+encodeURIComponent(first_name)+'&last_name='+encodeURIComponent(last_name)+'&email='+encodeURIComponent(email)+'&password='+encodeURIComponent(req.body.password)+'&confirm_password='+encodeURIComponent(confirm_password)+'&country='+encodeURIComponent(country)+'&mobile_number='+encodeURIComponent(mobile_number)+'&referral='+encodeURIComponent(referral)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -433,7 +434,7 @@ module.exports.verifyAccount = function(req, res){
     }
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&auth='+auth+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&auth='+encodeURIComponent(auth)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -599,7 +600,7 @@ exports.secureResendVerification = function(req, res) {
     }
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&flag='+flag+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
 
@@ -690,7 +691,7 @@ module.exports.secureLogin = function(req, res){
 	}
     
     var query = {publicKey:publicKey};
-    var text  = "email="+email+"&password="+password+"&publicKey="+publicKey;
+    var text  = "email="+encodeURIComponent(email)+"&password="+encodeURIComponent(password)+"&publicKey="+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -819,7 +820,7 @@ module.exports.getDetails = function(req, res) {
     }
     
     var query = {publicKey:publicKey};
-    var text  = "email="+email+"&publicKey="+publicKey;
+    var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -928,7 +929,7 @@ module.exports.setUserDetails = function(req, res){
 	}
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&first_name='+first_name+'&last_name='+last_name+'&gender='+gender+'&address1='+address1+'&address2='+address2+'&country='+country+'&state='+state+'&zip='+zip+'&city='+city+'&mobile_number='+mobile_number+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&first_name='+encodeURIComponent(first_name)+'&last_name='+encodeURIComponent(last_name)+'&gender='+encodeURIComponent(gender)+'&address1='+encodeURIComponent(address1)+'&address2='+encodeURIComponent(address2)+'&country='+encodeURIComponent(country)+'&state='+encodeURIComponent(state)+'&zip='+encodeURIComponent(zip)+'&city='+encodeURIComponent(city)+'&mobile_number='+encodeURIComponent(mobile_number)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1037,7 +1038,7 @@ module.exports.currencyPrefrence = function(req, res) {
     }
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&currency_code='+currency_code+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&currency_code='+encodeURIComponent(currency_code)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1132,7 +1133,7 @@ exports.secureForgotPassword = function(req, res) {
     }
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&flag='+flag+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1265,7 +1266,7 @@ module.exports.resetpassword = function(req, res) {
     auth=auth.replace(/\ /g,'+');
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&auth='+auth+'&password='+password+'&confirm_password='+confirm_password+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&auth='+encodeURIComponent(auth)+'&password='+encodeURIComponent(password)+'&confirm_password='+encodeURIComponent(confirm_password)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1437,7 +1438,7 @@ module.exports.changePassword = function (req, res) {
 	}
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&old_password='+old_pass+'&new_password='+new_pass+'&confirm_new_password='+confirm_new_pass+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&old_password='+encodeURIComponent(old_pass)+'&new_password='+encodeURIComponent(new_pass)+'&confirm_new_password='+encodeURIComponent(confirm_new_pass)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1607,7 +1608,7 @@ module.exports.setAppId = function (req, res) {
 	}
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&appId='+appId+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&appId='+encodeURIComponent(appId)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1701,7 +1702,7 @@ module.exports.getAppId = function (req, res) {
     }
 
     var query = {publicKey:publicKey};
-    var text  = 'email='+email+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1804,7 +1805,7 @@ module.exports.editProfilePic = function(req, res){
 
     var query = {'publicKey': publicKey};
 
-    var text  = 'email='+email+'&publicKey='+publicKey;
+    var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
     
         master.secureAuth(query, text, signature, function (result){
              
@@ -3046,7 +3047,7 @@ module.exports.rejectBlockedBids = function(req, res){
 	};  	
 	
     var query = {publicKey:publicKey};
-    var txt = 'reject_bids_json='+reject_bids_json+'&publicKey='+publicKey;
+    var txt = 'reject_bids_json='+encodeURIComponent(reject_bids_json)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
         
