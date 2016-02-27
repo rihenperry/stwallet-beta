@@ -1110,3 +1110,220 @@ module.exports.paymentModeCount = function(req, res) {
     })
     
 }
+
+/*Set User Balance*/
+module.exports.setUserBalance = function(req, res){
+
+	console.log('Page Name: admin.js.');
+	console.log('API Name : setUserBalance');
+	console.log('Set User Balance API Hitted');
+	console.log('Parameters Receiving...');
+	
+	var email = req.body.email;
+	var deposit = req.body.deposit;
+	var pending_withdrawal = req.body.pending_withdrawal;
+	var approved_withdrawal = req.body.approved_withdrawal;
+	var publicKey = req.body.publicKey;
+	var signature = req.body.signature;
+	
+	console.log('Email : '+email);
+	console.log('Deposit : '+deposit);
+	console.log('Pending Withdrawals : '+pending_withdrawal);
+	console.log('Approved Withdrawal : '+approved_withdrawal);
+	console.log('Public Key : '+publicKey);
+	console.log('Signature : '+signature);
+	
+	// Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if(!(master.validateParameter(email, 'Email')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(master.validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+	
+	// Validate Deposit
+	if(!(master.validateParameter(deposit, 'Deposit Amount')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Pending Withdrawal
+	if(!(master.validateParameter(pending_withdrawal, 'Pending Withdrawal Amount')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Approved Withdrawal
+	if(!(master.validateParameter(approved_withdrawal, 'Approved Withdrawal Amount')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	var query = {'publicKey': publicKey};
+	var text = "email="+email+"&pending_withdrawal="+pending_withdrawal+"&approved_withdrawal="+approved_withdrawal+"&deposit="+deposit+"&publicKey="+publicKey;
+	
+	deposit = parseFloat(deposit);
+	pending_withdrawal = parseFloat(pending_withdrawal);
+	approved_withdrawal = parseFloat(approved_withdrawal);
+
+	// Find Server
+	master.secureAuth(query, text, signature, function (result){
+		
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+    
+  		query = {"email": email};
+		
+		var updatedFeilds = {
+				
+				deposit : deposit,
+				blocked_for_pending_withdrawals : pending_withdrawal,
+				approved_withdrawals : approved_withdrawal
+			
+			};
+
+		// Find User From Its Email From User Table
+		userSchema.findOneAndUpdate(query, updatedFeilds, function(err, result){
+				
+			//Unable To Get User With This Emnail (No Such Email Is Registered)
+			if (typeof result === 'undefined' || result == null || result.length <= 0)
+			{
+				console.log(email+' Is Not Registered');
+				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address');
+				return;
+			}
+
+ 			// Balance Updated Successfully
+			console.log('User Balance Successfully Upadted');
+			master.sendResponse(req, res, 200, -1, "Success");
+		
+		})
+	
+	})
+
+}
+
+/**/
+module.exports.getEmailTypeTransactions = function(req, res){
+
+	console.log('Page Name: admin.js.');
+	console.log('API Name : getEmailTypeTransactions');
+	console.log('Email Type Transaction API Hitted');
+	console.log('Parameters Receiving...');
+
+	var email = req.body.email;
+	var type = req.body.type;
+	var skip = req.body.skip;
+	var publicKey = req.body.publicKey;
+	var signature = req.body.signature;
+	
+	console.log('Email : '+email);
+	console.log('Type : '+type);
+	console.log('Public Key : '+publicKey);
+	console.log('Signature : '+signature);
+	
+	// Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if(!(master.validateParameter(email, 'Email')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(master.validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+
+	// Validate Signature
+	if(!(master.validateParameter(type, 'Type')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	var query = {'publicKey': publicKey};
+	var text = "email="+email+"&type="+type+"&skip="+skip+"&publicKey="+publicKey;
+	
+	// Find Server
+	master.secureAuth(query, text, signature, function (result){
+		
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+    
+			
+			if(type == "All")
+			{
+				var query = {$or:[{"sender":email},{"receiver":email}]}
+			}
+			else
+			{
+				var query = {$and:[{$or:[{"sender":email},{"receiver":email}]},{"type":type}]}
+			}
+			
+			skip = parseInt(skip);
+			
+			transSchema.find(query, function(err, retVal){
+			
+				if(retVal == "" || retVal == undefined || retVal.length <= 0)
+				{
+					console.log('No Transactions');
+					master.sendResponse(req, res, 200, 9, "No Result");
+					return;
+				}				
+				
+				else
+				{
+					console.log(retVal.length+' Transactions Found');
+					master.sendResponse(req, res, 200, -1, retVal);
+				}
+				
+			}).sort({"time":-1}).skip(skip);
+			
+		})
+		
+}
