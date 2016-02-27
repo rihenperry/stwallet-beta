@@ -66,7 +66,7 @@ module.exports.insertUserTransaction = function(req, res){
 	}
 	
     var query = {publicKey:publicKey};
-    var text  = 'sender='+sender+'&receiver='+receiver+'&amount='+amount+'&type='+type+'&desc='+desc+'&keyword='+keyword+'&payment_mode='+payment_mode+'&discount='+discount+'&commision='+commision+'&origin_ip='+origin_ip+'&usd='+usd+'&sgd='+sgd+'&publicKey='+publicKey;
+    var text  = 'sender='+encodeURIComponent(sender)+'&receiver='+encodeURIComponent(receiver)+'&amount='+encodeURIComponent(amount)+'&type='+encodeURIComponent(type)+'&desc='+encodeURIComponent(desc)+'&keyword='+encodeURIComponent(keyword)+'&payment_mode='+encodeURIComponent(payment_mode)+'&discount='+encodeURIComponent(discount)+'&commision='+encodeURIComponent(commision)+'&origin_ip='+encodeURIComponent(origin_ip)+'&usd='+encodeURIComponent(usd)+'&sgd='+encodeURIComponent(sgd)+'&publicKey='+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
         
@@ -162,7 +162,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
     }
     
     var query = {publicKey:publicKey};
-    var text  = "email="+email+"&publicKey="+publicKey;
+    var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -307,7 +307,7 @@ module.exports.getTransactions = function(req, res) {
 	n = parseInt(n);
     
     var query = {publicKey:publicKey};
-    var text  = "email="+email+"&from="+req.body.from+"&to="+req.body.to+"&number="+n+"&type="+type+"&publicKey="+publicKey;
+    var text  = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(req.body.from)+"&to="+encodeURIComponent(req.body.to)+"&number="+encodeURIComponent(n)+"&type="+encodeURIComponent(type)+"&publicKey="+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          

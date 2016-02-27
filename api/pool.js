@@ -23,7 +23,7 @@ var poolvalidate = function(req, cb){
 	var signature = req.body.signature;
 	var signature = req.body.signature;
 	
-	var text = 'amount='+amount+'&publicKey='+publicKey;	
+	var text = 'amount='+encodeURIComponent(amount)+'&publicKey='+encodeURIComponent(publicKey);	
 	var reqParam = [amount, publicKey, signature];
 	var query = {'publicKey': publicKey};
 
@@ -86,6 +86,7 @@ var poolvalidate = function(req, cb){
 }
 
 //========================= Export Functions ========================= //
+
 /*Add to Keyword Income*/
 module.exports.addTokwdIncome = function (req, res){
 	

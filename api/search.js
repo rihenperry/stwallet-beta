@@ -255,7 +255,7 @@ module.exports.updateLastHourValue = function(req, res){
     }
     
     var query = {publicKey:publicKey};
-    var text  = "email="+email+"&publicKey="+publicKey;
+    var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -342,7 +342,7 @@ module.exports.recentSearches = function(req, res){
     }
     
     var query = {publicKey:publicKey};
-    var text  = "email="+email+"&searches="+searches+"&publicKey="+publicKey;
+    var text  = "email="+encodeURIComponent(email)+"&searches="+encodeURIComponent(searches)+"&publicKey="+encodeURIComponent(publicKey);
     
     // Authentication
     master.secureAuth(query, text, signature, function (result){
