@@ -33,7 +33,7 @@ function sendVerificationEmail(accountInfo, flag){
 	}
 	else // Web
 	{
-		var url= protocol+"://searchtrade.com/keywords/views/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
+		var url= protocol+"://localhost/st-web/keywords/views/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
 	
 	var text= '<div style="border:solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hello '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>Your SearchTrade account has been created.</p><p>Please click <a href="'+url+'">Here</a> to verify your email address or copy/paste the link below into your browser.</p><p>'+url+'</p></div></div></div></div>';
@@ -47,11 +47,7 @@ function sendVerificationEmail(accountInfo, flag){
 		html: text
 	};
 
-	if(flag != '3')
-	{
-		mailer.sendmail(mailOptions);
-	}
-  
+    mailer.sendmail(mailOptions);
 }
 
 // Send Reset Password Link to User Email Address
@@ -220,7 +216,7 @@ module.exports.secureRegister = function (req, res) {
 	else
 	{
 		log.info('Passwords Are Not Matching');
-		master.sendResponse(req, res, 200, 6, "Incorrect Email/password");
+		master.sendResponse(req, res, 200, 6, "Passwords Are Not Matching");
 		return;
 	}
 	
