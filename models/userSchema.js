@@ -13,7 +13,7 @@ var userDetails = mongoose.Schema({
     last_name:                        {type: String},                                       // Last Name of User
     email:                            {type: String},                                       // Email of User
     password:                         {type: String},                    	                // Salted Hash Password
-    mobile_number:                    {type: Number, default:''},		                    // Mobile Number
+    mobile_number:                    {type: Number, default:0},		                    // Mobile Number
     ref_email:                        {type: String, default:''},		                    // Reference Person Email
     my_referral_id :                  {type: String},				                        // User Refferal Code
     seed:                             {type: String},                                       // Seed
