@@ -27,19 +27,6 @@ var  express     	 = require('express'),
      admin     	     = require("./api/admin"),  	             // Get Admin API
      cron_api    	 = require("./api/cron_api.js");    	     // Get Admin API
 
-    var Converter    = require("csvtojson").Converter;
-    var converter    = new Converter({});
-
-    converter.fromFile("D:/test.csv",function(err,result){
-
-        var file = 'D:/test.json';
-
-        jsonfile.writeFile(file, result, function (err) {
-            //console.error(err)
-        })
-
-    });
-
 // code to set ENV for node app
 var loadconfig = require('./config/w_config.js')
 
