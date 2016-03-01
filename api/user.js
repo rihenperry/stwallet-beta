@@ -1801,8 +1801,7 @@ module.exports.editProfilePic = function(req, res){
 
     var query = {'publicKey': publicKey};
 
-    var text  = 'email='+email+'&publicKey='+publicKey;
-    // var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
     
         master.secureAuth(query, text, signature, function (result){
              
