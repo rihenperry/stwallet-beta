@@ -96,6 +96,7 @@ module.exports.insertUserTransaction = function(req, res){
 				usd : parseFloat(usd),						// USA Doller
 				sgd : parseFloat(sgd),						// Singapore Dollar
 				status: 'Success'			                // Status
+            
         });
         
         newTransaction.save(function(err){

@@ -57,12 +57,17 @@ function sendRestEmail(accountInfo, flag){
   
 	if(flag == '1') // For Web
 	{
-		var url= protocol+"://searchtrade.com/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
+		var url= protocol+"://localhost/st-web/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
   
 	if(flag == '2')	// For Wallet
 	{
 		var url= protocol+"://scoinz.com/presaleWallet/wallet/resetpass.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
+	}
+    
+    if(flag == '3') // For Mobile
+	{
+		var url= protocol+"://localhost/st-web/MobileSite/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
   
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>You have requested to Change your SearchTrade account password.</p><p>Please click <a href="'+url+'">Here</a> to reset your password.</p><p>OR</p><p>Copy Link Address below in your web browser</p><p>'+url+'</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div>';
@@ -351,6 +356,7 @@ module.exports.secureRegister = function (req, res) {
                             seed : seed,
                             creationTime : creationTime,
                             salt : salt,
+                            country : country,
                             first_buy_status: stat
                         });
 
@@ -688,6 +694,7 @@ module.exports.secureLogin = function(req, res){
     
     var query = {publicKey:publicKey};
     var text  = "email="+encodeURIComponent(email)+"&password="+encodeURIComponent(password)+"&publicKey="+encodeURIComponent(publicKey);
+    //var text  = "email="+email+"&password="+password+"&publicKey="+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -925,7 +932,9 @@ module.exports.setUserDetails = function(req, res){
 	}
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&first_name='+encodeURIComponent(first_name)+'&last_name='+encodeURIComponent(last_name)+'&gender='+encodeURIComponent(gender)+'&address1='+encodeURIComponent(address1)+'&address2='+encodeURIComponent(address2)+'&country='+encodeURIComponent(country)+'&state='+encodeURIComponent(state)+'&zip='+encodeURIComponent(zip)+'&city='+encodeURIComponent(city)+'&mobile_number='+encodeURIComponent(mobile_number)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&first_name='+encodeURIComponent(first_name)+'&last_name='+encodeURIComponent(last_name)+'&gender='+encodeURIComponent(gender)+'&address1='+encodeURIComponent(address1)+'&address2='+encodeURIComponent(address2)+'&country='+encodeURIComponent(country)+'&state='+encodeURIComponent(state)+'&zip='+encodeURIComponent(zip)+'&city='+encodeURIComponent(city)+'&mobile_number='+encodeURIComponent(mobile_number)+'&publicKey='+encodeURIComponent(publicKey);
+    
+    var text  = 'email='+email+'&first_name='+first_name+'&last_name='+last_name+'&gender='+gender+'&address1='+address1+'&address2='+address2+'&country='+country+'&state='+state+'&zip='+zip+'&city='+city+'&mobile_number='+mobile_number+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -987,6 +996,8 @@ module.exports.setUserDetails = function(req, res){
 /*============================= Currency Preference =============================*/
 
 module.exports.currencyPrefrence = function(req, res) {
+    
+    console.log(req.body.currency_code);
     
     log.info('Page Name : user.js');
 	log.info('API Name : currencyPrefrence');

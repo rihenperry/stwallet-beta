@@ -15,10 +15,11 @@ var trans_Schema = mongoose.Schema({
     "payment_mode": {type: String, default:''},
     "discount":     {type: Number, default:0},
     "commision":    {type: Number, default:0},
-    "origin_ip":    {type: Number, default:0},
+    "origin_ip":    {type: String, default:''},
     "usd":          {type: Number, default:0},
     "sgd":          {type: Number, default:0},
-    "status":       {type: String}  
+    "status":       {type: String}
+    
 },{versionKey: false});
 
 module.exports = mongoose.model('transaction', trans_Schema)

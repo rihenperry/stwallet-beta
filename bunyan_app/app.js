@@ -12,7 +12,7 @@ app.use(express.static(__dirname + '/public', { maxAge: oneDay }));
 
 app.set('view engine', 'ejs');  
 
-app.use(express.bodyParser({ keepExtensions: true, uploadDir: "uploads" }));                     
+app.use(express.bodyParser({ keepExtensions: true, uploadDir: "uploads/json"}));                     
 
 //when file is post
 app.post('/', function(req, res){
@@ -40,6 +40,36 @@ app.post('/', function(req, res){
 	res.render('index', { data: array, length : length })
 	return;	
 });
+
+
+// For CSV To JSON File
+//app.post('/', function(req, res){
+//
+//	var i = req.files.uploadFile.name.lastIndexOf('.');
+//	var extension = (i < 0) ? '' :  req.files.uploadFile.name.substr(i);
+//
+//	console.log(req.files.uploadFile.name + ' ' +extension);
+//
+//	if(req.files.uploadFile.name == '' || extension.toLowerCase() != '.csv')
+//	{
+//		res.redirect('/');
+//		return;
+//	}
+//
+//	var obj = fs.readFileSync('D:/git-wallet/bunyan_app/'+req.files.uploadFile.path, 'utf8');
+//	var array = obj.replace(/\}\n{/g,'}secureSpacing{');
+//	
+//	//array = array.replace(/\{/g,' {');
+//	array   = array.split("secureSpacing");
+//
+//	var length = array.length;
+//	//console.log(array);
+//
+//	res.render('index', { data: array, length : length })
+//	return;	
+//});
+
+
 
 //Default page load
 app.get('/', function(req, res){

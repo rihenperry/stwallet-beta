@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<!-- **************** Original Code **************** -->
+<!--<html>
+    <head>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+           	
+            $(document).ready(function(){
+                
+                $("#chatForm").submit(function(e) {
+                    
+                    var msg = document.getElementById("message_input").value;
+                    socketio.emit("message_to_server", { message : msg});
+                    document.getElementById("message_input").value="";
+                    e.preventDefault();
+                });
+                
+            })
+            
+            var socketio = io.connect("192.168.1.35:1000");
+            
+            socketio.on("message_to_client", function(data) {
+                document.getElementById("chatlog").innerHTML = ("<hr/>" + 
+                data['ip']+' : '+data['message'] + document.getElementById("chatlog").innerHTML);
+            });
+
+        </script>
+    </head>
+    <body>        
+        <form id="chatForm">
+            <input type="text" id="message_input"/>
+            <input type="submit" value="Send">
+        </form>
+        <div id="chatlog"></div>
+    </body>
+</html>-->
+
+<!-- **************** Original Code **************** -->
+
+<html>
+    <head>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            
+            $(document).ready(function(){
+                $("#regiForm").submit(function(e) {
+                    var name = document.getElementById("name").value;
+                    var email = document.getElementById("email").value;
+                    var number = document.getElementById("number").value;
+                    socketio.emit("message_to_server", { name : name, email : email, number : number});
+                    document.getElementById("name").value=""
+                    document.getElementById("email").value=""
+                    document.getElementById("number").value=""
+                    e.preventDefault();
+                });                
+            })
+
+            var socketio = io.connect("192.168.1.35:1000");
+            
+            socketio.on("message_to_client", function(data) {
+                document.getElementById("table").innerHTML = ("<tr><td>" + 
+                data['name']+'</td><td>'+data['email']+'</td><td>'+data['number']+'</td></tr>'+document.getElementById("table").innerHTML);
+            });
+            
+        </script>
+    </head>
+    <body style="width:80%; margin:0 auto; padding:5px;">
+        <div id="leftPanel" style="width:68%; float:left">
+            <table id="table">
+                <thead>
+                    <td>Name</td>
+                    <td>Email</td>
+                    <td>Number</td>
+                </thead>
+                <tbody></tbody>
+            </table>                        
+        </div>
+        <div id="rightPanel" style="width:30%; float:right">
+            <div>Register</div>
+            <form id="regiForm">
+                <table>
+                    <tr>
+                        <td>Name</td>
+                        <td><input type="text" name="name" id="name"></td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td><input type="text" name="email" id="email"></td>
+                    </tr>
+                    <tr>
+                        <td>Number</td>
+                        <td><input type="text" name="number" id="number"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="submit" name="submit" id="submit" value="Submit"></td>
+                        <td><input type="reset" name="reset" id="reset" value="Reset"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </body>
+</html>
