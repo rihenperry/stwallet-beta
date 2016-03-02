@@ -62,10 +62,10 @@ var bunyan = require('bunyan'),
     {
         type: 'rotating-file',
         level: 'info',
-        period: '30000ms',
-         //path: '/home/sudeep/wallet_log.json'  // log ERROR and above to a file
-          path: 'D:/wallet.json',  // log ERROR and above to a file
-         count : 10 ,
+        period: '1d',
+         path: '/home/sudeep/wallet_log.json',  // log ERROR and above to a file
+          // path: 'D:/wallet.json',  // log ERROR and above to a file
+         count : 1 ,
          //path: '/home/sudeep/wallet_log.json'  // log ERROR and above to a file
          // path: 'D:/wallet.json'  // log ERROR and above to a file
     }

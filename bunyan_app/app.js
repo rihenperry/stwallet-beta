@@ -28,7 +28,8 @@ app.post('/', function(req, res){
 		return;
 	}
 
-	var obj = fs.readFileSync('D:/git-wallet/bunyan_app/'+req.files.uploadFile.path, 'utf8');
+	// var obj = fs.readFileSync('D:/git-wallet/bunyan_app/'+req.files.uploadFile.path, 'utf8');
+	var obj = fs.readFileSync('/home/sudeep/'+req.files.uploadFile.path, 'utf8');
 	var array = obj.replace(/\}\n{/g,'}secureSpacing{');
 	
 	//array = array.replace(/\{/g,' {');
@@ -74,7 +75,8 @@ app.post('/', function(req, res){
 //Default page load
 app.get('/', function(req, res){
 
-	var obj = fs.readFileSync('D:/wallet_logs/wallet_25_feb_2016.json', 'utf8');
+	// var obj = fs.readFileSync('D:/wallet_logs/wallet_25_feb_2016.json', 'utf8');
+	var obj = fs.readFileSync('/home/sudeep/wallet_log.json', 'utf8');
 	var array = obj.replace(/\}\n{/g,'}secureSpacing{');
 	
 	array   = array.split("secureSpacing");
