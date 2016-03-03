@@ -1,8 +1,0 @@
-{
-  "name": "ServeStaticContent",
-  "version": "0.0.1",
-  "dependencies": {
-    "basic-auth": "^1.0.3",
-    "express": "3.x"
-  }
-}
