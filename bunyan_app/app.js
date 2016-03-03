@@ -14,6 +14,12 @@ app.set('view engine', 'ejs');
 
 app.use(express.bodyParser({ keepExtensions: true, uploadDir: "uploads/json"}));                     
 
+// HTACESS code
+var auth = require('./auth');
+app.use(auth);
+
+
+
 //when file is post
 app.post('/', function(req, res){
 
