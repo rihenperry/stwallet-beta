@@ -177,7 +177,8 @@ module.exports.validation  = function(req, cb){
     }
 
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&amount='+encodeURIComponent(amount)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&amount='+encodeURIComponent(amount)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&amount='+amount+'&publicKey='+publicKey;
     
     secureAuth(query, text, signature, function (result){
         if(result[0].error == 'false'){

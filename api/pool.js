@@ -6,13 +6,13 @@
 var poolSchema	  	= require('../models/poolSchema.js');
 var deviceSchema 	= require('../models/deviceInfoSchema.js');
 
-var crypt 			= require("../config/crypt");			// Crypt Connectivity.
-var master          = require('../config/masterfunc.js'),       // Master Functions
+var crypt 			= require("../config/crypt");			       // Crypt Connectivity.
+var master          = require('../config/masterfunc.js'),          // Master Functions
 
     logger          = require('../config/w_config.js'),
     log             = logger();
 
-// //========================= Page Functions ========================= //
+//========================= Page Functions ========================= //
 
 var poolvalidate = function(req, cb){
 
@@ -23,7 +23,9 @@ var poolvalidate = function(req, cb){
 	var signature = req.body.signature;
 	var signature = req.body.signature;
 	
-	var text = 'amount='+encodeURIComponent(amount)+'&publicKey='+encodeURIComponent(publicKey);	
+	//var text = 'amount='+encodeURIComponent(amount)+'&publicKey='+encodeURIComponent(publicKey);
+    var text = 'amount='+amount+'&publicKey='+publicKey;	
+    
 	var reqParam = [amount, publicKey, signature];
 	var query = {'publicKey': publicKey};
 
@@ -103,9 +105,7 @@ module.exports.addTokwdIncome = function (req, res){
 		}
 
 		log.info('Parameters are valid');
-
 		log.info('Credit Keyword Amount : '+retVal[0].amount)
-		
 		var query = { $inc: {'total_kwd_purchase_income': parseFloat(retVal[0].amount) }};
 
 		// Update Pool Keyword Income
@@ -640,51 +640,80 @@ module.exports.deductNoOfunQualifeidSearches = function (req, res){
 		
 };
 
-/*Add anonymous Searches*/	
+/*Add anonymous Searches*/ 
 module.exports.addAnonymousSearches = function (req, res){
-	
-	log.info('Page Name: Pool.js')
-	log.info('API Name : addAnonymousSearches');
-	log.info('Add To Anonymous Income API Hitted');
-	
-	req.body.amount = "1";
+ 
+     log.info('Page Name: Pool.js')
+     log.info('API Name : addAnonymousSearches');
+     log.info('Add To Anonymous Income API Hitted');
 
-	poolvalidate(req, function(retVal){
+     var amount     = 1;
+     var publicKey  = req.body.publicKey;
+     var signature  = req.body.signature;
 
-		if (retVal[0].error == 'true' || retVal[0].error == true) {
-			log.info('Parameters are not valid');
-			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
-			return;
-		}
+     log.info('Amount  : '+amount);
+     log.info('PublicKey  : '+req.body.publicKey);
+     log.info('Signature  : '+req.body.signature);
 
-		log.info('Parameters are valid');
-		
-		log.info('Credit Anonymous Amount : '+retVal[0].amount)
-						
-			var query = {$inc:{"total_anonymous_searches": parseFloat(retVal[0].amount)}};
+     // Validate Public Key
+     if(!(master.validateParameter(publicKey, 'Public Key')))
+     {
+      master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+      return;
+     }
 
-			// Update Pool Anonymous Income
-			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
-				
-				// Successfully Updated
-				if(retVals)
-				{
-					log.info('Credited Anonymous Income Amount '+retVal[0].amount+' To Pool Successfully');
-					master.sendResponse(req, res, 200, -1, "Success");
-				}
-				
-				// Error In Updating Database
-				else
-				{
-					log.info('Database Error');
-					master.sendResponse(req, res, 200, 5, "Database Error");
-				}
+     // Validate Signature
+     if(!(master.validateParameter(signature, 'Signature')))
+     {
+      master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+      return;
+     }
 
+     // Amount Validation
+     if(amount=="" || isNaN(amount))
+     {
+      log.info('Invalid Amount');
+      master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+      return;
+     }
 
-			})
-			
-	});
-		
+     log.info('Parameters are valid');
+     var text = 'publicKey='+publicKey; 
+     var query = {'publicKey': publicKey};
+
+     master.secureAuth(query, text, signature, function (retVal){
+
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+
+        log.info('Credit Anonymous Amount : '+amount)
+
+        var query = {$inc:{"total_anonymous_searches": parseFloat(amount)}};
+
+        // Update Pool Anonymous Income
+        poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+
+            // Successfully Updated
+            if(retVals)
+            {
+                log.info('Credited Anonymous Income Amount '+amount+' To Pool Successfully');
+                master.sendResponse(req, res, 200, -1, "Success");
+            }
+
+            // Error In Updating Database
+            else
+            {
+                log.info('Database Error');
+                master.sendResponse(req, res, 200, 5, "Database Error");
+            }
+
+        })
+     
+     });
+  
 }
 
 /*Add App Payout*/

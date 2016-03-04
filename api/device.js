@@ -78,7 +78,8 @@ module.exports.deviceRegister = function(req, res){
 	}
 
 	var query = {'publicKey': publicKey};
-    var text = 'deviceInfo='+encodeURIComponent(deviceInfo)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text = 'deviceInfo='+encodeURIComponent(deviceInfo)+'&publicKey='+encodeURIComponent(publicKey);
+    var text = 'deviceInfo='+deviceInfo+'&publicKey='+publicKey;
 
     master.secureAuth(query, text, signature, function (result){
          
@@ -201,7 +202,8 @@ module.exports.getPvtKey = function(req, res){
 	}
 
 	var query = {'publicKey': publicKey};		    // For Authentication
-    var text  = 'pubKey='+encodeURIComponent(pubKey)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'pubKey='+encodeURIComponent(pubKey)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'pubKey='+pubKey+'&publicKey='+publicKey;
 	
     master.secureAuth(query, text, signature, function (result){
          

@@ -138,6 +138,7 @@ app.post('/secure/search/deductQualifiedSearches', search.deductQualifiedSearche
 app.post('/secure/search/addunQualifiedSearches', search.addunQualifiedSearches);				// Add UnQualified Searches For User API
 app.post('/secure/search/updateLastHourValue', search.updateLastHourValue);						// Update Last Hour Timing For User API
 app.post('/secure/search/recentSearches', search.recentSearches);                               // Add Recent Searches For User API
+app.post('/secure/search/checkExistanceEmail', search.checkExistanceEmail);						// Check Email Existance API
 
 /*============================== Admin Related API ==================================*/
 
@@ -151,6 +152,7 @@ app.post('/secure/admin/userManage', admin.userManage);											// Get Specifi
 app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Get User Transaction Count On Payment Mode
 app.post('/secure/admin/setUserBalance', admin.setUserBalance);                                 // Set User Balance API
 app.post('/secure/admin/getEmailTypeTransactions', admin.getEmailTypeTransactions);             // Email And Type Transactions
+app.post('/secure/admin/updateUserStatus', admin.updateUserStatus);							    // Update User Status API
 
 app.post('/secure/cron', cron_api.cron);
 

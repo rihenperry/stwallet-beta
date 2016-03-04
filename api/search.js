@@ -255,7 +255,8 @@ module.exports.updateLastHourValue = function(req, res){
     }
     
     var query = {publicKey:publicKey};
-    var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
+    //var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
+    var text  = "email="+email+"&publicKey="+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -342,7 +343,8 @@ module.exports.recentSearches = function(req, res){
     }
     
     var query = {publicKey:publicKey};
-    var text  = "email="+encodeURIComponent(email)+"&searches="+encodeURIComponent(searches)+"&publicKey="+encodeURIComponent(publicKey);
+    //var text  = "email="+encodeURIComponent(email)+"&searches="+encodeURIComponent(searches)+"&publicKey="+encodeURIComponent(publicKey);
+    var text  = "email="+email+"&searches="+searches+"&publicKey="+publicKey;
     
     // Authentication
     master.secureAuth(query, text, signature, function (result){
@@ -416,6 +418,103 @@ module.exports.recentSearches = function(req, res){
                 return;
                 
             })
+            
+        })
+        
+    })
+    
+}
+
+/*============================= Email Existance API =============================*/
+
+module.exports.checkExistanceEmail = function(req, res){
+
+    log.info('Page Name: search.js');
+	log.info('API Name : checkExistanceEmail');	
+	log.info('Check Email Existance API Hitted');
+	log.info('Parameters Receiving -:');
+    
+  	var email       = req.body.email;
+    var publicKey   = req.body.publicKey;
+	var signature   = req.body.signature;
+    
+    log.info('Email: '+email);
+	log.info('Public Key: '+publicKey);
+	log.info('Signature: '+signature);
+
+    // Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if(!(master.validateParameter(email, 'Email')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(master.validateEmail(email))) 
+	{
+		log.info('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+    
+    var query = {publicKey:publicKey};
+    //var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
+    var text  = "email="+email+"&publicKey="+publicKey;
+    
+    // Authentication
+    master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+      
+        // Get Data From User
+        userSchema.find({email:email},function(err, result){
+            
+            if(err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
+            
+            if(result == null || result == undefined || result == "")
+            {
+                log.info(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+            
+            if(result[0].active == "0" || result[0].active == 0)
+            {
+                log.info('Register But Not Active');
+                master.sendResponse(req, res, 200, 3, 'Account is not active.');
+                return;
+            }
+
+            if(result[0].active == "2" || result[0].active == 2)
+            {
+                log.info('Account is Blocked');
+                master.sendResponse(req, res, 200, 47, "Account is Blocked");
+                return;
+            }
+            
+            master.sendResponse(req, res, 200, -1, "Success");
             
         })
         

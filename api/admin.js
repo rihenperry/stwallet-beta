@@ -15,73 +15,6 @@ var master          = require('../config/masterfunc.js'),        // Master Funct
 
 //========================= Export Functions ========================= //
 
-/*Get All Transactions*/
-module.exports.getAllTransactions = function(req, res){
-
-	log.info('Page Name: admin.js.');
-	log.info('API Name : getAllTransactions');
-	log.info('Get All Transactions API Hitted');
-	log.info('Parameters Receiving..');
-	
-	var email      = req.body.email;
-	var publicKey  = req.body.publicKey;
-	var signature  = req.body.signature;
-	
-    log.info('Email : '+email);
-    log.info('PublicKey  : '+publicKey);
-	log.info('Signature  : '+signature);	
-	
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-    var query = {'publicKey': publicKey};
-    var text = 'email='+email+'&publicKey='+publicKey;
-    
-    master.secureAuth(query, text, signature, function (result){
-         
-        if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-
-        transSchema.find({}, function(err, results){
-
-            // Error In Fetching Data
-            if (err)
-            {
-                log.error(err);
-                master.sendResponse(req, res, 200, 5, "Database Error");
-                return;
-            }
-            
-            if(results == "" || results == undefined || results.length<=0)
-            {
-                log.info('No Transactions');
-                master.sendResponse(req, res, 200, 9, "No Result");
-                return;
-            }
-
-            log.info('Total '+results.length+' Transactions Found');
-            master.sendResponse(req, res, 200, -1, results);
-
-        });
-
-    });     
-	
-}
-
 /*Add Qualified Searches Pending*/
 module.exports.addQualifiedSearchesPending = function(req, res){
 	
@@ -121,17 +54,17 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 
             log.info('Add Qualified Search Value : '+amount);
 				
-				var updateDataQuery = {$inc: {"no_of_qualified_searches_pending": amount, "total_qualified_searches": -amount}};
+            var updateDataQuery = {$inc: {"no_of_qualified_searches_pending": amount, "total_qualified_searches": -amount}};
 
-				userSchema.findOneAndUpdate(query, updateDataQuery, function(err, retVals){
+            userSchema.findOneAndUpdate(query, updateDataQuery, function(err, retVals){
 
-					if (err) {throw err}
+                if (err) {throw err}
 
-					log.info('Qualified Search Value '+amount+' Added For : '+retVal[0].email);
+                log.info('Qualified Search Value '+amount+' Added For : '+retVal[0].email);
 
-					master.sendResponse(req, res, 200, -1, "Success");
-			
-				});
+                master.sendResponse(req, res, 200, -1, "Success");
+
+            });
 
 		});
 
@@ -139,7 +72,7 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 
 }
 
-/*Deduct Unqualified Searches*/
+/* Deduct Unqualified Searches */
 module.exports.deductunQualifiedSearches = function(req, res){
 	
 	log.info('Page Name: admin.js');
@@ -173,21 +106,22 @@ module.exports.deductunQualifiedSearches = function(req, res){
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
+            
             var amount = -parseFloat(retVal[0].amount);
 
             log.info('Add Qualified Search Value : '+amount);
 				
-				var updateDataQuery = {$inc: {"no_of_unQualified_searches": amount}};
+            var updateDataQuery = {$inc: {"no_of_unQualified_searches": amount}};
 
-				userSchema.findOneAndUpdate(query, updateDataQuery, function(err, retVals){
+            userSchema.findOneAndUpdate(query, updateDataQuery, function(err, retVals){
 
-					if (err) {throw err}
+                if (err) {throw err}
 
-					log.info('Qualified Search Value '+amount+' Added For : '+retVal[0].email);
+                log.info('Qualified Search Value '+amount+' Added For : '+retVal[0].email);
 
-					master.sendResponse(req, res, 200, -1, "Success");
-			
-				});
+                master.sendResponse(req, res, 200, -1, "Success");
+
+            });
 
   		});
 
@@ -195,7 +129,7 @@ module.exports.deductunQualifiedSearches = function(req, res){
     
 };    
 
-/*Reset Total Number Of Qualified Searches*/
+/* Reset Total Number Of Qualified Searches */
 module.exports.resetTotalNumberOfQualifiedSearches = function (req, res){
 	
 	log.info('Page Name: admin.js');
@@ -228,7 +162,7 @@ module.exports.resetTotalNumberOfQualifiedSearches = function (req, res){
 	
 }
 
-/*User manage*/
+/* User Manage */
 module.exports.userManage = function (req, res){
 	
 	log.info('Page Name: admin.js');
@@ -263,7 +197,8 @@ module.exports.userManage = function (req, res){
 	}
 		
 	var query = {'publicKey': publicKey};
-    var text = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
+    var text = 'email='+email+'&publicKey='+publicKey;
     
 	// Validate Signature
 	master.secureAuth(query, text, signature, function (result){
@@ -342,7 +277,7 @@ module.exports.userManage = function (req, res){
 
 }
 
-/*Get Expence Transactions*/
+/* Get Expence Transactions */
 module.exports.getExpenceTransactions = function(req, res) {
 
 	log.info('Page Name: admin.js');
@@ -452,7 +387,9 @@ module.exports.getExpenceTransactions = function(req, res) {
 
 	var query = {'publicKey': publicKey};
     
-    var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&type="+encodeURIComponent(type)+"&publicKey="+encodeURIComponent(publicKey);
+    //var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&type="+encodeURIComponent(type)+"&publicKey="+encodeURIComponent(publicKey);
+    
+    var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&number="+n+"&type="+type+"&publicKey="+publicKey;
 
 	// Validate Signature
 	master.secureAuth(query, text, signature, function (result){
@@ -539,7 +476,7 @@ module.exports.getExpenceTransactions = function(req, res) {
 
 }
 
-/*Get Active Emails*/
+/* Get Active Emails */
 module.exports.getActiveEmails = function(req, res){
 
 	log.info('Page Name: admin.js.');
@@ -574,7 +511,8 @@ module.exports.getActiveEmails = function(req, res){
 
 	var query = {'publicKey':publicKey};
 
-	var text = "flag="+encodeURIComponent(flag)+"&publicKey="+encodeURIComponent(publicKey);
+	//var text = "flag="+encodeURIComponent(flag)+"&publicKey="+encodeURIComponent(publicKey);
+    var text = "flag="+flag+"&publicKey="+publicKey;
 
 	master.secureAuth(query, text, signature, function (result){
 
@@ -640,7 +578,7 @@ module.exports.getActiveEmails = function(req, res){
 	
 }
 
-/*Get Income Transactions*/
+/* Get Income Transactions */
 module.exports.getIncomeTransactions = function(req, res) {
 
 	log.info('Page Name: admin.js');
@@ -750,7 +688,9 @@ module.exports.getIncomeTransactions = function(req, res) {
 
 	var query = {'publicKey': publicKey};
 
-	var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&payment_mode="+encodeURIComponent(payment_mode)+"&publicKey="+encodeURIComponent(publicKey);
+	//var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&payment_mode="+encodeURIComponent(payment_mode)+"&publicKey="+encodeURIComponent(publicKey);
+    
+    var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&number="+n+"&payment_mode="+payment_mode+"&publicKey="+publicKey;
 
 	//Validate signature
 	master.secureAuth(query, text, signature, function (result){
@@ -857,209 +797,7 @@ module.exports.getIncomeTransactions = function(req, res) {
 		
 }
 
-/*User Keyword Purchase Transactions*/
-module.exports.userKwdPurchaseTrans = function(req, res) {
-
-	log.info('Page Name: admin.js');
-	log.info('API Name : userKwdPurchaseTrans');
-	log.info('Get Keyword Purchase Transaction Accessed');
-	log.info('Parameters Receiving..');
-
-	var vars = req.body;
-	var email = req.body.email;
-	var from = req.body.from;
-	var to = req.body.to;
-	var n = req.body.number;
-	var publicKey = req.body.publicKey;
-	var signature = req.body.signature;
-	var mode = vars.mode;
-	
-	log.info('Email : '+email);
-	log.info('From Date : '+from);
-	log.info('To Date: '+to);
-	log.info('Number Of Transactions : '+n);
-	log.info('Payment Mode : '+mode);
-	log.info('Public Key :'+publicKey);
-	log.info('Signature :'+signature);
-	
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Checking Transaction Numbers	
-	if(n=="" || n==undefined)
-	{
-		n = 0;
-	}
-
-	// Number of Transactions
-	else if(isNaN(n))
-	{
-		log.info('Number is Wrong Number');
-		sendResponse(req, res, 200, 12, "Wrong Input");
-		return;
-	}
-
-	// Sorting and Getting Today's Date, Month, Year
-	var dateForm = new Date(); 
-	var tdate = dateForm.getDate(); 
-	tdate = parseInt(tdate);
-	var tmonth = dateForm.getMonth(); 
-	tmonth = parseInt(tmonth);
-	tmonth++;
-	var tyear = dateForm.getFullYear(); 
-	tyear = parseInt(tyear);	
-	var todaysDate = tdate+'/'+tmonth+'/'+tyear;
-	var checkTodaysDate = new Date(''+tmonth+'/'+tdate+'/'+tyear+'');
-	checkTodaysDate = checkTodaysDate.getTime();
-	
-	// Validate From Date
-	if(from == "" || from == undefined)
-	{
-		from = 0;
-	}
-	else
-	{
-		var month = from.substring(0, 2); 
-		var day = from.substring(3, 5); 
-		var year = from.substring(6, 10); 
-		
-		var d = new Date(''+month+'/'+day+'/'+year+' 00:00:00');
-		var milisec = d.getTime();
-		from = milisec;
-	}
-	
-	// Validate last Limit
-	if(to === undefined || to.length<=0 || to == null )
-	{
-		to = new Date().getTime();
-	}
-	else
-	{
-		var month = to.substring(0, 2); 
-		var day = to.substring(3, 5); 
-		var year = to.substring(6, 10); 
-		
-		var enteredToDate = day+'/'+month+'/'+year;
-		
-		if(enteredToDate == todaysDate)
-		{
-			to = new Date().getTime();
-		}
-		else
-		{
-			var d = new Date(''+month+'/'+day+'/'+year+' 23:59:59');
-			var milisec = d.getTime();
-			to = milisec;
-		}	
-	}
-	
-	
-	
-	n = parseInt(n);
-
-	var query = {'publicKey': publicKey};
-	var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&mode="+encodeURIComponent(mode)+"&publicKey="+encodeURIComponent(publicKey);
-
-	// Find Server
-    master.secureAuth(query, text, signature, function (result){
-
-		if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-					
-			// Signature Match
-			log.info('Milisec Value of From Date :'+from);
-
-			log.info('Milisec Value of To Date :'+to); 
-			
-			if(mode == "" || mode == undefined || mode == 'All')
-			{
-				if(email=="" || email==undefined || email==null)
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}},{"type":"keyword_purchase"},{$or:[{"payment_mode":"bitcoin"},{"payment_mode":"paypal"}]}]}]};
-				}
-				
-				else
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"type":"keyword_purchase"}, {$or:[{"sender":email},{"receiver":email}]}, {$or:[{"payment_mode":"bitcoin"},{"payment_mode":"paypal"}]}]};
-				}
-
-			}
-			
-			else
-			{	
-				if(email=="" || email==undefined || email==null)
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"type":"keyword_purchase"}, {"payment_mode":mode}]};
-				}
-				
-				else
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"type":"keyword_purchase"}, {$or:[{"sender":email},{"receiver":email}]}, {"payment_mode":mode}]};
-				}
-				
-			}
-        
-        console.dir(query);
-    
-			// Get Transaction
-			if(n==0){
-
-				transSchema.find(query, function(err, retTrans){
-					// No Transaction
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
-					return;
-				
-				});
-			}
-			else{
-
-				transSchema.find(query, function(err, retTrans){				
-					// No Transaction
-					console.log(retTrans);
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
-					return;
-				
-				}).limit(n);
-			}
-			
-			
-	});
-		
-};
-
-/*Payment Mode Count*/
+/* Payment Mode Count */
 module.exports.paymentModeCount = function(req, res) {
     
     log.info('Page Name: admin.js');
@@ -1076,8 +814,9 @@ module.exports.paymentModeCount = function(req, res) {
 	log.info('Signature :'+signature);
     
     var query = {'publicKey': publicKey};
-	var text = "mode="+encodeURIComponent(mode)+"&publicKey="+encodeURIComponent(publicKey);
-
+	//var text = "mode="+encodeURIComponent(mode)+"&publicKey="+encodeURIComponent(publicKey);
+    var text = "mode="+mode+"&publicKey="+publicKey;
+    
     master.secureAuth(query, text, signature, function (result){
 
         if(result[0].error == true || result[0].error == 'true')
@@ -1113,7 +852,7 @@ module.exports.paymentModeCount = function(req, res) {
     
 }
 
-/*Set User Balance*/
+/* Set User Balance */
 module.exports.setUserBalance = function(req, res){
 
 	console.log('Page Name: admin.js.');
@@ -1185,8 +924,9 @@ module.exports.setUserBalance = function(req, res){
 	}
 	
 	var query = {'publicKey': publicKey};
+	//var text = "email="+encodeURIComponent(email)+"&pending_withdrawal="+encodeURIComponent(pending_withdrawal)+"&approved_withdrawal="+encodeURIComponent(approved_withdrawal)+"&deposit="+encodeURIComponent(deposit)+"&publicKey="+encodeURIComponent(publicKey);
 	var text = "email="+email+"&pending_withdrawal="+pending_withdrawal+"&approved_withdrawal="+approved_withdrawal+"&deposit="+deposit+"&publicKey="+publicKey;
-	
+    
 	deposit = parseFloat(deposit);
 	pending_withdrawal = parseFloat(pending_withdrawal);
 	approved_withdrawal = parseFloat(approved_withdrawal);
@@ -1231,7 +971,7 @@ module.exports.setUserBalance = function(req, res){
 
 }
 
-/**/
+/* Get Email Type transaction */
 module.exports.getEmailTypeTransactions = function(req, res){
 
 	console.log('Page Name: admin.js.');
@@ -1286,9 +1026,9 @@ module.exports.getEmailTypeTransactions = function(req, res){
 	}
 	
 	var query = {'publicKey': publicKey};
-	var text = "email="+email+"&type="+type+"&skip="+skip+"&publicKey="+publicKey;
+	//var text = "email="+encodeURIComponent(email)+"&type="+encodeURIComponent(type)+"&skip="+encodeURIComponent(skip)+"&publicKey="+encodeURIComponent(publicKey);
+    var text = "email="+email+"&type="+type+"&skip="+skip+"&publicKey="+publicKey;
 	
-	// Find Server
 	master.secureAuth(query, text, signature, function (result){
 		
         if(result[0].error == true || result[0].error == 'true')
@@ -1296,36 +1036,117 @@ module.exports.getEmailTypeTransactions = function(req, res){
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
-    
+
+        if(type == "All")
+        {
+            var query = {$or:[{"sender":email},{"receiver":email}]}
+        }
+        else
+        {
+            var query = {$and:[{$or:[{"sender":email},{"receiver":email}]},{"type":type}]}
+        }
 			
-			if(type == "All")
-			{
-				var query = {$or:[{"sender":email},{"receiver":email}]}
-			}
-			else
-			{
-				var query = {$and:[{$or:[{"sender":email},{"receiver":email}]},{"type":type}]}
-			}
+        skip = parseInt(skip);
 			
-			skip = parseInt(skip);
+        transSchema.find(query, function(err, retVal){
 			
-			transSchema.find(query, function(err, retVal){
-			
-				if(retVal == "" || retVal == undefined || retVal.length <= 0)
-				{
-					console.log('No Transactions');
-					master.sendResponse(req, res, 200, 9, "No Result");
-					return;
-				}				
+            if(retVal == "" || retVal == undefined || retVal.length <= 0)
+            {
+                console.log('No Transactions');
+                master.sendResponse(req, res, 200, 9, "No Result");
+                return;
+            }				
+
+            else
+            {
+                console.log(retVal.length+' Transactions Found');
+                master.sendResponse(req, res, 200, -1, retVal);
+            }
 				
-				else
-				{
-					console.log(retVal.length+' Transactions Found');
-					master.sendResponse(req, res, 200, -1, retVal);
-				}
-				
-			}).sort({"time":-1}).skip(skip);
+        }).sort({"time":-1}).skip(skip);
 			
-		})
+    })
 		
+}
+
+/* Update User Status */
+module.exports.updateUserStatus = function(req, res){
+    
+    log.info('Page Name: admin.js.');
+	log.info('API Name : blockUser');
+	log.info('Set User Balance API Hitted');
+	log.info('Parameters Receiving...');
+	
+	var email      = req.body.email;
+    var status     = req.body.status;
+	var publicKey  = req.body.publicKey;
+	var signature  = req.body.signature;
+    
+    log.info('Email : '+email);
+    log.info('Status : '+status);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
+    
+    // Validate Public Key
+	if(!(validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if(!(validateParameter(email, 'Email')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		log.info('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+    
+    var query = {'publicKey': publicKey};
+	//var text = "email="+encodeURIComponent(email)+"&status="+encodeURIComponent(status)+"&publicKey="+encodeURIComponent(publicKey);
+    var text = "email="+email+"&status="+status+"&publicKey="+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
+		
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+        
+        status = parseInt(status);
+        var userStatus = {active : status}
+        
+        // Find User From Its Email From User Table
+		userSchema.findOneAndUpdate({email:email}, userStatus, function(err, result){
+				
+			//Unable To Get User With This Emnail (No Such Email Is Registered)
+			if (typeof result === 'undefined' || result == null || result.length <= 0)
+			{
+				console.log(email+' Is Not Registered');
+				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address');
+				return;
+			}
+
+ 			// Status Updated Successfully
+			console.log('User Status Successfully Upadted');
+			master.sendResponse(req, res, 200, -1, "Success");
+		
+		})
+    
+    })
+    
 }

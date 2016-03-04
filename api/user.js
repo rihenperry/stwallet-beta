@@ -3,16 +3,17 @@
 "use strict";
 
 // Pages
-var poolSchema	  	= require('../models/poolSchema.js');
-var userSchema      = require('../models/userSchema.js');       // User Schema
-var master          = require('../config/masterfunc.js');       // Master Functions
-var crypt           = require('../config/crypt.js');            // Crypt/Signature Related Functionality
-var mailer          = require('../config/mail.js');             // Mail Functionality
-var protocol 		= 'http';
-var fs 				= require('fs'); 
-var im 				= require('imagemagick'),
-    logger          = require('../config/w_config.js'),
-    log             = logger();
+var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Schema
+    userSchema          = require('../models/userSchema.js'),           // User Schema
+    transactionSchema   = require('../models/transaction_Schema.js'),   // Transaction Schema
+    master              = require('../config/masterfunc.js'),           // Master Functions
+    crypt               = require('../config/crypt.js'),                // Crypt/Signature Related Functionality
+    mailer              = require('../config/mail.js'),                 // Mail Functionality
+    protocol 		    = 'http',
+    fs 				    = require('fs'), 
+    im 				    = require('imagemagick'),
+    logger              = require('../config/w_config.js'),
+    log                 = logger();
 
 //========================= Page Functions ========================= //
 
@@ -234,7 +235,9 @@ module.exports.secureRegister = function (req, res) {
 	}
     
     var query = {publicKey:publicKey};
-    var text  = 'first_name='+encodeURIComponent(first_name)+'&last_name='+encodeURIComponent(last_name)+'&email='+encodeURIComponent(email)+'&password='+encodeURIComponent(req.body.password)+'&confirm_password='+encodeURIComponent(confirm_password)+'&country='+encodeURIComponent(country)+'&mobile_number='+encodeURIComponent(mobile_number)+'&referral='+encodeURIComponent(referral)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'first_name='+encodeURIComponent(first_name)+'&last_name='+encodeURIComponent(last_name)+'&email='+encodeURIComponent(email)+'&password='+encodeURIComponent(req.body.password)+'&confirm_password='+encodeURIComponent(confirm_password)+'&country='+encodeURIComponent(country)+'&mobile_number='+encodeURIComponent(mobile_number)+'&referral='+encodeURIComponent(referral)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
+    
+    var text  = 'first_name='+first_name+'&last_name='+last_name+'&email='+email+'&password='+req.body.password+'&confirm_password='+confirm_password+'&country='+country+'&mobile_number='+mobile_number+'&referral='+referral+'&flag='+flag+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -405,7 +408,7 @@ module.exports.verifyAccount = function(req, res){
     log.info('Public Key : '+publicKey);
 	log.info('Signature : '+signature);
   
-	auth=auth.replace(/\ /g,'+');
+	//auth=auth.replace(/\ /g,'+');
     
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -436,7 +439,8 @@ module.exports.verifyAccount = function(req, res){
     }
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&auth='+encodeURIComponent(auth)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&auth='+encodeURIComponent(auth)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&auth='+auth+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -602,7 +606,8 @@ exports.secureResendVerification = function(req, res) {
     }
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&flag='+flag+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
 
@@ -693,8 +698,8 @@ module.exports.secureLogin = function(req, res){
 	}
     
     var query = {publicKey:publicKey};
-    var text  = "email="+encodeURIComponent(email)+"&password="+encodeURIComponent(password)+"&publicKey="+encodeURIComponent(publicKey);
-    //var text  = "email="+email+"&password="+password+"&publicKey="+publicKey;
+    //var text  = "email="+encodeURIComponent(email)+"&password="+encodeURIComponent(password)+"&publicKey="+encodeURIComponent(publicKey);
+    var text  = "email="+email+"&password="+password+"&publicKey="+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -823,7 +828,8 @@ module.exports.getDetails = function(req, res) {
     }
     
     var query = {publicKey:publicKey};
-    var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
+    //var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
+    var text  = "email="+email+"&publicKey="+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -848,9 +854,27 @@ module.exports.getDetails = function(req, res) {
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
-
-            master.sendResponse(req, res, 200, -1, result[0]);
-            return;
+            
+            transactionSchema.find({$or:[{sender:email},{receiver:email}]}, function(err, results){
+                
+                if(err)
+                {
+                    log.error(err);
+                    master.sendResponse(req, res, 200, 5, "Database Error");
+                    return;
+                }
+                
+                if(results == null || results == undefined || results == "")
+                {
+                    log.info('No Transactions Of This User');
+                    master.sendResponse(req, res, 200, -1, result[0]);
+                    return;
+                }
+                
+                result[0].transaction = results
+                master.sendResponse(req, res, 200, -1, result[0]);
+                
+            }).sort({time:-1}).limit(50);
 
         })
         
@@ -1045,7 +1069,8 @@ module.exports.currencyPrefrence = function(req, res) {
     }
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&currency_code='+encodeURIComponent(currency_code)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&currency_code='+encodeURIComponent(currency_code)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&currency_code='+currency_code+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1140,7 +1165,8 @@ exports.secureForgotPassword = function(req, res) {
     }
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&flag='+flag+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1273,7 +1299,9 @@ module.exports.resetpassword = function(req, res) {
     auth=auth.replace(/\ /g,'+');
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&auth='+encodeURIComponent(auth)+'&password='+encodeURIComponent(password)+'&confirm_password='+encodeURIComponent(confirm_password)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&auth='+encodeURIComponent(auth)+'&password='+encodeURIComponent(password)+'&confirm_password='+encodeURIComponent(confirm_password)+'&publicKey='+encodeURIComponent(publicKey);
+    
+    var text  = 'email='+email+'&auth='+auth+'&password='+password+'&confirm_password='+confirm_password+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1445,7 +1473,9 @@ module.exports.changePassword = function (req, res) {
 	}
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&old_password='+encodeURIComponent(old_pass)+'&new_password='+encodeURIComponent(new_pass)+'&confirm_new_password='+encodeURIComponent(confirm_new_pass)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&old_password='+encodeURIComponent(old_pass)+'&new_password='+encodeURIComponent(new_pass)+'&confirm_new_password='+encodeURIComponent(confirm_new_pass)+'&publicKey='+encodeURIComponent(publicKey);
+    
+    var text  = 'email='+email+'&old_password='+old_pass+'&new_password='+new_pass+'&confirm_new_password='+confirm_new_pass+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1615,7 +1645,8 @@ module.exports.setAppId = function (req, res) {
 	}
     
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&appId='+encodeURIComponent(appId)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&appId='+encodeURIComponent(appId)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&appId='+appId+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1709,7 +1740,8 @@ module.exports.getAppId = function (req, res) {
     }
 
     var query = {publicKey:publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
+    //var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          
@@ -1751,11 +1783,16 @@ module.exports.getAppId = function (req, res) {
 
 module.exports.editProfilePic = function(req, res){
   
-    var email = req.body.email;
-    var dataImage = req.body.profile_pic;
-    var extension = req.body.extension;
-    var publicKey = req.body.publicKey;
-    var signature = req.body.signature;
+    log.info('Page Name : user.js');
+	log.info('API Name : editProfilePic');
+	log.info('Edit Profile Pic API Hitted');
+	log.info('Parameters Receiving..');
+    
+    var email       = req.body.email;
+    var dataImage   = req.body.profile_pic;
+    var extension   = req.body.extension;
+    var publicKey   = req.body.publicKey;
+    var signature   = req.body.signature;
 
     log.info('Email: '+email);
     log.info('Extension: '+extension);
@@ -1811,46 +1848,39 @@ module.exports.editProfilePic = function(req, res){
     }
 
     var query = {'publicKey': publicKey};
-
     var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
     
-        master.secureAuth(query, text, signature, function (result){
+    master.secureAuth(query, text, signature, function (result){
              
-            if(result[0].error == true || result[0].error == 'true')
-            {
-                master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-                return;
-            }
-
-        });
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
 
         var randomNo = Math.floor(Math.random()*9000) + 1000;
-
         var fileName = email+'_'+randomNo+'.'+extension;
-
         log.info('File Name : '+fileName);
-
         var query = {"email": email};
 
         userSchema.find(query, function(err, imageresults){
 
-        log.info('getImageNameFromUser Callback');
-        //log.info(imageresults);
+            log.info('getImageNameFromUser Callback');
+            log.info(imageresults);
 
-        if (typeof imageresults !== 'undefined')
-        {
-              
-            var filePath = path+imageresults[0]['profile_pic'];
-
-            log.info('File Name from Database: '+filePath);
+            if (typeof imageresults !== 'undefined')
+            {  
+                var filePath = path+imageresults[0]['profile_pic'];
+                log.info('File Name from Database: '+filePath);
 
                 fs.exists(filePath, function (exists) {
-          
-                    if (exists) {
-
+                      
+                    if (exists)
+                    {
                         if(imageresults[0]['profile_pic'] !== null && imageresults[0]['profile_pic'] !== 'avatar.png' && imageresults[0]['profile_pic'] !== '')
                         { 
                             log.info("File is there");
+                            
                             //remove image from server.
                             fs.unlinkSync(filePath);
 
@@ -1861,108 +1891,120 @@ module.exports.editProfilePic = function(req, res){
                             log.info(fileMediumPath);
 
                             fs.exists(fileThumbPath, function (exists){
-                                if (exists) {
+                                
+                                if (exists)
+                                {
                                     fs.unlinkSync(fileThumbPath);
-                                //log.info('Image removed from thumb folder');
+                                    //log.info('Image removed from thumb folder');
                                 }
+                                
                             });
 
                             fs.exists(fileMediumPath, function (exists){
-                                if (exists) {
+                                
+                                if (exists)
+                                {
                                     fs.unlinkSync(fileMediumPath);
                                     //log.info('Image removed from medium folder');
                                  }
                             });
 
                             fs.exists(fileSmallPath, function (exists){
-                                if (exists) {
+                                if (exists)
+                                {
                                     fs.unlinkSync(fileSmallPath);
                                     //log.info('Image removed from small folder');
-                                 }
+                                }
+                                
                             }); 
 
                             log.info('Image removed from server');
+                            
                         }  
 
                     }
-                  
+                              
                     /*Created Origin image*/
-                    fs.writeFile(path+fileName, dataImage, 'base64', {encoding:null}, function(err) { 
-                       // log.info(path+fileName);
+                    fs.writeFile(path+fileName, dataImage, 'base64', {encoding:null}, function(err){ 
+                                   
+                        // log.info(path+fileName);
                         if(err)
-                            {
-                                log.error(err);
-                                master.sendResponse(req, res, 200, 50, "file could not creating");
-                                return;
-                            }
-                        else{
-                              var query = {"email": email};
+                        {
+                            log.error(err);
+                            master.sendResponse(req, res, 200, 50, "file could not creating");
+                            return;
+                        }
+                        else
+                        {
+                            var query = {"email": email};
+                            
+                            userSchema.findOneAndUpdate(query, {'profile_pic':fileName}, function(err, retVal){
 
-                                userSchema.findOneAndUpdate(query, {'profile_pic':fileName}, function(err, retVal){
+                                if(retVal)
+                                {
+                                    log.info('Image path updated');
+                                    log.info("Image successfully Created");
+                                    resizeImages();
+                                    master.sendResponse(req, res, 200, -1, "Image successfully Created");
+                                }
+                                else
+                                {
+                                    master.sendResponse(req, res, 200, -1, "Database Error");
+                                    return;
+                                }
 
-                                    if(retVal)
-                                    {
-                                        log.info('Image path updated');
-                                        log.info("Image successfully Created");
-                                        master.sendResponse(req, res, 200, -1, "Image successfully Created");
-                                        resizeImages();
-                                    }
-                                    else{
-                                        master.sendResponse(req, res, 200, -1, "Database Error");
-                                        return;
-                                    }
-
-                                });
-                             
-                            }
+                            });
+                                         
+                        }
 
                     });
 
                 });
 
-        }
+            }
 
-     });
-
-
-    /*function to resize images*/
-    function resizeImages(){
-
-        log.info("resize images function called");
-
-        // Thumbnail Images
-        im.resize({
-            srcPath: path+fileName,
-            dstPath: thumbPath+fileName,
-            width:   80
-        }, function(err, stdout, stderr){
-          if (err) throw err;
-          log.info('resized profile pic to fit within 64px');
         });
 
-        // Medium Images
-        im.resize({
-            srcPath: path+fileName,
-            dstPath: mediumPath+fileName,
-            width:   200
-        }, function(err, stdout, stderr){
-          if (err) throw err;
-          log.info('resized profile pic to fit within 200px');
-        });
 
-        // // small Images
-        im.resize({
-            srcPath: path+fileName,
-            dstPath: smallPath+fileName,
-            width:   150
-        }, function(err, stdout, stderr){
-          if (err) throw err;
-          log.info('resized profile pic to fit within 128px');
-        });
+        /*function to resize images*/
+        function resizeImages(){
+        
+            log.info("resize images function called");
+
+            // Thumbnail Images
+            im.resize({
+                srcPath: path+fileName,
+                dstPath: thumbPath+fileName,
+                width:   80
+            }, function(err, stdout, stderr){
+              if (err) throw err;
+              log.info('resized profile pic to fit within 64px');
+            });
+
+            // Medium Images
+            im.resize({
+                srcPath: path+fileName,
+                dstPath: mediumPath+fileName,
+                width:   200
+            }, function(err, stdout, stderr){
+              if (err) throw err;
+              log.info('resized profile pic to fit within 200px');
+            });
+
+            // Small Images
+            im.resize({
+                srcPath: path+fileName,
+                dstPath: smallPath+fileName,
+                width:   150
+            }, function(err, stdout, stderr){
+              if (err) throw err;
+              log.info('resized profile pic to fit within 128px');
+            });
  
-    }
-    /*function to resize images*/
+        }
   
+   });
+
 }
 
 /* Accounting API */
@@ -3054,7 +3096,8 @@ module.exports.rejectBlockedBids = function(req, res){
 	};  	
 	
     var query = {publicKey:publicKey};
-    var txt = 'reject_bids_json='+encodeURIComponent(reject_bids_json)+'&publicKey='+encodeURIComponent(publicKey);
+    //var txt = 'reject_bids_json='+encodeURIComponent(reject_bids_json)+'&publicKey='+encodeURIComponent(publicKey);
+    var txt = 'reject_bids_json='+reject_bids_json+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
         
