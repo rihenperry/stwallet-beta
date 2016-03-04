@@ -1,6 +1,7 @@
 
 // Packages
 var mongoose  = require('mongoose');      // For Mongoose 
+var mailer          = require('./mail.js');             // Mail Functionality
 
 // Build the connection string 
 var dbURI = 'mongodb://localhost/notification'; 
@@ -26,10 +27,22 @@ var notification_wallet = mongoose.Schema({
 
 }, { versionKey: false });
 
+
+// Response Function
+ var sendResponse = function(req, res, status, errCode, errMsg) {
+
+    var d = Date();
+    console.log(status +" "+ errCode +" "+ errMsg + " " + d);
+    res.status(status).send({
+        errCode: errCode, 
+        errMsg: errMsg,
+        dbDate: d
+    });
+    
+}
+
 // Model
 var notificationschema = mongoose.model('notification_wallet', notification_wallet);
-
-
 
 module.exports.sendmail = function(req, res){
 
@@ -40,7 +53,7 @@ module.exports.sendmail = function(req, res){
     text: 'test',                     // Text
     html: 'test'
   };
-  
+
   var notificationInfo = new notificationschema(req.body);
   
   notificationInfo.save(function(err){
@@ -50,7 +63,6 @@ module.exports.sendmail = function(req, res){
           return err;
       }
       console.log('Saved SuccessFully');
-      // res.send('Saved SuccessFully');
   });
  
   sendResponse(req, res, 200, -1, "mail sent");

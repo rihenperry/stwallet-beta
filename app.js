@@ -3,12 +3,16 @@
 // Framwork
 var  express     	 = require('express'),      
 	 app        	 = express(),
-	 notification    = require('./api/notification.js'),              
+	 notification    = require('./api/notification.js');      
 
+var bodyParser = require('body-parser');
 
-app.post('/secure/sendmaildemo', notification.sendmaildemo);        
+app.use(bodyParser.urlencoded());
+app.use(bodyParser.json());
+
+app.post('/secure/sendmail', notification.sendmail);        
 
 // Server Connectivity
 app.listen('4000', function () {
-    log.info('Connected To Server at port 4000'); 
+    console.log('Connected To Server at port 4000'); 
 });
