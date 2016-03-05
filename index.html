@@ -1,0 +1,30 @@
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+console.log('Page Load');
+
+  var socket = io.connect('http://localhost:4000');
+
+  // Connectivity
+  socket.emit('username', 'prashant');
+
+  socket.emit('show data', function(data){
+  	console.log(data);
+  });
+
+ //  socket.on('mail-emit', function (data) {
+
+	// console.log('Mail emit function called');
+
+	// document.getElementById("name").innerHTML = 
+	// ("<div>"+data['result']['first_name']+" " +data['result']['last_name']+"</div>"+document.getElementById('name').innerHTML );
+  	
+ //  });
+
+</script>
+
+<body>
+
+	<div id="name"></div>
+
+</body>

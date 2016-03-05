@@ -1,33 +1,8 @@
-
-// Packages
-var mongoose  = require('mongoose');      // For Mongoose 
+var notificationschema = require('../model/notification_model.js');
 var mailer          = require('./mail.js');             // Mail Functionality
-
-// Build the connection string 
-var dbURI = 'mongodb://localhost/notification'; 
-
-// Create the database connection 
-mongoose.connect(dbURI); 
-
-var db_server  = process.env.DB_ENV || 'primary';
-
-// CONNECTION EVENTS
-// When successfully connected
-mongoose.connection.on('connected', function () {  
-  console.log('Mongoose default connection open to ' + dbURI);
-  console.log("Connected to " + db_server + " DB!");
-}); 
-
-// Schema
-var notification_wallet = mongoose.Schema({
-  
-    first_name:                       {type: String},                                       // First Name of User
-    last_name:                        {type: String}                                      // Last Name of Use
-
-
-}, { versionKey: false });
-
-
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 // Response Function
  var sendResponse = function(req, res, status, errCode, errMsg) {
 
@@ -41,10 +16,7 @@ var notification_wallet = mongoose.Schema({
     
 }
 
-// Model
-var notificationschema = mongoose.model('notification_wallet', notification_wallet);
-
-module.exports.sendmail = function(req, res){
+module.exports.sendmail = function(req, res){ 
 
   var mailOptions= {
     from: 'Search Trade <donotreply@scoinz.com>',   // Sender address
@@ -64,7 +36,35 @@ module.exports.sendmail = function(req, res){
       }
       console.log('Saved SuccessFully');
   });
- 
+
+  // io.sockets.emit('mail-emit', { message: 'hello' });
+    io.on('connection', function (socket) {
+      o.sockets.emit('mail-emit', {hello:'world'} 
+
+        );
+    console.log('connection on');
+
+          notificationschema.find({},function(err, result){  
+
+            io.sockets.emit('mail-emit', result);
+            console.log('from notification - mail emit function');
+            // var length = result.length;
+            // for(var i =length, p=0; i>0; i--)
+            // {
+            //     socket.emit("news",{ result : result[p] });
+            //     console.log(result[p].first_name+' '+result[p].last_name);
+            //     console.log('***********');
+            //     p++;
+            // }
+            
+          });
+
+    });
+
+
+  console.log('from sendmail - mail emit function');
+
   sendResponse(req, res, 200, -1, "mail sent");
-  mailer.sendmail(mailOptions);
+
+  //mailer.sendmail(mailOptions);
 }
