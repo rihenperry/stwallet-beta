@@ -101,7 +101,6 @@ module.exports.secureAuth = function(query, text, signature, cb){
 
  };
 
-var secureAuth = module.exports.secureAuth;
 
 /*============================= Validation Parameter function For User Accounting and Search Page API =============================*/
 
@@ -189,5 +188,24 @@ module.exports.validation  = function(req, cb){
         }
         cb(result);
     })
+}
+
+module.exports.notificationsend = function(req, res){
+
+    request.post({
+        url: 'http://192.168.1.31:4000/secure/registernotification',
+        body:   requestData_register,
+        json: true,
+        headers: {
+            "content-type": "application/json",
+        }
+    },
+    function optionalCallback(err, httpResponse, body) {
+        if (err) {
+            return console.error('Curl request Failed for register api: \n', err);
+        }
+            
+    });
+    
 }
 
