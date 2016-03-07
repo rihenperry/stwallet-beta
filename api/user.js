@@ -1357,7 +1357,7 @@ module.exports.resetpassword = function(req, res) {
                 else
                 {
                     log.info('Unknown Token Output');
-                    master.sendResponse(req, res, 200, 50, 'Unkown Token Error');
+                    master.sendResponse(req, res, 200, 50, 'Unknown Token Error');
                     return;
                 }
                 

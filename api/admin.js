@@ -1088,27 +1088,27 @@ module.exports.updateUserStatus = function(req, res){
 	log.info('Signature : '+signature);
     
     // Validate Public Key
-	if(!(validateParameter(publicKey, 'Public Key')))
+	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
 		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
-	if(!(validateParameter(signature, 'Signature')))
+	if(!(master.validateParameter(signature, 'Signature')))
 	{
 		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 	
 	// Validate Email
-	if(!(validateParameter(email, 'Email')))
+	if(!(master.validateParameter(email, 'Email')))
 	{
 		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
 
-	if(!(validateEmail(email))) 
+	if(!(master.validateEmail(email))) 
 	{
 		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
