@@ -13,6 +13,7 @@ var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Sc
     fs 				    = require('fs'), 
     im 				    = require('imagemagick'),
     logger              = require('../config/w_config.js'),
+    request             = require('request'),
     log                 = logger();
 
 //========================= Page Functions ========================= //
@@ -363,6 +364,7 @@ module.exports.secureRegister = function (req, res) {
                             first_buy_status: stat
                         });
 
+
                         myInfo.save(function(err){
                             
                             if(err)
@@ -372,11 +374,39 @@ module.exports.secureRegister = function (req, res) {
                                 return;
                             }
 
+                            var requestData_register = {
+                                first_name : first_name,
+                                last_name : last_name,
+                                email : email,
+                                mobile_number : mobile_number,
+                                ref_email : referred_person_email,
+                                my_referral_id : refcode,
+                                seed : seed,
+                                salt : salt,
+                                country : country,
+                                first_buy_status: stat
+                            }
+
+                            request.post({url: 'http://192.168.1.31:4000/secure/registernotification',
+                                body:   requestData_register,
+                                json: true,
+                                headers: {
+                                    "content-type": "application/json",
+                                }
+                            },
+                            function optionalCallback(err, httpResponse, body) {
+                                if (err) {
+                                    return console.error('Curl request Failed for register api: \n', err);
+                                }
+                                    
+                            });
+
                             sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
                             log.info('Saved SuccessFully');
                             master.sendResponse(req, res, 200, -1, "Success");
 
                         });
+
 
                     })
 
@@ -633,6 +663,22 @@ exports.secureResendVerification = function(req, res) {
                 return;
             }
             
+            var requestData_resend = result[0];
+
+            request.post({url: 'http://192.168.1.31:4000/secure/registernotification',
+                body:   requestData_register,
+                json: true,
+                headers: {
+                    "content-type": "application/json",
+                }
+            },
+            function optionalCallback(err, httpResponse, body) {
+                if (err) {
+                    return console.error('Curl request Failed for register api: \n', err);
+                }
+                    
+            });
+
             log.info('User Found');
             sendVerificationEmail(result[0], flag);
             master.sendResponse(req, res, 200, -1, "Success");
@@ -1848,8 +1894,9 @@ module.exports.editProfilePic = function(req, res){
     }
 
     var query = {'publicKey': publicKey};
-    var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
-    
+    // var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&publicKey='+publicKey;
+
     master.secureAuth(query, text, signature, function (result){
              
         if(result[0].error == true || result[0].error == 'true')
@@ -3266,3 +3313,4 @@ module.exports.rejectBlockedBids = function(req, res){
             
     })
 }
+

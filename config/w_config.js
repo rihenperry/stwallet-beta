@@ -41,8 +41,8 @@ module.exports = {DEFAULTS:getOptionsFromConfigFile ()}
 // Bunyan Code Start
 
 var bunyan = require('bunyan'),
-    bformat = require('bunyan-format'),  
-    formatOut = bformat({ outputMode: 'json', jsonIndent: 2}),
+    // bformat = require('bunyan-format'),  
+    // formatOut = bformat({ outputMode: 'json', jsonIndent: 2}),
   //mixIn = require('mout/object/mixIn'),
 
   // add some default options here...
@@ -56,8 +56,8 @@ var bunyan = require('bunyan'),
     streams: [
     {
         level: 'debug',
-        // stream: process.stdout       // log INFO and above to stdout
-        stream: formatOut ,       // log INFO and above to stdout
+        stream: process.stdout       // log INFO and above to stdout
+        // stream: formatOut ,       // log INFO and above to stdout
     },
     {
         type: 'rotating-file',

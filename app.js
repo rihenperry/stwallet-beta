@@ -10,7 +10,7 @@ var  express     	 = require('express'),
 	 request 		 = require('request'),
      jsonfile        = require('jsonfile'),
      //util            = require('util'),
-     bformat = require('bunyan-format')  ,
+     // bformat = require('bunyan-format')  ,
 // Packages
      bodyParser  	 = require('body-parser'),
      nconf 			 = require('nconf'),
