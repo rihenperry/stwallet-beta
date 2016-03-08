@@ -3,8 +3,8 @@
 "use strict";
 
 //Pages
-var poolSchema	  	= require('../models/poolSchema.js');
-var deviceSchema 	= require('../models/deviceInfoSchema.js');
+var poolSchema	  	= require('../models/poolSchema.js'),
+    deviceSchema 	= require('../models/deviceInfoSchema.js');
 
 var crypt 			= require("../config/crypt");			       // Crypt Connectivity.
 var master          = require('../config/masterfunc.js'),          // Master Functions

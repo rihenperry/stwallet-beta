@@ -48,6 +48,7 @@ var userDetails = mongoose.Schema({
     total_app_income:                 {type: Number, default:0},                            // Total App Income
     search_affiliate_earnings:        {type: Number, default:0},                            // Total Search Affiliate Earn
     total_qualified_searches:         {type: Number, default:0},                            // No of Paid Searches
+    notification_status:              {type: Boolean, default:false},                       // User Notification Status
     gender:                           {type: String, default:''},							// Gender
     country:                          {type: String, default:''},						    // Country
     state:                            {type: String, default:''},							// State
