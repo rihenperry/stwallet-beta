@@ -1,0 +1,22 @@
+{
+  "name": "notification-wallet",
+  "version": "1.0.0",
+  "description": "notification code written by prashant",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://prashant_tapase@bitbucket.org/walletnode/notification-wallet.git"
+  },
+  "author": "Prashant Tapaser",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/walletnode/notification-wallet#readme",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "mailgun-js": "^0.7.7",
+    "mongoose": "^4.4.6",
+    "socket.io": "^1.4.5"
+  }
+}
