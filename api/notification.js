@@ -56,7 +56,7 @@ module.exports.registernotification = function(accountInfo){
 
       console.log('mail callback success');
        
-      var notificationInfo = new notificationschema(accountInfo);
+      var notificationInfo = new notificationschema(accountInfo.body);
 
       notificationInfo.save(function(err){
 
@@ -85,55 +85,55 @@ module.exports.registernotification = function(accountInfo){
  
 };
 
-module.exports.sendmail = function(req, res){ 
+// module.exports.sendmail = function(req, res){ 
 
-  var mailOptions= {
-    from: 'Search Trade <donotreply@scoinz.com>',   // Sender address
-    to: 'prashanttapase@movingtrumpet.com',                // List of Receivers
-    subject: "Search Trade : Notification Test",    // Subject line
-    text: 'test',                     // Text
-    html: 'test'
-  };
+//   var mailOptions= {
+//     from: 'Search Trade <donotreply@scoinz.com>',   // Sender address
+//     to: 'prashanttapase@movingtrumpet.com',                // List of Receivers
+//     subject: "Search Trade : Notification Test",    // Subject line
+//     text: 'test',                     // Text
+//     html: 'test'
+//   };
 
-  var notificationInfo = new notificationschema(req.body);
+//   var notificationInfo = new notificationschema(req.body);
   
-  notificationInfo.save(function(err){
-      if(err)
-      {
-          console.log(err);
-          return err;
-      }
-      console.log('Saved SuccessFully');
-  });
+//   notificationInfo.save(function(err){
+//       if(err)
+//       {
+//           console.log(err);
+//           return err;
+//       }
+//       console.log('Saved SuccessFully');
+//   });
 
-  // io.sockets.emit('mail-emit', { message: 'hello' });
-    io.on('connection', function (socket) {
-      o.sockets.emit('mail-emit', {hello:'world'} 
+//   // io.sockets.emit('mail-emit', { message: 'hello' });
+//     io.on('connection', function (socket) {
+//       o.sockets.emit('mail-emit', {hello:'world'} 
 
-        );
-    console.log('connection on');
+//         );
+//     console.log('connection on');
 
-          notificationschema.find({},function(err, result){  
+//           notificationschema.find({},function(err, result){  
 
-            io.sockets.emit('mail-emit', result);
-            console.log('from notification - mail emit function');
-            // var length = result.length;
-            // for(var i =length, p=0; i>0; i--)
-            // {
-            //     socket.emit("news",{ result : result[p] });
-            //     console.log(result[p].first_name+' '+result[p].last_name);
-            //     console.log('***********');
-            //     p++;
-            // }
+//             io.sockets.emit('mail-emit', result);
+//             console.log('from notification - mail emit function');
+//             // var length = result.length;
+//             // for(var i =length, p=0; i>0; i--)
+//             // {
+//             //     socket.emit("news",{ result : result[p] });
+//             //     console.log(result[p].first_name+' '+result[p].last_name);
+//             //     console.log('***********');
+//             //     p++;
+//             // }
             
-          });
+//           });
 
-    });
+//     });
 
 
-  console.log('from sendmail - mail emit function');
+//   console.log('from sendmail - mail emit function');
 
-  sendResponse(req, res, 200, -1, "mail sent");
+//   sendResponse(req, res, 200, -1, "mail sent");
 
-  //mailer.sendmail(mailOptions);
-}
+//   //mailer.sendmail(mailOptions);
+// }
