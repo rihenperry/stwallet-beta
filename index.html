@@ -1,14 +1,21 @@
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-console.log('Page Load');
+  console.log('Page Load');
 
   var socket = io.connect('http://localhost:4000');
 
   // Connectivity
   socket.emit('username', 'prashant');
 
-  socket.emit('show data', function(data){
+ 
+  socket.on('reconnect', function () {
+    console.log('Reconnected to the server');
+    socket.emit('username', 'prashant');
+  });
+
+  socket.on('show data', function(data){
+    console.log('show data socket on');
   	console.log(data);
   });
 
@@ -28,3 +35,9 @@ console.log('Page Load');
 	<div id="name"></div>
 
 </body>
+
+<!--   socket.on('bid', function(data) {
+    $('#notifications').append("<div class='notifications'>" +
+    "Bid: Rs." + data.amount + " for " + data.customer +
+    "</div>");
+  }); -->
