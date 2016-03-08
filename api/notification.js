@@ -6,7 +6,6 @@ var io = require('socket.io')(server);
 var protocol        = 'http';
 
 // Response Function
-
 var sendResponse = function(req, res, status, errCode, errMsg) {
 
     var d = Date();
@@ -30,12 +29,12 @@ module.exports.sendVerificationEmail = function(req){
   vhash = req.body[1].vhash;
   flag = req.body[1].flag;
 
-  if(flag == '2') // Wallet 
-  {
+  // Wallet
+  if(flag == '2'){
     var url= protocol+"://scoinz.com/presaleWallet/wallet/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&errcode=15";
   }
-  else // Web
-  {
+  // Web
+  else {
     var url= protocol+"://localhost/st-web/keywords/views/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
   }
   
@@ -43,17 +42,16 @@ module.exports.sendVerificationEmail = function(req){
 
   // Setup E-mail Data With Unicode Symbols
   var mailOptions= {
-    from: 'Search Trade <donotreply@searchtrade.com>',  // Sender address
-    // to: accountInfo.email,                // List of Receivers
-    to : 'prashanttapase@movingtrumpet.com',
-    subject: "Search Trade: Email Verification",    // Subject line
-    text: text,                     // Text
+    from: 'Search Trade <donotreply@searchtrade.com>',  // Sender address   
+    to : 'prashanttapase@movingtrumpet.com',            // List of Receivers
+    subject: "Search Trade: Email Verification",        // Subject line
+    text: text,                                         // Text
     html: text
   };
 
   mailer.sendmail(mailOptions, function(){
 
-    if (true) {
+    if(true){
 
       console.log('mail callback success');
        
@@ -85,8 +83,7 @@ module.exports.sendVerificationEmail = function(req){
 
       });
 
-    }
-    else{
+    }else{
 
         console.log('mail callback fails');
         var mailStatus = false;
@@ -95,7 +92,6 @@ module.exports.sendVerificationEmail = function(req){
     return mailStatus
 
   });
- 
 }
 
 module.exports.sendforgotpassword = function(req){
@@ -154,5 +150,6 @@ module.exports.sendforgotpassword = function(req){
     return mailStatus
 
   });
-}
-  
+// end mailer.sendmail 
+};
+// end registernotification function exports
