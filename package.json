@@ -1,16 +1,16 @@
 {
   "name": "notification-wallet",
   "version": "1.0.0",
-  "description": "notification code written by prashant",
+  "description": "Notification wallet team",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://prashant_tapase@bitbucket.org/walletnode/notification-wallet.git"
+    "url": "git+https://sudeep_dk@bitbucket.org/walletnode/notification-wallet.git"
   },
-  "author": "Prashant Tapaser",
+  "author": "Notification wallet team",
   "license": "ISC",
   "homepage": "https://bitbucket.org/walletnode/notification-wallet#readme",
   "dependencies": {

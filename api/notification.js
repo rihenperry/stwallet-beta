@@ -79,5 +79,6 @@ module.exports.registernotification = function(accountInfo){
     return mailStatus
 
   });
- 
+// end mailer.sendmail 
 };
+// end registernotification function exports
