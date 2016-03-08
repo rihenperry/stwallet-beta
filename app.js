@@ -58,7 +58,6 @@ app.get('/', function (req, res) {
 app.post('/api/register', device.deviceRegister);					                           // Device Register API
 app.post('/api/getPvtKey', device.getPvtKey);						                           // Get Private Key API
 
-
 /*============================== User Related API ==================================*/
 
 // Profile Related API
@@ -101,6 +100,7 @@ app.post('/secure/firstBuy', user.firstBuy);													// FirstBuy API
 app.post('/secure/addBlockedForBids', user.addBlockedForBids);									// Add Blocked For Bids API
 app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// Deduct Blocked Bids API
 app.post('/secure/rejectBlockedBids', user.rejectBlockedBids);                                  // Reject Blocked Bids API (In cases of Accept bid and Buy now)
+app.post('/secure/updateNotificationStatus', user.updateNotificationStatus)                     // Update User's Notification Status API
 
 /*============================== Pool Related API ==================================*/
 
@@ -155,6 +155,7 @@ app.post('/secure/admin/getEmailTypeTransactions', admin.getEmailTypeTransaction
 app.post('/secure/admin/updateUserStatus', admin.updateUserStatus);							    // Update User Status API
 
 app.post('/secure/cron', cron_api.cron);
+
 
 // Server Connectivity
 app.listen('5000', function () {
