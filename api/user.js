@@ -14,7 +14,8 @@ var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Sc
     im 				    = require('imagemagick'),
     logger              = require('../config/w_config.js'),
     request             = require('request'),
-    log                 = logger();
+    log                 = logger(),
+    notificationdomain  = 'http://192.168.1.5:4000';
 
 //========================= Page Functions ========================= //
 
@@ -374,21 +375,34 @@ module.exports.secureRegister = function (req, res) {
                                 return;
                             }
 
-                            var requestData_register = {
+                            var myInfoObject = [{
+                                _id: accountID,
                                 first_name : first_name,
                                 last_name : last_name,
                                 email : email,
+                                password : password,
                                 mobile_number : mobile_number,
                                 ref_email : referred_person_email,
                                 my_referral_id : refcode,
                                 seed : seed,
+                                creationTime : creationTime,
                                 salt : salt,
                                 country : country,
                                 first_buy_status: stat
+                            }];
+
+                            var vhash = encodeURIComponent(crypt.generate(myInfo._id));
+
+                            var flagObj = {
+                                "vhash" : vhash,
+                                "flag" : flag
                             }
 
-                            request.post({url: 'http://192.168.1.31:4000/secure/registernotification',
-                                body:   requestData_register,
+                            myInfoObject.push(flagObj);
+                            
+                            request.post({
+                                url: notificationdomain+'/secure/sendVerificationEmail',
+                                body: myInfoObject,
                                 json: true,
                                 headers: {
                                     "content-type": "application/json",
@@ -398,10 +412,11 @@ module.exports.secureRegister = function (req, res) {
                                 if (err) {
                                     return console.error('Curl request Failed for register api: \n', err);
                                 }
-                                    
+                                console.log('Response from Notification server : '+body);  
                             });
 
-                            sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
+                            //sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
+                            
                             log.info('Saved SuccessFully');
                             master.sendResponse(req, res, 200, -1, "Success");
 
@@ -663,10 +678,15 @@ exports.secureResendVerification = function(req, res) {
                 return;
             }
             
-            var requestData_resend = result[0];
+            var flagObj = {
+                "flag":flag
+            }
 
-            request.post({url: 'http://192.168.1.31:4000/secure/registernotification',
-                body:   requestData_register,
+            result.push(flagObj);
+
+            request.post({
+                url: notificationdomain+'/secure/sendVerificationEmail',
+                body: result,
                 json: true,
                 headers: {
                     "content-type": "application/json",
@@ -674,13 +694,13 @@ exports.secureResendVerification = function(req, res) {
             },
             function optionalCallback(err, httpResponse, body) {
                 if (err) {
-                    return console.error('Curl request Failed for register api: \n', err);
+                    return console.error('Curl request Failed for Resend Verification api: \n', err);
                 }
                     
             });
 
             log.info('User Found');
-            sendVerificationEmail(result[0], flag);
+            //sendVerificationEmail(result[0], flag);
             master.sendResponse(req, res, 200, -1, "Success");
             
         })
@@ -1241,8 +1261,33 @@ exports.secureForgotPassword = function(req, res) {
             else
             {
                 if(result[0].active)
-                {
-                    sendRestEmail(result[0], flag); // Send Reset Password Link 
+                {   
+
+                    var vhash = encodeURIComponent(crypt.generate(result[0]._id));
+
+                    var flagObj = {
+                        "flag":flag,
+                        "vhash": vhash
+                    }
+
+                    result.push(flagObj);
+
+                    request.post({
+                        url: notificationdomain+'/secure/sendforgotpassword',
+                        body: result,
+                        json: true,
+                        headers: {
+                            "content-type": "application/json",
+                        }
+                    },
+                    function optionalCallback(err, httpResponse, body) {
+                        if (err) {
+                            return console.error('Curl request Failed for Send Verification mail api: \n', err);
+                        }
+                            
+                    });
+
+                    //sendRestEmail(result[0], flag); // Send Reset Password Link 
                     master.sendResponse(req, res, 200, -1, "Success");
                     return;
                 }
