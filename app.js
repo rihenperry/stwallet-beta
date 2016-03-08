@@ -26,7 +26,9 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/secure/registernotification', notification.registernotification);
+app.post('/secure/sendVerificationEmail', notification.sendVerificationEmail);
+
+app.post('/secure/sendforgotpassword', notification.sendforgotpassword);
 
 
 
