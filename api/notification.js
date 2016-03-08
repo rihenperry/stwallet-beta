@@ -26,6 +26,7 @@ module.exports.registernotification = function(accountInfo){
   console.log('registernotification API Hitted');
   console.log('Parameters Receiving..');
   // console.log(accountInfo);
+  var accountInfo = accountInfo.body;
   vhash = accountInfo.vhash;
   flag = accountInfo.flag;
 
