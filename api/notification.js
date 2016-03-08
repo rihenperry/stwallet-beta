@@ -6,7 +6,6 @@ var io = require('socket.io')(server);
 var protocol        = 'http';
 
 // Response Function
-
 var sendResponse = function(req, res, status, errCode, errMsg) {
 
     var d = Date();
@@ -25,7 +24,7 @@ module.exports.registernotification = function(accountInfo){
   console.log('API Name : registernotification');
   console.log('registernotification API Hitted');
   console.log('Parameters Receiving..');
-  // console.log(accountInfo);
+
   var accountInfo = accountInfo.body;
   vhash = accountInfo.vhash;
   flag = accountInfo.flag;
@@ -43,17 +42,16 @@ module.exports.registernotification = function(accountInfo){
 
   // Setup E-mail Data With Unicode Symbols
   var mailOptions= {
-    from: 'Search Trade <donotreply@searchtrade.com>',  // Sender address
-    // to: accountInfo.email,                // List of Receivers
-    to : 'prashanttapase@movingtrumpet.com',
-    subject: "Search Trade: Email Verification",    // Subject line
-    text: text,                     // Text
+    from: 'Search Trade <donotreply@searchtrade.com>',  // Sender address   
+    to : 'prashanttapase@movingtrumpet.com',            // List of Receivers
+    subject: "Search Trade: Email Verification",        // Subject line
+    text: text,                                         // Text
     html: text
   };
 
   mailer.sendmail(mailOptions, function(){
 
-    if (true) {
+    if(true){
 
       console.log('mail callback success');
        
@@ -72,16 +70,15 @@ module.exports.registernotification = function(accountInfo){
 
       });
 
-    }
-    else{
+    }else{
 
         console.log('mail callback fails');
         var mailStatus = false;
     }
 
-    // cb(mailStatus);
     return mailStatus
 
   });
- 
+// end mailer.sendmail 
 };
+// end registernotification function exports
