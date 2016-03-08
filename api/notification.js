@@ -6,7 +6,6 @@ var io = require('socket.io')(server);
 var protocol        = 'http';
 
 // Response Function
-
 var sendResponse = function(req, res, status, errCode, errMsg) {
 
     var d = Date();
@@ -25,7 +24,7 @@ module.exports.registernotification = function(accountInfo){
   console.log('API Name : registernotification');
   console.log('registernotification API Hitted');
   console.log('Parameters Receiving..');
-  // console.log(accountInfo);
+
   var accountInfo = accountInfo.body;
   vhash = accountInfo.vhash;
   flag = accountInfo.flag;
@@ -43,17 +42,16 @@ module.exports.registernotification = function(accountInfo){
 
   // Setup E-mail Data With Unicode Symbols
   var mailOptions= {
-    from: 'Search Trade <donotreply@searchtrade.com>',  // Sender address
-    // to: accountInfo.email,                // List of Receivers
-    to : 'prashanttapase@movingtrumpet.com',
-    subject: "Search Trade: Email Verification",    // Subject line
-    text: text,                     // Text
+    from: 'Search Trade <donotreply@searchtrade.com>',  // Sender address   
+    to : 'prashanttapase@movingtrumpet.com',            // List of Receivers
+    subject: "Search Trade: Email Verification",        // Subject line
+    text: text,                                         // Text
     html: text
   };
 
   mailer.sendmail(mailOptions, function(){
 
-    if (true) {
+    if(true){
 
       console.log('mail callback success');
        
@@ -72,69 +70,14 @@ module.exports.registernotification = function(accountInfo){
 
       });
 
-    }
-    else{
+    }else{
 
         console.log('mail callback fails');
         var mailStatus = false;
     }
 
-    // cb(mailStatus);
     return mailStatus
 
   });
  
 };
-
-// module.exports.sendmail = function(req, res){ 
-
-//   var mailOptions= {
-//     from: 'Search Trade <donotreply@scoinz.com>',   // Sender address
-//     to: 'prashanttapase@movingtrumpet.com',                // List of Receivers
-//     subject: "Search Trade : Notification Test",    // Subject line
-//     text: 'test',                     // Text
-//     html: 'test'
-//   };
-
-//   var notificationInfo = new notificationschema(req.body);
-  
-//   notificationInfo.save(function(err){
-//       if(err)
-//       {
-//           console.log(err);
-//           return err;
-//       }
-//       console.log('Saved SuccessFully');
-//   });
-
-//   // io.sockets.emit('mail-emit', { message: 'hello' });
-//     io.on('connection', function (socket) {
-//       o.sockets.emit('mail-emit', {hello:'world'} 
-
-//         );
-//     console.log('connection on');
-
-//           notificationschema.find({},function(err, result){  
-
-//             io.sockets.emit('mail-emit', result);
-//             console.log('from notification - mail emit function');
-//             // var length = result.length;
-//             // for(var i =length, p=0; i>0; i--)
-//             // {
-//             //     socket.emit("news",{ result : result[p] });
-//             //     console.log(result[p].first_name+' '+result[p].last_name);
-//             //     console.log('***********');
-//             //     p++;
-//             // }
-            
-//           });
-
-//     });
-
-
-//   console.log('from sendmail - mail emit function');
-
-//   sendResponse(req, res, 200, -1, "mail sent");
-
-//   //mailer.sendmail(mailOptions);
-// }
