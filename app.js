@@ -26,34 +26,9 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/secure/registernotification', function(req, res){
-	
-	console.log('Page Name : api.js');
-	console.log('API Name : registernotification');
-	console.log('registernotification API Hitted');
-	console.log('Parameters Receiving..');
-	console.log(req.body);
-	
-	var mailOptions= {
-		from: 'Search Trade <donotreply@scoinz.com>',   // Sender address
-		to: 'prashanttapase@movingtrumpet.com',                // List of Receivers
-		subject: "Search Trade : Notification Test",    // Subject line
-		text: 'test',                     // Text
-		html: 'test'
-	};
+app.post('/secure/registernotification', notification.registernotification);
 
-	var notificationInfo = new notificationschema(req.body);
 
-	notificationInfo.save(function(err){
-		if(err)
-		{
-		  console.log(err);
-		  return err;
-		}
-		console.log('Saved SuccessFully');
-	});
-
-});
 
 // io.on('connection', function (socket) {
 
@@ -76,28 +51,28 @@ app.post('/secure/registernotification', function(req, res){
 
 //   });
 
-app.post('/secure/sendmail', function(req, res){
+// app.post('/secure/sendmail', function(req, res){
 
- var mailOptions= {
-    from: 'Search Trade <donotreply@scoinz.com>',   // Sender address
-    to: 'prashanttapase@movingtrumpet.com',                // List of Receivers
-    subject: "Search Trade : Notification Test",    // Subject line
-    text: 'test',                     // Text
-    html: 'test'
-  };
+//  var mailOptions= {
+//     from: 'Search Trade <donotreply@scoinz.com>',   // Sender address
+//     to: 'prashanttapase@movingtrumpet.com',                // List of Receivers
+//     subject: "Search Trade : Notification Test",    // Subject line
+//     text: 'test',                     // Text
+//     html: 'test'
+//   };
 
-  var notificationInfo = new notificationschema(req.body);
+//   var notificationInfo = new notificationschema(req.body);
   
-  notificationInfo.save(function(err){
-      if(err)
-      {
-          console.log(err);
-          return err;
-      }
-      console.log('Saved SuccessFully');
-  });
+//   notificationInfo.save(function(err){
+//       if(err)
+//       {
+//           console.log(err);
+//           return err;
+//       }
+//       console.log('Saved SuccessFully');
+//   });
 
-});
+// });
 
 
 //   console.log('from sendmail - mail emit function');
@@ -110,34 +85,34 @@ app.post('/secure/sendmail', function(req, res){
 
 
 // Response Function
- var sendResponse = function(req, res, status, errCode, errMsg) {
+//  var sendResponse = function(req, res, status, errCode, errMsg) {
 
-    var d = Date();
-    console.log(status +" "+ errCode +" "+ errMsg + " " + d);
-    res.status(status).send({
-        errCode: errCode, 
-        errMsg: errMsg,
-        dbDate: d
-    });
+//     var d = Date();
+//     console.log(status +" "+ errCode +" "+ errMsg + " " + d);
+//     res.status(status).send({
+//         errCode: errCode, 
+//         errMsg: errMsg,
+//         dbDate: d
+//     });
     
-}
+// }
 
-var connections = [];
- console.log(connections);
-io.on('connection', function(socket) {
-	console.log('server connected with socket');
+// var connections = [];
+//  console.log(connections);
+// io.on('connection', function(socket) {
+// 	console.log('server connected with socket');
 
-	var connect = connections.push(socket.id);
+// 	var connect = connections.push(socket.id);
 
-	console.log('connection '+connect);
+// 	console.log('connection '+connect);
 
-	 socket.on('username', function(username) {
-	 	 console.log(username);
-	  	 connections[username] = socket;
-	 });
+// 	 socket.on('username', function(username) {
+// 	 	 console.log(username);
+// 	  	 connections[username] = socket;
+// 	 });
 
-  socket.emit('show data', 'hiiiii');
-	 app.post('/secure/sendmail', function (req, res) {
+//   socket.emit('show data', 'hiiiii');
+// 	 app.post('/secure/sendmail', function (req, res) {
 	 // var connect = connections.push(socket.id);
 	// var target = connections.push(req.body.first_name);
 	// console.log(target);
@@ -146,18 +121,18 @@ io.on('connection', function(socket) {
 	 // console.log('Target '+target);// ------------------------------------------------------ work from here
 
 
-		 console.log('api target '+req.body.first_name);
-		 if (connect) {
-		 	console.log('if loop');
-		 	// console.log(connections[1]);
-		 	// io.sockets.connected[connect].emit('show data', 'hiiiii');
-		  socket.emit('show data', 'hiiiii');
-		  res.sendStatus(200);
-		 }
-		 else
-		  res.sendStatus(404);
-		});
-});
+// 		 console.log('api target '+req.body.first_name);
+// 		 if (connect) {
+// 		 	console.log('if loop');
+// 		 	// console.log(connections[1]);
+// 		 	// io.sockets.connected[connect].emit('show data', 'hiiiii');
+// 		  socket.emit('show data', 'hiiiii');
+// 		  res.sendStatus(200);
+// 		 }
+// 		 else
+// 		  res.sendStatus(404);
+// 		});
+// });
 
 
 

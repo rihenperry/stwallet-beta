@@ -11,7 +11,9 @@ var mailgun     = new Mailgun({apiKey: api_key, domain: domain});	// Mailgun Obj
 
 
 // Email Sending Function
-module.exports.sendmail = function (mailinfo) {
+module.exports.sendmail = function (mailinfo, res) {
+
+    var mailSent = false;
 
     mailgun.messages().send(mailinfo, function (err, cb) {
 
@@ -21,10 +23,15 @@ module.exports.sendmail = function (mailinfo) {
             console.log('Mail Not Sent');
             console.log(err);
             return;
+
         } else {
+            
+            mailSent = true;
             console.log('Mail Sent Successfully');
         }
 
+        res(mailSent);
+            
     });
 
 };
