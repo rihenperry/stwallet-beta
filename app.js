@@ -18,7 +18,8 @@ app.get('/', function (req, res) {
 
 app.post('/secure/sendVerificationEmail', notification.sendVerificationEmail);
 app.post('/secure/sendforgotpassword', notification.sendforgotpassword);
-app.post('/secure/registernotification', notification.registernotification);
+app.post('/secure/changePassEmail', notification.changePassEmail);
+app.post('/secure/resettedConfirmation', notification.resettedConfirmation);
 app.post('/secure/sendMail', mailer.sendPHPmail);
 
 server.listen(4000, function(){

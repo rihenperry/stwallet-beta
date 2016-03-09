@@ -18,11 +18,12 @@ var sendResponse = function(req, res, status, errCode, errMsg) {
     
 }
 
+/*Verification Email api*/
 module.exports.sendVerificationEmail = function(req){ 
   
   console.log('Page Name : notification.js');
-  console.log('API Name : registernotification');
-  console.log('registernotification API Hitted');
+  console.log('API Name : sendVerificationEmail');
+  console.log('sendVerificationEmail API Hitted');
   console.log('Parameters Receiving..');
   // console.log(req.body[0]);
   var accountInfo = req.body[0];
@@ -43,7 +44,7 @@ module.exports.sendVerificationEmail = function(req){
   // Setup E-mail Data With Unicode Symbols
   var mailOptions= {
     from: 'Search Trade <donotreply@searchtrade.com>',  // Sender address   
-    to : 'prashanttapase@movingtrumpet.com',            // List of Receivers
+    to : accountInfo.email,                             // List of Receivers
     subject: "Search Trade: Email Verification",        // Subject line
     text: text,                                         // Text
     html: text
@@ -57,17 +58,7 @@ module.exports.sendVerificationEmail = function(req){
        
       var notificationInfo = new notificationschema({
         first_name : accountInfo.first_name,
-        last_name : accountInfo.last_name,
-        email : accountInfo.email,
-        password : accountInfo.password,
-        mobile_number : accountInfo.mobile_number,
-        ref_email : accountInfo.referred_person_email,
-        my_referral_id : accountInfo.refcode,
-        seed : accountInfo.seed,
-        creationTime : accountInfo.creationTime,
-        salt : accountInfo.salt,
-        country : accountInfo.country,
-        first_buy_status: accountInfo.stat
+        last_name : accountInfo.last_name
       });
 
       notificationInfo.save(function(err){
@@ -89,11 +80,13 @@ module.exports.sendVerificationEmail = function(req){
         var mailStatus = false;
     }
 
-    return mailStatus
+    return mailStatus;
 
   });
+
 }
 
+/*forgot password Email api*/
 module.exports.sendforgotpassword = function(req){
 
   console.log('Page Name : notification.js');
@@ -125,15 +118,12 @@ module.exports.sendforgotpassword = function(req){
   // Setup E-mail data with unicode symbols
   var mailOptions= {
     from: 'Search Trade <donotreply@searchtrade.com>',  // Sender address
-    // to: accountInfo.email,                // List of Receivers
-    to : 'prashanttapase@movingtrumpet.com',
-    subject: "Search Trade : Reset your password",    // Subject line
-    text: text,                     // Text
+    to: accountInfo.email,                              // List of Receivers
+    subject: "Search Trade : Reset your password",      // Subject line
+    text: text,                                         // Text
     html: text
   };
   
-  // mailer.sendmail(mailOptions);
-
   mailer.sendmail(mailOptions, function(){
 
     if (true) {
@@ -152,4 +142,71 @@ module.exports.sendforgotpassword = function(req){
   });
 // end mailer.sendmail 
 };
-// end registernotification function exports
+
+/*Chnage password email api*/
+module.exports.changePassEmail = function(req){
+ // console.log(req.body);
+  var accountInfo = req.body;
+  var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
+  
+  // Setup e-mail data with unicode symbols
+  var mailOptions = {
+    from: 'Search Trade <donotreply@searchtrade.com>',      // Sender address
+    to: accountInfo.email,                                  // List of Receivers
+    subject: "Search Trade: Password Change Confirmation",  // Subject line
+    text: text,                                             // Text
+    html: text
+    };
+
+  mailer.sendmail(mailOptions, function(){
+
+    if (true) {
+
+        console.log('mail callback success');
+        var mailStatus = true;
+    }
+    else{
+
+        console.log('mail callback fails');
+        var mailStatus = false;
+    }
+
+    return mailStatus
+
+  });
+
+}
+
+/*Reset Password*/
+module.exports.resettedConfirmation = function(req){
+  
+  var accountInfo = req.body;
+  var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
+    
+  // Setup e-mail data with unicode symbols
+  var mailOptions = {
+    from: 'Search Trade <donotreply@searchtrade.com>',      // Sender address
+    to: accountInfo.email,                                  // list of receivers
+    subject: "Search Trade: Password Reset Confirmation",   // Subject line
+    text: text,                                             // Text
+    html: text
+    };
+  
+   mailer.sendmail(mailOptions, function(){
+
+      if (true) {
+
+          console.log('mail callback success');
+          var mailStatus = true;
+      }
+      else{
+
+          console.log('mail callback fails');
+          var mailStatus = false;
+      }
+
+      return mailStatus
+
+  });
+
+}
