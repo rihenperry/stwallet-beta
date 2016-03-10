@@ -308,7 +308,7 @@ module.exports.secureRegister = function (req, res) {
                             
                             request.post({
                                 
-                                url: 'http://192.168.1.31:4000/secure/registernotification',
+                                url: notificationdomain+'/secure/sendVerificationEmail',
                                 body: myInfoObject,
                                 json: true,
                                 headers: {"content-type": "application/json"}
