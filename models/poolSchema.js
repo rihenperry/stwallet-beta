@@ -15,6 +15,7 @@ var poolSchema = mongoose.Schema({
     total_search_payout :           {type: Number},
     total_searchtrade_payout :      {type: Number},
     total_unsold_kwd_refund :       {type: Number},
+    total_renewal_fees :            {type: Number},
     totalActiveUsers :              {type: Number}
 });
 
