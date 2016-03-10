@@ -18,17 +18,12 @@ mongoose.connection.on('connected', function () {
 
 // Schema
 var notification_wallet = mongoose.Schema({
-  
+    
+    user_id:                          {type: String},  
     first_name:                       {type: String},                                       // First Name of User
-    last_name:                        {type: String},                                       // Last Name of Use
-    email:                            {type: String},                                       // Email of User
-    mobile_number:                    {type: Number, default:0},		                    // Mobile Number
-    ref_email:                        {type: String, default:''},		                    // Reference Person Email
-    my_referral_id :                  {type: String},				                        // User Refferal Code
-    seed:                             {type: String},                                       // Seed
-    salt:                             {type: String},								        // Random Generated Value (Salt)
-    first_buy_status:                 {type: Number}					                    // First Buy (For First Keyword Purchase)
-
+    last_name:                        {type: String},                                        // Last Name of Use
+    notification_body: 				  {type: String}
+    
 }, { versionKey: false });
 
 // Model

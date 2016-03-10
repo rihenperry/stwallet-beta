@@ -25,10 +25,12 @@ module.exports.sendVerificationEmail = function(req){
   console.log('API Name : sendVerificationEmail');
   console.log('sendVerificationEmail API Hitted');
   console.log('Parameters Receiving..');
-  // console.log(req.body[0]);
+
   var accountInfo = req.body[0];
   vhash = req.body[1].vhash;
   flag = req.body[1].flag;
+
+  console.log(accountInfo);
 
   // Wallet
   if(flag == '2'){
@@ -57,8 +59,10 @@ module.exports.sendVerificationEmail = function(req){
       console.log('mail callback success');
        
       var notificationInfo = new notificationschema({
+        user_id : accountInfo._id,
         first_name : accountInfo.first_name,
-        last_name : accountInfo.last_name
+        last_name : accountInfo.last_name,
+        notification_body: 'Your SearchTrade account has been created.';
       });
 
       notificationInfo.save(function(err){
@@ -97,6 +101,8 @@ module.exports.sendforgotpassword = function(req){
   var accountInfo = req.body[0];
   var vhash = req.body[1].vhash;
   var flag = req.body[1].flag;
+
+  console.log(accountInfo);
 
   if(flag == '1') // For Web
   {
@@ -145,8 +151,11 @@ module.exports.sendforgotpassword = function(req){
 
 /*Chnage password email api*/
 module.exports.changePassEmail = function(req){
- // console.log(req.body);
+
   var accountInfo = req.body;
+
+  console.log(accountInfo);
+
   var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
   
   // Setup e-mail data with unicode symbols
@@ -181,6 +190,9 @@ module.exports.changePassEmail = function(req){
 module.exports.resettedConfirmation = function(req){
   
   var accountInfo = req.body;
+
+  console.log(accountInfo);
+
   var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
     
   // Setup e-mail data with unicode symbols
