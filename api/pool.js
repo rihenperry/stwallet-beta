@@ -914,3 +914,85 @@ module.exports.getPoolStats = function (req, res){
 	})
 	
 }
+
+/*Add Total Renewal Fees*/
+module.exports.addTotalRenewalFees = function (req, res){
+	
+	log.info('Page Name: Pool.js');
+	log.info('API Name : addTotalRenewalFees');
+	log.info('Add To Keyword Income API Hitted');
+	
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true){
+			log.info('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+		log.info('Parameters are valid');
+		log.info('Credit Total Renewal Amount : '+retVal[0].amount)
+		var query = { $inc: {'total_renewal_fees': parseFloat(retVal[0].amount) }};
+
+		// Update Pool Keyword Income
+		poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+			
+			// Error In Finding Server
+			if (err){
+				log.info('Database Error');
+				master.sendResponse(req, res, 200, 5, "Database Error");
+				return;
+			}
+
+			// Successfully Updated
+			if(retVals){
+			    log.info('Total Reewal Fees Amount '+retVal[0].amount+' To Pool Successfully');
+			    master.sendResponse(req, res, 200, -1, "Success");
+			   }
+			
+		});
+
+	});	
+
+}
+
+/*Deduct Total Renewal Fees*/
+module.exports.deductTotalRenewalFees = function (req, res){
+	
+	log.info('Page Name: Pool.js');
+	log.info('API Name : deductFromkwdIncome');
+	log.info('Deduct From Keyword Income API Hitted');
+
+	poolvalidate(req, function(retVal){
+
+		if (retVal[0].error == 'true' || retVal[0].error == true){
+			log.info('Parameters are not valid');
+			master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+			return;
+		}
+
+			log.info('Deduct Total Renewal Amount : '+retVal[0].amount);
+			
+    		var query = { $inc: {'total_renewal_fees': -parseFloat(retVal[0].amount) }};
+
+			// Update Pool Keyword Income
+			poolSchema.findOneAndUpdate({}, query, function(err, retVals){
+			
+				// Successfully Updated
+				if(retVals)
+				{
+					log.info('Deducted Total Renewal Fees Amount '+retVal[0].amount+' From Pool Successfully');
+					master.sendResponse(req, res, 200, -1, "Success");
+				}
+				
+				// Error In Updating Database
+				else
+				{
+					log.info('Database Error');
+					master.sendResponse(req, res, 200, 5, "Database Error");
+				}
+			})
+			
+	});
+		
+};

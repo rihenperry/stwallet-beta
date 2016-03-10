@@ -2853,6 +2853,96 @@ module.exports.deductApprovedWithdrawals = function(req, res){
   
 }
 
+/*============================= Add Renewal Fees =============================*/
+
+module.exports.addRenewalFees = function(req, res){
+    
+	log.info('Page Name : user.js');
+	log.info('API Name : addRenewalFees')
+	log.info('Add Renewal Fees API Hitted');
+	log.info('Parameter Receiving..')
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Approved Withdrawals
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
+
+            if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                log.info(retVal[0].email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            log.info('Renewal Fees Amount '+amount+' Successfully Added To '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
+
+        })
+        
+    })
+  
+}
+
+/*============================= Deduct Renewal Fees =============================*/
+
+module.exports.deductRenewalFees = function(req, res){
+    
+	log.info('Page Name : user.js');
+	log.info('API Name : deductRenewalFees');
+	log.info('Deduct Renewal Fees API Hitted');
+	log.info('Parameter Receiving..');
+    
+    master.validation(req, function(retVal){
+        
+        if(retVal[0].error == true || retVal[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
+            return;
+        }
+        
+        var amount = -parseFloat(retVal[0].amount);
+        
+        // Find and Update User's Approved Withdrawals
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
+
+            if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                log.info(retVal[0].email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+            
+            log.info('Renewal Fees Amount '+amount+' Successfully Deducted From '+retVal[0].email);
+            master.sendResponse(req, res, 200, -1, 'Success');
+
+        })
+        
+    })
+  
+}
+
 /*============================= Add Total App Income =============================*/
 
 module.exports.addTotalAppIncome = function(req, res){

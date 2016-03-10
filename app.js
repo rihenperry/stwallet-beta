@@ -94,6 +94,8 @@ app.post('/secure/addBlockedPendingWithdrawals', user.addBlockedPendingWithdrawa
 app.post('/secure/deductBlockedPendingWithdrawals', user.deductBlockedPendingWithdrawals);		// Deduct Bloked Pending Withdrawals From User Account API
 app.post('/secure/addApprovedWithdrawals', user.addApprovedWithdrawals);						// Add Approved Withdrawal To User Account API
 app.post('/secure/deductApprovedWithdrawals', user.deductApprovedWithdrawals);					// Deduct Approved Withdrawal From User Account API
+app.post('/secure/addRenewalFees', user.addRenewalFees);										// Add RenewaL Fess API
+app.post('/secure/deductRenewalFees', user.deductRenewalFees);									// Deduct RenewaL Fess API
 app.post('/secure/addTotalAppIncome', user.addTotalAppIncome);                                  // Add User Total App Income API
 app.post('/secure/addSearchAffEarning', user.addSearchAffEarning);								// Add User's Search Affiliate Earning API
 app.post('/secure/firstBuy', user.firstBuy);													// FirstBuy API
@@ -123,6 +125,8 @@ app.post('/secure/addSearchTradePayout', pool.addSearchTradePayout);            
 app.post('/secure/deductSearchTradePayout', pool.deductSearchTradePayout);                      // Deduct Search Trade Payout
 app.post('/secure/addUnsoldKwdRefund', pool.addUnsoldKwdRefund);                                // Add Unsold Keyword Refund
 app.post('/secure/getPoolStats', pool.getPoolStats);                                            // Get All Feilds From Pool Table
+app.post('/secure/addTotalRenewalFees', pool.addTotalRenewalFees);								// Add Total Renewal Fees API
+app.post('/secure/deductTotalRenewalFees', pool.deductTotalRenewalFees);						// Deduct Total Renewal Fees API
 
 /*============================== Transactions Related API ==================================*/
 
