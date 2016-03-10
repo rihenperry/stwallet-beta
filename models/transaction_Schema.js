@@ -3,7 +3,7 @@ var mongoose    = require('mongoose');          // For Mongoose
 
 //Schema
 var trans_Schema = mongoose.Schema({
-    
+
     "time":         {type: Number, default:0},
     "sender":       {type: String, default:''},
     "receiver":     {type: String, default:''},

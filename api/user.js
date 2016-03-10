@@ -375,6 +375,7 @@ module.exports.secureRegister = function (req, res) {
                             }
 
                             var requestData_register = {
+                                
                                 first_name : first_name,
                                 last_name : last_name,
                                 email : email,
@@ -388,15 +389,15 @@ module.exports.secureRegister = function (req, res) {
                             }
 
                             request.post({
+                                
                                 url: 'http://192.168.1.31:4000/secure/registernotification',
-                                body:   requestData_register,
+                                body: requestData_register,
                                 json: true,
-                                headers: {
-                                    "content-type": "application/json",
-                                }
-                            },
-                            function optionalCallback(err, httpResponse, body) {
-                                if (err) {
+                                headers: {"content-type": "application/json"}
+                            
+                            },function optionalCallback(err, httpResponse, body){
+                                
+                                if (err){
                                     return console.error('Curl request Failed for register api: \n', err);
                                 }
                                     
@@ -756,7 +757,7 @@ module.exports.secureLogin = function(req, res){
             return;
         }
     
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email},function(err, results){
 
             if(err)
             {
@@ -765,7 +766,7 @@ module.exports.secureLogin = function(req, res){
                 return;
             }
 
-            if(result==null || result=="") // Email Not Found
+            if(results==null || results=="") // Email Not Found
             {
                 log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
@@ -774,11 +775,11 @@ module.exports.secureLogin = function(req, res){
 
             else
             {
-                var hashpass = crypt.hashIt((result[0].salt)+password);
+                var hashpass = crypt.hashIt((results[0].salt)+password);
 
-                if(hashpass === result[0].password)
+                if(hashpass === results[0].password)
                 {
-                    if (!result[0].active)
+                    if (!results[0].active)
                     {
                         log.info('Account is Not Active');
                         master.sendResponse(req, res, 200, 3, "Account is not active");
@@ -806,7 +807,7 @@ module.exports.secureLogin = function(req, res){
                         else
                         {   
                             log.info('Successfully Login');
-                            master.sendResponse(req, res, 200, -1, "Success");
+                            master.sendResponse(req, res, 200, -1, result);
                             return;
                         }
 
@@ -886,7 +887,7 @@ module.exports.getDetails = function(req, res) {
             return;
         }
     
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, userdata){
 
             if(err)
             {
@@ -895,14 +896,16 @@ module.exports.getDetails = function(req, res) {
                 return;
             }
 
-            if(result == null || result == undefined || result == "")
+            if(userdata == null || userdata == undefined || userdata == "")
             {
                 log.info(email+" Not Registered");
                 master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
                 return;
             }
             
-            transactionSchema.find({$or:[{sender:email},{receiver:email}]}, function(err, results){
+            transactionSchema.find({$or:[{sender:email},{receiver:email}]},{_id:0}, function(err, retVal){
+                
+                console.log('Result : '+retVal);
                 
                 if(err)
                 {
@@ -911,15 +914,15 @@ module.exports.getDetails = function(req, res) {
                     return;
                 }
                 
-                if(results == null || results == undefined || results == "")
+                if(retVal == null || retVal == undefined || retVal == "")
                 {
                     log.info('No Transactions Of This User');
-                    master.sendResponse(req, res, 200, -1, result[0]);
+                    master.sendResponse(req, res, 200, -1, userdata[0]);
                     return;
                 }
                 
-                result[0].transaction = results
-                master.sendResponse(req, res, 200, -1, result[0]);
+                userdata[0].transactions = retVal;
+                master.sendResponse(req, res, 200, -1, userdata[0]);
                 
             }).sort({time:-1}).limit(50);
 
