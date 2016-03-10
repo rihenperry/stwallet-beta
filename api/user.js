@@ -14,7 +14,8 @@ var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Sc
     im 				    = require('imagemagick'),
     logger              = require('../config/w_config.js'),
     request             = require('request'),
-    log                 = logger();
+    log                 = logger(),
+    notificationdomain  = 'http://192.168.1.5:4000';
 
 //========================= Page Functions ========================= //
 
@@ -22,100 +23,6 @@ var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Sc
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 	return re.test(email);
-}
-
-// Verification Email Function on Signup(Register)
-function sendVerificationEmail(accountInfo, flag){
-	
-	var vhash = encodeURIComponent(crypt.generate(accountInfo._id));
-
-	if(flag == '2') // Wallet 
-	{
-		var url= protocol+"://scoinz.com/presaleWallet/wallet/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&errcode=15";
-	}
-	else // Web
-	{
-		var url= protocol+"://localhost/st-web/keywords/views/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
-	}
-	
-	var text= '<div style="border:solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hello '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>Your SearchTrade account has been created.</p><p>Please click <a href="'+url+'">Here</a> to verify your email address or copy/paste the link below into your browser.</p><p>'+url+'</p></div></div></div></div>';
-
-	// Setup E-mail Data With Unicode Symbols
-	var mailOptions= {
-		from: 'Search Trade <donotreply@searchtrade.com>', 	// Sender address
-		to: accountInfo.email, 								// List of Receivers
-		subject: "Search Trade: Email Verification", 		// Subject line
-		text: text,											// Text
-		html: text
-	};
-
-    mailer.sendmail(mailOptions);
-}
-
-// Send Reset Password Link to User Email Address
-function sendRestEmail(accountInfo, flag){
-  
-	var vhash = encodeURIComponent(crypt.generate(accountInfo._id));
-  
-	if(flag == '1') // For Web
-	{
-		var url= protocol+"://localhost/st-web/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
-	}
-  
-	if(flag == '2')	// For Wallet
-	{
-		var url= protocol+"://scoinz.com/presaleWallet/wallet/resetpass.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
-	}
-    
-    if(flag == '3') // For Mobile
-	{
-		var url= protocol+"://localhost/st-web/MobileSite/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
-	}
-  
-	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>You have requested to Change your SearchTrade account password.</p><p>Please click <a href="'+url+'">Here</a> to reset your password.</p><p>OR</p><p>Copy Link Address below in your web browser</p><p>'+url+'</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div>';
-
-	// Setup E-mail data with unicode symbols
-	var mailOptions= {
-		from: 'Search Trade <donotreply@searchtrade.com>', 	// Sender address
-		to: accountInfo.email, 								// List of Receivers
-		subject: "Search Trade : Reset your password", 		// Subject line
-		text: text,											// Text
-		html: text
-	};
-	
-	mailer.sendmail(mailOptions);
-}
-
-// Send Email as Notification that Password is Changed Successfully
-function changePassEmail(accountInfo){
-	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
-  
-	// Setup e-mail data with unicode symbols
-	var mailOptions = {
-		from: 'Search Trade <donotreply@searchtrade.com>', 		// Sender address
-		to: accountInfo.email, 									// List of Receivers
-		subject: "Search Trade: Password Change Confirmation", 	// Subject line
-		text: text,												// Text
-		html: text
-	  };
-
-	mailer.sendmail(mailOptions);
-}
-
-// Send Email as Notification that Password is Resetted Successfully
-function resettedConfirmation(accountInfo){
-	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
-  
-    // Setup e-mail data with unicode symbols
-	var mailOptions = {
-		from: 'Search Trade <donotreply@searchtrade.com>', 		// Sender address
-		to: accountInfo.email, 								    // list of receivers
-		subject: "Search Trade: Password Reset Confirmation", 	// Subject line
-		text: text,												// Text
-		html: text
-    };
-	
-	mailer.sendmail(mailOptions);
 }
 
 /* Export Fuctions */
@@ -373,25 +280,36 @@ module.exports.secureRegister = function (req, res) {
                                 master.sendResponse(req, res, 200, 5, "Database Error");
                                 return;
                             }
-
-                            var requestData_register = {
                                 
+                            var myInfoObject = [{
+                                _id: accountID,
                                 first_name : first_name,
                                 last_name : last_name,
                                 email : email,
+                                password : password,
                                 mobile_number : mobile_number,
                                 ref_email : referred_person_email,
                                 my_referral_id : refcode,
                                 seed : seed,
+                                creationTime : creationTime,
                                 salt : salt,
                                 country : country,
                                 first_buy_status: stat
+                            }];
+
+                            var vhash = encodeURIComponent(crypt.generate(myInfo._id));
+
+                            var flagObj = {
+                                "vhash" : vhash,
+                                "flag" : flag
                             }
 
+                            myInfoObject.push(flagObj);
+                            
                             request.post({
                                 
                                 url: 'http://192.168.1.31:4000/secure/registernotification',
-                                body: requestData_register,
+                                body: myInfoObject,
                                 json: true,
                                 headers: {"content-type": "application/json"}
                             
@@ -400,10 +318,11 @@ module.exports.secureRegister = function (req, res) {
                                 if (err){
                                     return console.error('Curl request Failed for register api: \n', err);
                                 }
-                                    
+                                console.log('Response from Notification server : '+body);  
                             });
 
-                            sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
+                            //sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
+                            
                             log.info('Saved SuccessFully');
                             master.sendResponse(req, res, 200, -1, "Success");
 
@@ -665,10 +584,15 @@ exports.secureResendVerification = function(req, res) {
                 return;
             }
             
-            var requestData_resend = result[0];
+            var flagObj = {
+                "flag":flag
+            }
 
-            request.post({url: 'http://192.168.1.31:4000/secure/registernotification',
-                body:   requestData_register,
+            result.push(flagObj);
+
+            request.post({
+                url: notificationdomain+'/secure/sendVerificationEmail',
+                body: result,
                 json: true,
                 headers: {
                     "content-type": "application/json",
@@ -676,13 +600,13 @@ exports.secureResendVerification = function(req, res) {
             },
             function optionalCallback(err, httpResponse, body) {
                 if (err) {
-                    return console.error('Curl request Failed for register api: \n', err);
+                    return console.error('Curl request Failed for Resend Verification api: \n', err);
                 }
                     
             });
 
             log.info('User Found');
-            sendVerificationEmail(result[0], flag);
+            //sendVerificationEmail(result[0], flag);
             master.sendResponse(req, res, 200, -1, "Success");
             
         })
@@ -1245,8 +1169,33 @@ exports.secureForgotPassword = function(req, res) {
             else
             {
                 if(result[0].active)
-                {
-                    sendRestEmail(result[0], flag); // Send Reset Password Link 
+                {   
+
+                    var vhash = encodeURIComponent(crypt.generate(result[0]._id));
+
+                    var flagObj = {
+                        "flag":flag,
+                        "vhash": vhash
+                    }
+
+                    result.push(flagObj);
+
+                    request.post({
+                        url: notificationdomain+'/secure/sendforgotpassword',
+                        body: result,
+                        json: true,
+                        headers: {
+                            "content-type": "application/json",
+                        }
+                    },
+                    function optionalCallback(err, httpResponse, body) {
+                        if (err) {
+                            return console.error('Curl request Failed for Send Verification mail api: \n', err);
+                        }
+                            
+                    });
+
+                    //sendRestEmail(result[0], flag); // Send Reset Password Link 
                     master.sendResponse(req, res, 200, -1, "Success");
                     return;
                 }
@@ -1450,7 +1399,23 @@ module.exports.resetpassword = function(req, res) {
                     else
                     {
                         log.info('Password Resetted Successfully');
-                        resettedConfirmation(result[0]);
+                        // resettedConfirmation(result[0]);
+
+	                    request.post({
+	                        url: notificationdomain+'/secure/resettedConfirmation',
+	                        body: result[0],
+	                        json: true,
+	                        headers: {
+	                            "content-type": "application/json",
+	                        }
+	                    },
+	                    function optionalCallback(err, httpResponse, body) {
+	                        if (err) {
+	                            return console.error('Curl request Failed for Send Verification mail api: \n', err);
+	                        }
+	                            
+	                    });
+	                    
                         master.sendResponse(req, res, 200, -1, 'Success');
                     }
 
@@ -1627,9 +1592,27 @@ module.exports.changePassword = function (req, res) {
 
                 else
                 {
+
                     log.info('Password Changed Successfully');
-                    changePassEmail(result[0]);
+                    //changePassEmail(result[0]);
+
+                    request.post({
+                        url: notificationdomain+'/secure/changePassEmail',
+                        body: result[0],
+                        json: true,
+                        headers: {
+                            "content-type": "application/json",
+                        }
+                    },
+                    function optionalCallback(err, httpResponse, body) {
+                        if (err) {
+                            return console.error('Curl request Failed for register api: \n', err);
+                        }
+                        console.log('Response from Notification server : '+body);  
+                    });
+
                     master.sendResponse(req, res, 200, -1, 'Success');
+
                 }
 
             })
