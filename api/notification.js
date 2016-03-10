@@ -62,7 +62,7 @@ module.exports.sendVerificationEmail = function(req){
         user_id : accountInfo._id,
         first_name : accountInfo.first_name,
         last_name : accountInfo.last_name,
-        notification_body: 'Your SearchTrade account has been created.';
+        notification_body: 'Your SearchTrade account has been created.'
       });
 
       notificationInfo.save(function(err){

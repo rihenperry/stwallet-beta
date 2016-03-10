@@ -19,10 +19,10 @@ mongoose.connection.on('connected', function () {
 // Schema
 var notification_wallet = mongoose.Schema({
     
-    user_id:                          {type: String},  
-    first_name:                       {type: String},                                       // First Name of User
-    last_name:                        {type: String},                                        // Last Name of Use
-    notification_body: 				  {type: String}
+    user_id:                          {type: String},          // Id
+    first_name:                       {type: String},          // First Name of User
+    last_name:                        {type: String},          // Last Name of Use
+    notification_body: 				  {type: String}           // Notification Body
     
 }, { versionKey: false });
 
