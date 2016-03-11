@@ -129,6 +129,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
 	log.info('Parameters Receiving -:');
     
     var email       = req.body.email;
+	var type 		= req.body.type;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
     
@@ -166,7 +167,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
     
     var query = {publicKey:publicKey};
     //var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
-    var text  = "email="+email+"&publicKey="+publicKey;
+    var text  = "email="+email+'&type='+type+"&publicKey="+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
          

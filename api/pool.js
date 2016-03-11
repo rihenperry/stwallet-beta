@@ -21,7 +21,6 @@ var poolvalidate = function(req, cb){
 	var amount = req.body.amount;
 	var publicKey = req.body.publicKey;
 	var signature = req.body.signature;
-	var signature = req.body.signature;
 	
 	//var text = 'amount='+encodeURIComponent(amount)+'&publicKey='+encodeURIComponent(publicKey);
     var text = 'amount='+amount+'&publicKey='+publicKey;	

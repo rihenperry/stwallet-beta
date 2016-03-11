@@ -15,7 +15,7 @@ var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Sc
     logger              = require('../config/w_config.js'),
     request             = require('request'),
     log                 = logger(),
-    notificationdomain  = 'http://192.168.1.5:4000';
+    notificationdomain  = 'http://192.168.1.29:4000';
 
 //========================= Page Functions ========================= //
 
@@ -828,8 +828,6 @@ module.exports.getDetails = function(req, res) {
             }
             
             transactionSchema.find({$or:[{sender:email},{receiver:email}]},{_id:0}, function(err, retVal){
-                
-                console.log('Result : '+retVal);
                 
                 if(err)
                 {
@@ -3439,4 +3437,39 @@ module.exports.updateNotificationStatus = function(req, res){
             
         })
     })
+}
+
+/*============================= Get Notification Status =============================*/
+
+module.exports.getNotificationStatus = function(req, res){
+    
+    log.info('Page Name : user.js');
+	log.info('API Name : getNotificationStatus')
+	log.info('Get Notification Status API Hitted');
+	log.info('Parameter Receiving..');
+    
+    var email = req.body.email;
+
+    // Find and Update User's Blocked For Bids
+    userSchema.find({email:email},{notification_status:1,_id:1},function(err, result){
+
+        if (err)
+        {
+            log.error(err);
+            master.sendResponse(req, res, 200, 5, "Database Error");
+            return;
+        }
+
+        if (result==null || result=="") // Email Not Found
+        {
+            log.info(email+" Not Registered");
+            master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+            return;
+        }
+
+        log.info('Notification Status is '+result[0].notification_status+' For '+email);
+        master.sendResponse(req, res, 200, -1, {notification_status:result[0].notification_status, user_id:result[0]._id});
+
+    })
+
 }
