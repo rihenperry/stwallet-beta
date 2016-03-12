@@ -15,7 +15,7 @@ var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Sc
     logger              = require('../config/w_config.js'),
     request             = require('request'),
     log                 = logger(),
-    notificationdomain  = 'http://192.168.1.29:4000';
+    notificationdomain  = 'http://192.168.1.31:4000';
 
 //========================= Page Functions ========================= //
 

@@ -28,7 +28,7 @@ module.exports.validateParameter = function(parameter, name){
     
     if(parameter === undefined || parameter.length<=0)
     {
-        log.info(name+' Is Missing');
+        log.error(name+' Is Missing');
         return false;
     }
 

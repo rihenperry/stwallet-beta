@@ -9,8 +9,9 @@ var  express     	 = require('express'),
 	 fs         	 = require('fs'),
 	 request 		 = require('request'),
      jsonfile        = require('jsonfile'),
+
      //util            = require('util'),
-     // bformat = require('bunyan-format')  ,
+     bformat         = require('bunyan-format')  ,
 // Packages
      bodyParser  	 = require('body-parser'),
      nconf 			 = require('nconf'),
@@ -51,7 +52,6 @@ app.use(function (req, res, next) {
 app.get('/', function (req, res) {
     res.send('Hello Revised Wallet');
 });
-
 
 /*============================== Device Related API ==================================*/
 
