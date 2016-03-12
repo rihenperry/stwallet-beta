@@ -55,7 +55,7 @@ module.exports.secureAuth = function(query, text, signature, cb){
         
         if (err)
         {
-            log.info('Database Error');
+            log.error('Database Error');
             log.error(err);
             cb(err);
             return;
@@ -69,7 +69,7 @@ module.exports.secureAuth = function(query, text, signature, cb){
                 "error" : "true"
             }];
             
-            log.info('Server Not Found');
+            log.error('Server Not Found');
             cb(retVal);
             return;
         }
@@ -81,7 +81,7 @@ module.exports.secureAuth = function(query, text, signature, cb){
              // Signature Not Matched
 			if (!isValid)
 			{
-				log.info('Invalid Signature');
+				log.error('Invalid Signature');
                 var retVal = [{
                     "message" : "Invalid Signature",
                     "errCode" : 14,
@@ -152,7 +152,7 @@ module.exports.validation  = function(req, cb){
     }
 
     if(!(validateEmail(email))){
-        log.info('Incorrect Email Format');
+        log.error('Incorrect Email Format');
         var retVal = [{
             "message" : "Incorrect email id format",
             "errCode" : 7,
@@ -165,7 +165,7 @@ module.exports.validation  = function(req, cb){
     // Validate Amount
     if(!(validate(amount, 'Amount')) || isNaN(amount)){
         if(isNaN(amount)){
-            log.info('Amount is Invalid');
+            log.error('Amount is Invalid');
         }
         var retVal = [{
             "message" : "Mandatory field not found",
