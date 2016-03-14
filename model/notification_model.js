@@ -1,5 +1,4 @@
-// Packages
-var mongoose        = require('mongoose');      // For Mongoose 
+var mongoose        = require('mongoose');           // For Mongoose
 
 // Schema
 var notification_wallet = mongoose.Schema({
