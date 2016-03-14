@@ -3,11 +3,14 @@
 "use strict";
 
 var notificationschema  = require('../model/notification_model.js');
+var notiMessageSchema   = require('../model/notification_message_model.js');
 var Mailgun             = require('mailgun-js');							// For Emails (Mailgun Module)
+var request             = require('request');                               // Request Module
 var from_who            = 'donotreply@searchtrade.com';						// Sender of Email
 var api_key             = 'key-2b8f2419e616db09b1297ba51d7cc770';			// Api Key For Mailgun
 var domain              = 'searchtrade.com';								// Domain Name
-    
+
+var ip                  = 'http://192.168.1.29:5000';
 var mailgun             = new Mailgun({apiKey: api_key, domain: domain});	// Mailgun Object
 
 
@@ -63,7 +66,7 @@ module.exports.sendPHPmail = function (req, res){
     var user_id             = req.body.user_id;
     var notification_body   = req.body.notification_body;
     
-    notification_body = first_name+" "+last_name+", "+notification_body;
+    var notification = first_name+" "+last_name+", "+notification_body;
     
     var mailOptions = {
 		from: 'Search Trade <donotreply@searchtrade.com>', 	// Sender address
@@ -87,28 +90,68 @@ module.exports.sendPHPmail = function (req, res){
             
             console.log('Mail Sent Successfully');
             
-            var notification_message = new notificationschema({ 
-                user_id: user_id, 	                     // User Id
-                first_name: first_name, 				 // User First Name
-                last_name: last_name, 		             // User last Name
-                notification_body: notification_body,	 // Text
-            });
-            
-            notification_message.save(function(err){
-
-                if(err)
+            getNotificationStatus(to, function(result){
+                
+                //console.log('Status : '+result.notification_status);
+                
+                if(result.notification_status)
                 {
-                  console.log(err);
-                  return err;
+                    var notification_message = new notiMessageSchema({ 
+                        user_id: user_id, 	            // User Id
+                        message: notification	        // Text
+                    });
+
+                    notification_message.save(function(err){
+
+                        if(err)
+                        {
+                          console.log(err);
+                          return err;
+                        }
+
+                        console.log('Saved SuccessFully');
+                        sendResponse(req, res, 200, -1, "Success");
+
+                    });
+                    
                 }
-
-                console.log('Saved SuccessFully');
-                sendResponse(req, res, 200, -1, "Success");
-
-            });
+                
+                else
+                {
+                    sendResponse(req, res, 200, -1, "Success");
+                }
+                
+            })
             
         }    
         
     });
     
 }
+
+// Getting Notification Status
+module.exports.getNotificationStatus = function (email, cb){
+    
+    var email = {email:email};
+    
+    request.post({
+                                
+        url: ip+'/secure/getNotificationStatus',
+        body: email,
+        json: true,
+        headers: {"content-type": "application/json"}
+
+    },function optionalCallback(err, httpResponse, body){
+
+        if (err)
+        {
+            return console.error('Curl request Failed for register api: \n', err);
+        }
+        
+        cb(body.errMsg);
+        
+    });
+
+}
+
+var getNotificationStatus = module.exports.getNotificationStatus;
