@@ -8,10 +8,10 @@ var ctrlUserSub = require('../controllers/usersub');
 /* api routes */
 /* user apis */
 router.get('/users', ctrlUser.userList);
-//router.get('/users/:id', ctrlUser.getUser);
-//router.post('/user', ctrlUser.createUser);
-//router.put('/users/:id', ctrlUser.updateUser);
-//router.delete('/users/:id', ctrlUser.deleteUser);
+router.get('/users/:id', ctrlUser.getUser);
+router.post('/users', ctrlUser.createUser);
+router.put('/users/:id', ctrlUser.updateUser);
+router.delete('/users/:id', ctrlUser.deleteUser);
 
 /* user notification subscription flag api */
 //router.get('/users/:id/subnotify', ctrlNotify.isUserNotifiable);
