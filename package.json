@@ -22,7 +22,6 @@
     "morgan": "^1.7.0",
     "nconf": "^0.8.4",
     "node-inspector": "^0.12.6",
-    "nodemon": "^1.8.1",
     "request": "^2.69.0",
     "token": "0.0.0"
   }
