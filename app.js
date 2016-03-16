@@ -3,7 +3,8 @@
 "use strict";
 
 // Framwork
-var  express     	 = require('express'),      
+var  express     	 = require('express'),
+     helmet          = require('helmet'),
 	 app        	 = express(),
 	 nconf 	    	 = require('nconf'),
 	 fs         	 = require('fs'),
@@ -14,7 +15,6 @@ var  express     	 = require('express'),
      bformat         = require('bunyan-format')  ,
 // Packages
      bodyParser  	 = require('body-parser'),
-     nconf 			 = require('nconf'),
      logger          = require('./config/w_config.js'),
      log             = logger(),
 
@@ -27,6 +27,10 @@ var  express     	 = require('express'),
 	 W_transaction   = require("./api/transaction.js"),          // Transaction API
      admin     	     = require("./api/admin"),  	             // Get Admin API
      cron_api    	 = require("./api/cron_api.js");    	     // Get Admin API
+
+// code to useing helmet@wallet app
+app.use(helmet())
+
 
 // code to set ENV for node app
 var loadconfig = require('./config/w_config.js')
