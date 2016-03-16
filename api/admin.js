@@ -1182,3 +1182,60 @@ module.exports.updateUserStatus = function(req, res){
     })
     
 }
+
+/* Latest Deposit */
+module.exports.latestDeposit = function(req, res){
+    
+    log.info('Page Name: admin.js.');
+	log.info('API Name : latestDeposit');
+	log.info('latest Deposit API Hitted');
+	log.info('Parameters Receiving...');
+	
+	var publicKey  = req.body.publicKey;
+	var signature  = req.body.signature;
+    
+    // Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+    
+    var query = {'publicKey': publicKey};
+	//var text = "publicKey="+encodeURIComponent(publicKey);
+    var text = "publicKey="+publicKey;
+    
+     master.secureAuth(query, text, signature, function (result){
+		
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+    
+        transSchema.find({type:"fund"}, function(err, retVal){
+			
+            if(retVal == "" || retVal == undefined || retVal.length <= 0)
+            {
+                console.log('No Transactions');
+                master.sendResponse(req, res, 200, 9, "No Result");
+                return;
+            }				
+
+            else
+            {
+                console.log(retVal.length+' Transactions Found');
+                master.sendResponse(req, res, 200, -1, retVal);
+            }
+				
+        }).sort({"time":-1}).limit(1000);
+         
+    })
+}

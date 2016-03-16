@@ -162,6 +162,7 @@ app.post('/secure/admin/paymentModeCount', admin.paymentModeCount);								// Ge
 app.post('/secure/admin/setUserBalance', admin.setUserBalance);                                 // Set User Balance API
 app.post('/secure/admin/getEmailTypeTransactions', admin.getEmailTypeTransactions);             // Email And Type Transactions
 app.post('/secure/admin/updateUserStatus', admin.updateUserStatus);							    // Update User Status API
+app.post('/secure/admin/latestDeposit', admin.latestDeposit);                                   // latest Deposit API
 
 app.post('/secure/cron', cron_api.cron);
 
