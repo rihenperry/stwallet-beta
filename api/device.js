@@ -41,28 +41,28 @@ module.exports.deviceRegister = function(req, res){
 		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
-	
+    
 	// Checking Device ID in Device Info
-	if ('Device_ID' in deviceInfo && deviceInfo.Device_ID.length > 0) 
+	if (deviceInfo.Device_ID != "" || deviceInfo.Device_ID != null) 
 	{
 		log.info('Device ID Found');
 		key = deviceInfo.Device_ID;
 
-		if (!('Device_Type' in deviceInfo))
+		if (!(deviceInfo.Device_Type == "" || deviceInfo.Device_Type == null))
 		{
 			deviceInfo.Device_Type = "Mobile";
 		}
 	} 
 	
 	// Checking IP In Device Info
-	else if ('IP' in deviceInfo && deviceInfo.IP != null) 
+	else if (deviceInfo.IP != "" || deviceInfo.IP != null) 
 	{
 		if (deviceInfo.IP.length > 0) {
 
 			log.info('IP found '+deviceInfo.IP);	
 			key = deviceInfo.IP;
 
-			if (!('Device_Type' in deviceInfo))
+			if (!(deviceInfo.Device_Type == "" || deviceInfo.Device_Type == null))
 			{
 				deviceInfo.Device_Type = "Server";
 			}
@@ -89,19 +89,21 @@ module.exports.deviceRegister = function(req, res){
             return;
         }
 
-        if ('Device_Type' in deviceInfo)
+        deviceInfo=JSON.parse(deviceInfo)
+        
+        if (deviceInfo.Device_Type)
         {
             type = deviceInfo.Device_Type;
             log.info('Device Is '+type);
         }
 
-        else if ('Device_ID' in deviceInfo) 
+        else if (deviceInfo.Device_ID) 
         {
             type = deviceInfo.Device_Type;
             log.info('Device is '+type);
         }
 
-        else if ('IP' in deviceInfo) 
+        else if (deviceInfo.IP)
         {
             type = deviceInfo.Device_Type;
             log.info('Device is '+type);
@@ -111,7 +113,7 @@ module.exports.deviceRegister = function(req, res){
 
         log.info('id: '+hashID);
 
-        deviceSchema.find({'publicKey': hashID}, function(err, result){
+        deviceSchema.find({'publicKey': hashID}).lean().exec(function(err, result){
 
             log.info('Device Information :'+result);
 
@@ -121,7 +123,6 @@ module.exports.deviceRegister = function(req, res){
                 {
                     // For New Device
                     deviceInfo.publicKey = hashID;
-
                     deviceInfo.privateKey = hashKeyVal;
                     deviceInfo.creationTime = Date.now();
 

@@ -25,7 +25,6 @@ module.exports.generate = function(data) {
 };
 
 module.exports.createKeyPair = function(text, cb) {
-  log.info('createKeyPair');
   
   var hash;
   var hmac = crypto.createHmac(algorithm, key);
