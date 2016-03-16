@@ -216,7 +216,8 @@ module.exports.userManage = function (req, res){
 		
 		else
 		{
-			query = {"email":email};
+			//query = {"email":email};
+            query = {"email":{ $regex: email }};
 		}
 		
 		if(order == '' || order == undefined || order == null)
@@ -263,7 +264,7 @@ module.exports.userManage = function (req, res){
             // Successfully Fetched
             if(results=="" || results==undefined || results.length==0)
             {
-                log.info('No Results Found Successfully');
+                log.info('No Results Found');
                 master.sendResponse(req, res, 200, -1, "No Results");
                 return;
             }
@@ -549,7 +550,7 @@ module.exports.getActiveEmails = function(req, res){
         }
         
         // For Other.. Data Only
-        if(flag == 2 || flag == '2')
+        if(flag == 2 || flag == '2' || flag=='3' || flag==3)
         {
             userSchema.find({},{"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1}, function(err, result){
             
@@ -560,16 +561,32 @@ module.exports.getActiveEmails = function(req, res){
                     return;
                 }
                 
-                if(result == null || result == undefined || result == "")
+                if(flag == 3 || flag == '3')
                 {
-                    log.info('No Data Found');
-                    master.sendResponse(req, res, 200, 9, "No Result");
-                    return;                
+                    if(result == null || result == undefined || result == "")
+                    {
+                        log.info('No User Found');
+                        master.sendResponse(req, res, 200, 9, 0);
+                        return;                
+                    }
+                    
+                    console.log('Total '+result.length+' Users Found');
+			        master.sendResponse(req, res, 200, -1, result.length);
                 }
                 
-                log.info(result.length+' Results Found');
-                master.sendResponse(req, res, 200, -1, result);
-                return;
+                else
+                {
+                    if(result == "" || result == undefined || result.length<=0)
+                    {
+                        console.log('No Active Emails Found');
+                        sendResponse(req, res, 200, 9, "No Result");
+                        return;
+                    }
+			
+                    log.info(result.length+' Results Found');
+                    master.sendResponse(req, res, 200, -1, result);
+                    return;
+                }
                 
             });
         }
@@ -812,6 +829,20 @@ module.exports.paymentModeCount = function(req, res) {
 	log.info('Payment Mode : '+mode);
 	log.info('Public Key :'+publicKey);
 	log.info('Signature :'+signature);
+    
+    // Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
     
     var query = {'publicKey': publicKey};
 	//var text = "mode="+encodeURIComponent(mode)+"&publicKey="+encodeURIComponent(publicKey);
