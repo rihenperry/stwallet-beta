@@ -799,7 +799,7 @@ module.exports.getDetails = function(req, res) {
 		return;
     }
     
-    var query = {publicKey:publicKey};
+    var query = {"publicKey":publicKey};
     //var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
     var text  = "email="+email+"&publicKey="+publicKey;
     
@@ -1909,7 +1909,7 @@ module.exports.editProfilePic = function(req, res){
                       
                     if (exists)
                     {
-                        if(imageresults[0]['profile_pic'] !== null && imageresults[0]['profile_pic'] !== 'avatar.png' && imageresults[0]['profile_pic'] !== '')
+                        if(imageresults[0]['profile_pic'] !== null && imageresults[0]['profile_pic'] !== 'Default_profile_image.PNG' && imageresults[0]['profile_pic'] !== '')
                         { 
                             log.info("File is there");
                             
