@@ -1095,7 +1095,7 @@ module.exports.getEmailTypeTransactions = function(req, res){
                 master.sendResponse(req, res, 200, -1, retVal);
             }
 				
-        }).sort({"time":-1}).skip(skip);
+        }).sort({"time":-1}).skip(skip).limit(10);
 			
     })
 		
