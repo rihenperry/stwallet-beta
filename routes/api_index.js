@@ -17,8 +17,8 @@ router.delete('/users/:id', ctrlUser.deleteUser);
 //router.get('/users/:id/subnotify', ctrlNotify.isUserNotifiable);
 
 /* user notification control api */
-//router.get('/notifyoptionslist', ctrlNotify.getAllUserSubOptions);
-//router.get('/users/:id/notifyoptions', ctrlNotify.getUserSubOptions);
+router.get('/notifyoptionslist', ctrlNotify.getAllSubOptions);
+router.get('/users/:id/notifyoptions', ctrlNotify.getUserSubOptions);
 //router.get('/users/:id/notifyoptions/:optionid'. ctrlNotify.getUserSubOpt);
 //router.post('/users/:id/notifyoptions', ctrlNotify.createUserSubOptions);
 //router.put('/users/:id/notifyoptions/:optionid', ctrlNotify.updateUserSubOptions);
