@@ -1016,10 +1016,11 @@ module.exports.getEmailTypeTransactions = function(req, res){
 	var publicKey = req.body.publicKey;
 	var signature = req.body.signature;
 	
-	console.log('Email : '+email);
-	console.log('Type : '+type);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+	log.info('Email : '+email);
+	log.info('Type : '+type);
+    log.info('Skip :'+skip);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
