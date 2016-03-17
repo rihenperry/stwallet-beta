@@ -207,7 +207,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
                 if(retValue == undefined || retValue.length == 0 || retValue == "" || retValue == null)
                 {
                     log.info('No Transactions of This User')
-                    master.sendResponse(req, res, 200, -1, 'No transactions of this user');
+                    master.sendResponse(req, res, 200, -1, 0);
                     return;
                 }
                 

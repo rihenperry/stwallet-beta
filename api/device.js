@@ -41,41 +41,6 @@ module.exports.deviceRegister = function(req, res){
 		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
 		return;
 	}
-    
-	// Checking Device ID in Device Info
-	if (deviceInfo.Device_ID != "" || deviceInfo.Device_ID != null) 
-	{
-		log.info('Device ID Found');
-		key = deviceInfo.Device_ID;
-
-		if (!(deviceInfo.Device_Type == "" || deviceInfo.Device_Type == null))
-		{
-			deviceInfo.Device_Type = "Mobile";
-		}
-	} 
-	
-	// Checking IP In Device Info
-	else if (deviceInfo.IP != "" || deviceInfo.IP != null) 
-	{
-		if (deviceInfo.IP.length > 0) {
-
-			log.info('IP found '+deviceInfo.IP);	
-			key = deviceInfo.IP;
-
-			if (!(deviceInfo.Device_Type == "" || deviceInfo.Device_Type == null))
-			{
-				deviceInfo.Device_Type = "Server";
-			}
-		}
-		
-	} 
-	
-	else 
-	{
-		log.info('Device IP and Device Id Both Are Missing');
-		master.sendResponse(req, res, 200, 1, "Mandatory Input Not Found");
-		return;
-	}
 
 	var query = {'publicKey': publicKey};
     //var text = 'deviceInfo='+encodeURIComponent(deviceInfo)+'&publicKey='+encodeURIComponent(publicKey);
@@ -90,6 +55,44 @@ module.exports.deviceRegister = function(req, res){
         }
 
         deviceInfo=JSON.parse(deviceInfo)
+        
+        
+        // Checking Device ID in Device Info
+        if (deviceInfo.Device_ID != "" || deviceInfo.Device_ID != null) 
+        {
+            log.info('Device ID Found');
+            //console.log(deviceInfo.Device_ID);
+            key = deviceInfo.Device_ID;
+
+            if (!(deviceInfo.Device_Type == "" || deviceInfo.Device_Type == null))
+            {
+                deviceInfo.Device_Type = "Mobile";
+            }
+        } 
+
+        // Checking IP In Device Info
+        else if (deviceInfo.IP != "" || deviceInfo.IP != null) 
+        {
+            if (deviceInfo.IP.length > 0) {
+
+                log.info('IP found '+deviceInfo.IP);	
+                key = deviceInfo.IP;
+
+                if (!(deviceInfo.Device_Type == "" || deviceInfo.Device_Type == null))
+                {
+                    deviceInfo.Device_Type = "Server";
+                }
+            }
+
+        } 
+
+        else 
+        {
+            log.info('Device IP and Device Id Both Are Missing');
+            master.sendResponse(req, res, 200, 1, "Mandatory Input Not Found");
+            return;
+        }
+        
         
         if (deviceInfo.Device_Type)
         {
@@ -113,8 +116,9 @@ module.exports.deviceRegister = function(req, res){
 
         log.info('id: '+hashID);
 
-        deviceSchema.find({'publicKey': hashID}).lean().exec(function(err, result){
+        deviceSchema.find({'publicKey':hashID},function(err, result){
 
+            console.log(result);
             log.info('Device Information :'+result);
 
             crypt.createKeyPair(deviceInfo.Device_ID, function(hashKeyVal) {
