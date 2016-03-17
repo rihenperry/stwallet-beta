@@ -375,7 +375,7 @@ module.exports.recentSearches = function(req, res){
             var finalResults = '';
 				
             // Storing in JSON Format
-            //searches = JSON.parse(searches);
+            searches = JSON.parse(searches);
             
             var data = result[0].recent_searches;
             

@@ -3193,8 +3193,8 @@ module.exports.rejectBlockedBids = function(req, res){
 	};  	
 	
     var query = {publicKey:publicKey};
-    //var txt = 'reject_bids_json='+encodeURIComponent(reject_bids_json)+'&publicKey='+encodeURIComponent(publicKey);
-    var txt = 'reject_bids_json='+reject_bids_json+'&publicKey='+publicKey;
+    //var text = 'reject_bids_json='+encodeURIComponent(reject_bids_json)+'&publicKey='+encodeURIComponent(publicKey);
+    var text = 'reject_bids_json='+reject_bids_json+'&publicKey='+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
         
