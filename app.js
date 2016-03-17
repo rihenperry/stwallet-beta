@@ -166,12 +166,12 @@ app.post('/secure/admin/latestDeposit', admin.latestDeposit);                   
 
 app.post('/secure/cron', cron_api.cron);
 
-// Server Connectivity
-app.listen(5000, function () {
-    log.info('Connected To Server');
-});
-
 //// Server Connectivity
-//app.listen(80, "128.199.181.75", function () {
+//app.listen(5000, function () {
 //    log.info('Connected To Server');
 //});
+
+// Server Connectivity
+app.listen(80, "128.199.181.75", function () {
+    log.info('Connected To Server');
+});
