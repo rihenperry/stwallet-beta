@@ -719,7 +719,6 @@ module.exports.getIncomeTransactions = function(req, res) {
         }
 	
 		log.info('Milisec Value of From Date :'+from);
-
 		log.info('Milisec Value of To Date :'+to); 
 			
 			if(payment_mode == "" || payment_mode == undefined || payment_mode == 'All')
@@ -1238,4 +1237,254 @@ module.exports.latestDeposit = function(req, res){
         }).sort({"time":-1}).limit(1000);
          
     })
+}
+
+/* Total Count By Type and Payment Mode */
+module.exports.totalCount = function(req, res){
+    
+    log.info('Page Name: admin.js.');
+	log.info('API Name : totalCount');
+	log.info('Total Count API Hitted');
+	log.info('Parameters Receiving...');
+    
+    var publicKey = req.body.publicKey;
+    var signature = req.body.signature;
+    
+    log.info('Public Key : '+publicKey);
+    log.info('Signature : '+signature);
+    
+    // Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+    
+    var query = {'publicKey': publicKey};
+    
+	//var text = "publicKey="+encodeURIComponent(publicKey);
+    var text = "publicKey="+publicKey;
+    
+    //Validate signature
+	master.secureAuth(query, text, signature, function (result){
+
+		if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+        
+        transSchema.aggregate([{ $match:{"type":"fund"}},{$group:{ _id:null, result:{$sum:"$amount"}}}], function(err, fundResult){
+            
+            if(err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
+            
+            transSchema.aggregate([{ $match:{"type":"keyword_purchase", "payment_mode":"coinbase"}},{$group:{ _id:null, result:{$sum:"$amount"}}}], function(err, conibaseResult){
+              
+                if(err)
+                {
+                    log.error(err);
+                    master.sendResponse(req, res, 200, 5, "Database Error");
+                    return;
+                }
+                
+                transSchema.aggregate([{ $match:{"type":"keyword_purchase", "payment_mode":"paypal"}},{$group:{ _id:null, result:{$sum:"$amount"}}}], function(err, paypalResult){
+                    
+                    if(err)
+                    {
+                        log.error(err);
+                        master.sendResponse(req, res, 200, 5, "Database Error");
+                        return;
+                    }
+                    
+                    transSchema.aggregate([{ $match:{"type":"keyword_purchase", "payment_mode":"bitcoin"}},{$group:{ _id:null, result:{$sum:"$amount"}}}], function(err, walletResult){
+                        
+                        if(err)
+                        {
+                            log.error(err);
+                            master.sendResponse(req, res, 200, 5, "Database Error");
+                            return;
+                        }
+                        
+                        var deposit, coinbase, paypal, wallet;
+                        
+                        if(fundResult.length==0)
+                        {
+                            deposit = 0;
+                        }
+                        
+                        else
+                        {
+                            deposit = fundResult[0].result;
+                        }
+                        
+                        if(conibaseResult.length==0)
+                        {
+                            coinbase = 0;
+                        }
+                        
+                        else
+                        {
+                            coinbase = conibaseResult[0].result;
+                        }
+                        
+                        if(paypalResult.length==0)
+                        {
+                            paypal = 0;
+                        }
+                        
+                        else
+                        {
+                            paypal = paypalResult[0].result;
+                        }
+                        
+                        if(walletResult.length==0)
+                        {
+                            wallet = 0;
+                        }
+                        
+                        else
+                        {
+                            wallet = walletResult[0].result;
+                        }
+                        
+                        var jsonResult = {
+                            
+                            deposit : deposit,
+                            coinbase : coinbase,
+                            paypal : paypal,
+                            wallet : wallet
+                            
+                        }
+                        
+                        log.info('Successfully Got Result');
+                        master.sendResponse(req, res, 200, -1, jsonResult);
+                        
+                    })
+                    
+                })
+                
+            })            
+            
+        })
+        
+    })
+    
+}
+
+/* Calculate User Balance */
+module.exports.UserBalanceCalc = function(req, res){
+    
+    log.info('Page Name: admin.js.');
+	log.info('API Name : UserBalanceCalc');
+	log.info('Calculate User Balance API Hitted');
+	log.info('Parameters Receiving...');
+    
+    var email     = req.body.email;
+    var publicKey = req.body.publicKey;
+    var signature = req.body.signature;
+    
+    log.info('Email : '+email);
+    log.info('Public Key : '+publicKey);
+    log.info('Signature : '+signature);
+    
+    // Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+    
+    // Validate Email
+	if(!(master.validateParameter(email, 'Email')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(master.validateEmail(email))) 
+	{
+		console.log('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+    
+    var query = {'publicKey': publicKey};
+    
+	//var text = "email="+email+"&publicKey="+encodeURIComponent(publicKey);
+    var text = "email="+email+"&publicKey="+publicKey;
+    
+    //Validate signature
+	master.secureAuth(query, text, signature, function (result){
+
+		if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+        
+        query = {"email": email};
+        
+        // Find User From Its Email From User Table
+		userSchema.find(query, {deposit:1,sales:1,cashback:1,affiliate_earning:1,total_kwd_income:1,search_earning:1,search_affiliate_earnings:1,total_app_income:1,blocked_for_pending_withdrawals:1,blocked_for_bids:1,approved_withdrawals:1,trade_fees:1,purchases:1}, function(err, result){
+            
+            if(err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
+            
+            //Unable To Get User With This Emnail (No Such Email Is Registered)
+			if (typeof result === 'undefined' || result == null || result.length <= 0)
+			{
+				console.log(email+' Is Not Registered');
+				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address');
+				return;
+			}
+            
+            var deposit                                 = result[0].deposit;
+            var sales                                   = result[0].sales;
+            var cashback                                = result[0].cashback;
+            var affiliate_earning                       = result[0].affiliate_earning;
+            var total_kwd_income                        = result[0].total_kwd_income;
+            var search_earning                          = result[0].search_earning;
+            var search_affiliate_earnings               = result[0].search_affiliate_earnings;
+            var total_app_income                        = result[0].total_app_income;
+            var blocked_for_pending_withdrawals         = result[0].blocked_for_pending_withdrawals;
+            var blocked_for_bids                        = result[0].blocked_for_bids;
+            var approved_withdrawals                    = result[0].approved_withdrawals;
+            var trade_fees                              = result[0].trade_fees;
+            var purchases                               = result[0].purchases;
+            
+            var calculation = deposit+ + +sales+ + +cashback+ + +affiliate_earning+ + +total_kwd_income+ + +search_earning+ + +search_affiliate_earnings+ + +total_app_income-blocked_for_pending_withdrawals-blocked_for_bids-approved_withdrawals-trade_fees-purchases;
+            
+            //var calculation1 = deposit + sales + cashback + affiliate_earning + total_kwd_income + search_earning + search_affiliate_earnings + total_app_income; // Add
+            //var calculation2 =blocked_for_pending_withdrawals + blocked_for_bids + approved_withdrawals + trade_fees + purchases; // Subtract
+            
+            console.log('Calculation : '+calculation);
+            master.sendResponse(req, res, 200, -1, calculation);
+            
+        })
+        
+    })
+    
 }
