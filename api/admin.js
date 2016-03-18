@@ -591,6 +591,33 @@ module.exports.getActiveEmails = function(req, res){
             });
         }
 
+        // For Other.. Data Only
+        if(flag == 4 || flag == '4')
+        {
+        	var email = req.body.email;
+        	var query = {"email":{ $regex: email }};
+
+        	userSchema.find(query, function(err, result){
+
+        		if(err)
+                {
+                    log.error(err);
+                    master.sendResponce(req, res, 200, 5, "Datbase Error");
+                    return;
+                }
+
+                if(result == "" || result == undefined || result.length<=0)
+                {
+                    console.log('No Emails Found');
+                    sendResponse(req, res, 200, 9, "No Result");
+                    return;
+                }
+
+             	log.info(result.length+' Results Found');
+                master.sendResponse(req, res, 200, -1, result.length);
+        	})
+        }
+
     });
 	
 }
