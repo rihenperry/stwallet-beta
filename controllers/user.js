@@ -38,7 +38,6 @@ var getUser = function(req, res) {
   if(req.params && req.params.id) {
     Usr
       .findById(req.params.id)
-      .populate('notify_options_fk_key')
       .exec(function(err, user){
         if (!user) {
           helpers.sendJsonResponse(res, 404, {
@@ -58,22 +57,6 @@ var getUser = function(req, res) {
   }
 };
 
-var processingBuy = function(unProcessedBox, key, options) {
-  unProcessedBox[key].forEach(function(element){
-    console.log("count =>" + element);
-    BuyOption
-            .find({trade_opt_id: element})
-            .exec(function(err, result){
-              if(err) {
-                helpers.sendJsonResponse(res, 404 ,err);
-              }
-              options.buy_opt_container.push(result[0].trade_opt_id);
-              console.log("container state =>" + options.buy_opt_container);
-            });
-    console.log("linked data");
-  });
-};
-
 var createUser = function(req, res) {
   var unProcessedBox = {
     rawbuy: JSON.parse(req.body.buy_container),
@@ -81,49 +64,44 @@ var createUser = function(req, res) {
     rawbid: JSON.parse(req.body.bid_container)
   };
 
-  var options = new NotifyOption({});
+  var options = new NotifyOption({
+    buy_opt_container: [],
+    ask_opt_container: [],
+    bid_opt_container: []
+  });
   //.update({ $set : { buy_opt_container: [] }});
-  try {
 
   Object.keys(unProcessedBox).map(function(key){
 
     switch(key){
       case 'rawbuy':
-        options.buy_opt_container = [];
-        async.series([
-                function(cb){
-                  processingBuy(unProcessedBox, key, options);
-                  cb();
-                }], function(err,result) {
-              });
-        break;
-      case 'rawask':
-        unProcessedBox[key].forEach(function(element){
-        //  AskOption
-        //          .find({ask_opt_id: element})
-        //          .execOne(function(err, result){
-        //            options.update({ $addToSet : { ask_opt_container: result.ask_opt_id}});
-        //          });
+        async.each(unProcessedBox[key], function(elem, cb){
+          options.buy_opt_container.push(elem);
+          cb();
+        }, function(err){
+          options.save();
         });
         break;
+      case 'rawask':
+        async.each(unProcessedBox[key], function(elem, cb){
+          options.ask_opt_container.push(elem);
+          cb();
+        }, function(err){
+          options.save();
+        });
+        //processingAsk(unProcessedBox, key, options);
+        break;
       case 'rawbid':
-        unProcessedBox[key].forEach(function(element){
-        //  BidOption
-        //          .find({bid_opt_id: element})
-        //          .exec(function(err, result){
-        //            options.update({ $addToSet : { bid_opt_container: result.bid_opt_id}});
-        //          });
+        async.each(unProcessedBox[key], function(elem, cb){
+          options.bid_opt_container.push(elem);
+          cb();
+        }, function(err){
+          options.save();
         });
         break;
     }
   });
-  } catch (err) {
-      helpers.sendJsonResponse(res, 404, err);
-    }
-    finally {
-      options.save();
-      console.log("data saved");
-    }
+
   options.save(function(err) {
     if (err) {
       helpers.sendJsonResponse(res, 404, err);
