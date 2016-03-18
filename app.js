@@ -165,7 +165,7 @@ app.post('/secure/admin/updateUserStatus', admin.updateUserStatus);							    //
 app.post('/secure/admin/latestDeposit', admin.latestDeposit);                                   // latest Deposit API
 app.post('/secure/admin/totalCount', admin.totalCount);                                         // Count By Type and Payment Mode
 app.post('/secure/admin/userBalanceCalc', admin.userBalanceCalc);                               // User Balance Calculation By Email
-//app.post('/secure/admin/allUsersBalance', admin.allUsersBalance);                               // All User's Total Balance
+app.post('/secure/admin/allUsersBalance', admin.allUsersBalance);                               // All User's Total Balance
 
 
 app.post('/secure/cron', cron_api.cron);
@@ -175,7 +175,7 @@ app.post('/secure/cron', cron_api.cron);
 //    log.info('Connected To Server');
 //});
 
-// Server Connectivity
+ Server Connectivity
 app.listen(80, "128.199.181.75", function () {
     log.info('Connected To Server');
 });

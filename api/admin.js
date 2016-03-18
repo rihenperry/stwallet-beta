@@ -1558,58 +1558,54 @@ module.exports.allUsersBalance = function(req, res){
             return;
         }
         
-//        userSchema.aggregate([{$match:{$and:[{email:{$ne:"unownedkwdowner@searchtrade.com"}},
-//                                             {email:{$ne:"appDeveloper@searchtrade.com"}},
-//                                             {email:{$ne:"searchUser@searchtrade.com"}}]},
-//                              {$group:{ _id:null, 
-//                                       deposit:{$sum:"$deposit"},
-//                                       sales:{$sum:"$sales"},
-//                                       cashback:{$sum:"$cashback"},
-//                                       affiliate_earning:{$sum:"$affiliate_earning"},
-//                                       total_kwd_income:{$sum:"$total_kwd_income"},
-//                                       search_earning:{$sum:"$search_earning"},
-//                                       search_affiliate_earnings:{$sum:"$search_affiliate_earnings"},
-//                                       total_app_income:{$sum:"$total_app_income"},
-//                                       blocked_for_pending_withdrawals:{$sum:"$blocked_for_pending_withdrawals"},
-//                                       blocked_for_bids:{$sum:"$blocked_for_bids"},
-//                                       approved_withdrawals:{$sum:"$approved_withdrawals"},
-//                                       trade_fees:{$sum:"$trade_fees"},
-//                                       purchases:{$sum:"$purchases"}}}], function(err, result){
-//            
-//            
-//            if(err)
-//            {
-//                log.error(err);
-//                master.sendResponce(req, res, 200, 5, "Datbase Error");
-//                return;
-//            }
-//            
-//            
-//            var deposit                                 = result[0].deposit;
-//            var sales                                   = result[0].sales;
-//            var cashback                                = result[0].cashback;
-//            var affiliate_earning                       = result[0].affiliate_earning;
-//            var total_kwd_income                        = result[0].total_kwd_income;
-//            var search_earning                          = result[0].search_earning;
-//            var search_affiliate_earnings               = result[0].search_affiliate_earnings;
-//            var total_app_income                        = result[0].total_app_income;
-//            var blocked_for_pending_withdrawals         = result[0].blocked_for_pending_withdrawals;
-//            var blocked_for_bids                        = result[0].blocked_for_bids;
-//            var approved_withdrawals                    = result[0].approved_withdrawals;
-//            var trade_fees                              = result[0].trade_fees;
-//            var purchases                               = result[0].purchases;
-//            
-//            
-//            var calculation = deposit+ + +sales+ + +cashback+ + +affiliate_earning+ + +total_kwd_income+ + +search_earning+ + +search_affiliate_earnings+ + +total_app_income-blocked_for_pending_withdrawals-blocked_for_bids-approved_withdrawals-trade_fees-purchases;
-//            
-//            //var calculation1 = deposit + sales + cashback + affiliate_earning + total_kwd_income + search_earning + search_affiliate_earnings + total_app_income; // Add
-//            //var calculation2 =blocked_for_pending_withdrawals + blocked_for_bids + approved_withdrawals + trade_fees + purchases; // Subtract
-//            
-//            console.log('Calculation : '+calculation);
-//            master.sendResponse(req, res, 200, -1, calculation);
-//            
-//            
-//        })
+        userSchema.aggregate([{$match:{active:1}},
+                              {$group:{ _id:null, 
+                                       deposit:{$sum:"$deposit"},
+                                       sales:{$sum:"$sales"},
+                                       cashback:{$sum:"$cashback"},
+                                       affiliate_earning:{$sum:"$affiliate_earning"},
+                                       total_kwd_income:{$sum:"$total_kwd_income"},
+                                       search_earning:{$sum:"$search_earning"},
+                                       search_affiliate_earnings:{$sum:"$search_affiliate_earnings"},
+                                       total_app_income:{$sum:"$total_app_income"},
+                                       blocked_for_pending_withdrawals:{$sum:"$blocked_for_pending_withdrawals"},
+                                       blocked_for_bids:{$sum:"$blocked_for_bids"},
+                                       approved_withdrawals:{$sum:"$approved_withdrawals"},
+                                       trade_fees:{$sum:"$trade_fees"},
+                                       purchases:{$sum:"$purchases"}}}],
+            function(err, result){
+            
+                if(err){
+                    log.error(err);
+                    master.sendResponce(req, res, 200, 5, "Datbase Error");
+                    return;
+                }
+            
+                var deposit                                 = result[0].deposit;
+                var sales                                   = result[0].sales;
+                var cashback                                = result[0].cashback;
+                var affiliate_earning                       = result[0].affiliate_earning;
+                var total_kwd_income                        = result[0].total_kwd_income;
+                var search_earning                          = result[0].search_earning;
+                var search_affiliate_earnings               = result[0].search_affiliate_earnings;
+                var total_app_income                        = result[0].total_app_income;
+                var blocked_for_pending_withdrawals         = result[0].blocked_for_pending_withdrawals;
+                var blocked_for_bids                        = result[0].blocked_for_bids;
+                var approved_withdrawals                    = result[0].approved_withdrawals;
+                var trade_fees                              = result[0].trade_fees;
+                var purchases                               = result[0].purchases;
+
+
+                var calculation = deposit+ + +sales+ + +cashback+ + +affiliate_earning+ + +total_kwd_income+ + +search_earning+ + +search_affiliate_earnings+ + +total_app_income-blocked_for_pending_withdrawals-blocked_for_bids-approved_withdrawals-trade_fees-purchases;
+
+                //var calculation1 = deposit + sales + cashback + affiliate_earning + total_kwd_income + search_earning + search_affiliate_earnings + total_app_income; // Add
+                //var calculation2 =blocked_for_pending_withdrawals + blocked_for_bids + approved_withdrawals + trade_fees + purchases; // Subtract
+
+                console.log('Calculation : '+calculation);
+                master.sendResponse(req, res, 200, -1, calculation);
+
+            
+        })
         
     })
     
