@@ -164,7 +164,8 @@ app.post('/secure/admin/getEmailTypeTransactions', admin.getEmailTypeTransaction
 app.post('/secure/admin/updateUserStatus', admin.updateUserStatus);							    // Update User Status API
 app.post('/secure/admin/latestDeposit', admin.latestDeposit);                                   // latest Deposit API
 app.post('/secure/admin/totalCount', admin.totalCount);                                         // Count By Type and Payment Mode
-app.post('/secure/admin/UserBalanceCalc', admin.UserBalanceCalc);                               // User Balance Calculation By Email
+app.post('/secure/admin/userBalanceCalc', admin.userBalanceCalc);                               // User Balance Calculation By Email
+//app.post('/secure/admin/allUsersBalance', admin.allUsersBalance);                               // All User's Total Balance
 
 
 app.post('/secure/cron', cron_api.cron);

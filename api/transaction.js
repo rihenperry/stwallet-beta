@@ -134,6 +134,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
 	var signature   = req.body.signature;
     
     log.info('Email : '+email);
+    log.info('Type : '+type);
 	log.info('Public Key :'+publicKey);
 	log.info('Signature :'+signature);
     
@@ -193,7 +194,15 @@ module.exports.getUsersTotalTransactions = function(req, res) {
                 return;
             }
             
-            var query = {$or:[{"sender":email},{"receiver":email}]};
+            if(type=='All')
+            {
+                var query = {$or:[{"sender":email},{"receiver":email}]};
+            }
+            
+            else
+            {
+                var query = {$and:[{$or:[{"sender":email},{"receiver":email}]},{"type":type}]};
+            }
             
             transactionSchema.find(query, function(err, retValue){
                 
