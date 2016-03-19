@@ -12,3 +12,16 @@ module.exports= {
   sendJsonResponse : sendJsonResponse,
   alphaNumr : randomString
 };
+
+//Usr
+  //  .create({
+  //    user_id: req.body.user_id,
+  //    uname: req.body.name,
+  //    notify_options_fk_key: helpers.alphaNumr(8)
+  //  }, function(err, newuser) {
+  //    if (err) {
+  //      helpers.sendJsonResponse(res, 404, err);
+  //    } else {
+  //      helpers.sendJsonResponse(res, 201, newuser);
+  //    }
+  //  });

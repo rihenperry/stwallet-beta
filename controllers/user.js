@@ -9,6 +9,7 @@ var AskOption = mongoose.model('AskKeywordsOption');
 var BidOption = mongoose.model('BidKeywordsOption');
 
 var helpers = require('../helpers/utils');
+var common = require('./common');
 
 var userList = function(req, res) {
   if(req.params){
@@ -58,83 +59,36 @@ var getUser = function(req, res) {
 };
 
 var createUser = function(req, res) {
-  var unProcessedBox = {
-    rawbuy: JSON.parse(req.body.buy_container),
-    rawask: JSON.parse(req.body.ask_container),
-    rawbid: JSON.parse(req.body.bid_container)
-  };
-
-  var options = new NotifyOption({
-    buy_opt_container: [],
-    ask_opt_container: [],
-    bid_opt_container: []
-  });
   //.update({ $set : { buy_opt_container: [] }});
+  if(req.body.buy_container || req.body.ask_container || req.body.bid_container) {
+    options = common.processOptions(req);
 
-  Object.keys(unProcessedBox).map(function(key){
+    options.save(function(err) {
+      if (err) {
+        helpers.sendJsonResponse(res, 404, err);
+        return;
+      }
 
-    switch(key){
-      case 'rawbuy':
-        async.each(unProcessedBox[key], function(elem, cb){
-          options.buy_opt_container.push(elem);
-          cb();
-        }, function(err){
-          options.save();
-        });
-        break;
-      case 'rawask':
-        async.each(unProcessedBox[key], function(elem, cb){
-          options.ask_opt_container.push(elem);
-          cb();
-        }, function(err){
-          options.save();
-        });
-        //processingAsk(unProcessedBox, key, options);
-        break;
-      case 'rawbid':
-        async.each(unProcessedBox[key], function(elem, cb){
-          options.bid_opt_container.push(elem);
-          cb();
-        }, function(err){
-          options.save();
-        });
-        break;
-    }
-  });
-
-  options.save(function(err) {
-    if (err) {
-      helpers.sendJsonResponse(res, 404, err);
-      return;
-    }
-
+      var newuser = new Usr({
+        user_id: req.body.user_id,
+        uname: req.body.name,
+        notify_options_fk_key: options._id
+      });
+    });
+  } else {
     var newuser = new Usr({
       user_id: req.body.user_id,
-      uname: req.body.name,
-      notify_options_fk_key: options._id
+      uname: req.body.name
     });
+  }
 
-    newuser.save(function(err, newuser) {
+  newuser.save(function(err, newuser) {
       if (err) {
         helpers.sendJsonResponse(res, 404, err);
         return;
       }
       helpers.sendJsonResponse(res, 201, newuser);
     });
-  });
-
-  //Usr
-  //  .create({
-  //    user_id: req.body.user_id,
-  //    uname: req.body.name,
-  //    notify_options_fk_key: helpers.alphaNumr(8)
-  //  }, function(err, newuser) {
-  //    if (err) {
-  //      helpers.sendJsonResponse(res, 404, err);
-  //    } else {
-  //      helpers.sendJsonResponse(res, 201, newuser);
-  //    }
-  //  });
 };
 
 var updateUser = function(req, res) {
@@ -206,6 +160,7 @@ var deleteUser = function(req, res) {
     helpers.sendJsonResponse(res, 404, {
       "message": "object id not found"
     });
+    return;
   }
 };
 

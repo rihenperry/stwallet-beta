@@ -17,9 +17,9 @@ var BidKeywordOptionsSchema = new mongoose.Schema({
 
 var notifyOptionsSchema = new mongoose.Schema({
   updated_on: {type:Date, default: Date.now},
-  buy_opt_container: [{type: mongoose.Schema.Types.Number, ref: 'BuyKeywordsOption', min:true, max:true}],
-  ask_opt_container: [{type: mongoose.Schema.Types.Number, ref: 'AskKeywordsOption', min:true, max:true}],
-  bid_opt_container: [{type: mongoose.Schema.Types.Number, ref: 'BuyKeywordsOption', min:true, max:true}]
+  buy_opt_container: [{type: mongoose.Schema.Types.Number, ref: 'BuyKeywordsOption', min:1, max:2}],
+  ask_opt_container: [{type: mongoose.Schema.Types.Number, ref: 'AskKeywordsOption', min:1, max:3}],
+  bid_opt_container: [{type: mongoose.Schema.Types.Number, ref: 'BuyKeywordsOption', min:1, max:3}]
 });
 
 

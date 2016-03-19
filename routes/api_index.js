@@ -21,7 +21,7 @@ router.get('/notifyoptionslist', ctrlNotify.getAllSubOptions);
 router.get('/users/:id/notifyoptions', ctrlNotify.getUserSubOptions);
 //router.get('/users/:id/notifyoptions/:optionid'. ctrlNotify.getUserSubOpt);
 router.post('/users/:id/notifyoptions', ctrlNotify.createUserSubOptions);
-//router.put('/users/:id/notifyoptions/:optionid', ctrlNotify.updateUserSubOptions);
+router.put('/users/:id/notifyoptions/:optionid', ctrlNotify.updateUserSubOptions);
 
 /* following are user notification subscriptions*/
 /* purchase/buy keyword api */
