@@ -3188,7 +3188,7 @@ module.exports.rejectBlockedBids = function(req, res){
 	}
 	
 	var options = {
-		host: 'searchtrade.com',
+		host: 'scoinz.com',
 		path: '/keywords/active_bids/'+reject_bids_json+'.json'
 	};  	
 	
@@ -3218,11 +3218,11 @@ module.exports.rejectBlockedBids = function(req, res){
                         log.info('Chunk Started');
 
                         json = chunk.toString();
-                        json = json.replace(/\[/g,"");
-                        json = json.replace(/\]/g,"");
-                        json = json.replace(/\\/g,"");
-                        json = json.split(",");
-
+						json = json.replace(/\[/g,"");
+						json = json.replace(/\]/g,"");
+						json = json.replace(/\\/g,"");
+						json = json.split(",");
+						
                     });
 
                     // After Receiving All Data Calling callback Function
@@ -3240,16 +3240,16 @@ module.exports.rejectBlockedBids = function(req, res){
             // Holding Return Bid Functionality 
             function (callback)
             {
-                length = json.length;
-                
-                if(length==undefined || length==0 || length==null)
-                {
-                    value = "Success";
+				if(json == "" || json == null || json == undefined)
+				{
+					value = "Success";
                     callback();
-                }
-                
+				}
+				
                 else
                 {
+					length = json.length; 
+				
                     // Loop To Fetch Records From Received Json File Data
                     for(var i=0; i<length; i++)
                     {
@@ -3303,6 +3303,7 @@ module.exports.rejectBlockedBids = function(req, res){
                 if(value == "Success")
                 {
                     master.sendResponse(req, res, 200, -1, "Success");
+					return;
                 }
 
                 // Error Returning Bid Functionality of Phase 2 

@@ -79,7 +79,17 @@ module.exports.insertUserTransaction = function(req, res){
         }
         
         var time = Date.now();
-        
+		
+		if(usd == "" || usd == null || usd == undefined)
+		{
+			usd = 0;
+		}
+
+		if(sgd == "" || sgd == null || sgd == undefined)
+		{
+			sgd = 0;
+		}
+		
         // Making Object of myInfo
         var newTransaction = new transactionSchema({
             

@@ -170,7 +170,9 @@ module.exports.userManage = function (req, res){
 	log.info('User Manage API Hitted');
 	log.info('No Parameters Receiving...');
 	
-	var email      = req.body.email;	
+	var email      = req.body.email;
+	var first_name = req.body.first_name;
+	var last_name  = req.body.last_name;
 	var skip       = req.body.skip;
 	var order      = req.body.order;
 	var column     = req.body.column;
@@ -180,6 +182,8 @@ module.exports.userManage = function (req, res){
 	log.info('PublicKey  : '+publicKey);
 	log.info('Signature  : '+signature);
 	log.info('Email : '+email);
+	log.info('First Name : '+first_name);
+	log.info('Last Name : '+last_name);
 	log.info('Skip : '+skip);
 	log.info('Order : '+order);
 	log.info('column : '+column);
@@ -198,7 +202,7 @@ module.exports.userManage = function (req, res){
 		
 	var query = {'publicKey': publicKey};
     //var text = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
-    var text = 'email='+email+'&publicKey='+publicKey;
+    var text = 'email='+email+'&first_name='+first_name+'&last_name='+last_name+'&publicKey='+publicKey;
     
 	// Validate Signature
 	master.secureAuth(query, text, signature, function (result){
@@ -211,13 +215,60 @@ module.exports.userManage = function (req, res){
 
         if(email == '' || email == undefined || email == null)
 		{
-			query = {};
+			if(first_name == "" || first_name == undefined || first_name == null)
+			{
+				if(last_name == "" || last_name == undefined || last_name == null)
+				{
+					query = {};
+				}
+				
+				else
+				{
+					query = {"last_name":{ $regex: last_name }};
+				}
+			}
+			
+			else
+			{
+				if(last_name == "" || last_name == undefined || last_name == null)
+				{
+					query = {"first_name":{ $regex: first_name }};
+				}
+				
+				else
+				{
+					query = {$or:[{"last_name":{ $regex: last_name }},{"first_name":{ $regex: first_name }}]};
+				}
+			}
 		}	
 		
 		else
-		{
-			//query = {"email":email};
-            query = {"email":{ $regex: email }};
+		{			
+			if(first_name == "" || first_name == undefined || first_name == null)
+			{
+				if(last_name == "" || last_name == undefined || last_name == null)
+				{
+					query = {"email":{ $regex: email }};
+				}
+				
+				else
+				{
+					query = {$or:[{"last_name":{ $regex: last_name }},{"email":{ $regex: email }}]};
+				}
+			}
+			
+			else
+			{
+				if(last_name == "" || last_name == undefined || last_name == null)
+				{
+					query = {$or:[{"email":{ $regex: email }},{"first_name":{ $regex: first_name }}]};
+				}
+				
+				else
+				{
+					query = {$or:[{"last_name":{ $regex: last_name }},{"first_name":{ $regex: first_name }},{"email":{ $regex: email }}]};
+				}
+			}
 		}
 		
 		if(order == '' || order == undefined || order == null)
