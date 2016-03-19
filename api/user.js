@@ -3241,45 +3241,55 @@ module.exports.rejectBlockedBids = function(req, res){
             function (callback)
             {
                 length = json.length;
-
-                // Loop To Fetch Records From Received Json File Data
-                for(var i=0; i<length; i++)
+                
+                if(length==undefined || length==0 || length==null)
                 {
-                    var singleJson = json[i].split("/"); 	
+                    value = "Success";
+                    callback();
+                }
+                
+                else
+                {
+                    // Loop To Fetch Records From Received Json File Data
+                    for(var i=0; i<length; i++)
+                    {
+                        var singleJson = json[i].split("/"); 	
 
-                    var bidRetEmail = singleJson[1];		// Storing Email 
+                        var bidRetEmail = singleJson[1];		// Storing Email 
 
-                    var bidRetAmount = singleJson[3];		// Storing Amount
+                        var bidRetAmount = singleJson[3];		// Storing Amount
 
-                    var commission = singleJson[4];			// Storing Comision
+                        var commission = singleJson[4];			// Storing Comision
 
-                    var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
 
-                    log.info(totalAmount);
+                        log.info(totalAmount);
 
-                    var query = {"email": bidRetEmail};
+                        var query = {"email": bidRetEmail};
 
-                    // Updating Blocked Bid Amount
-                    userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:-totalAmount}},function(val){
+                        // Updating Blocked Bid Amount
+                        userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:-totalAmount}},function(val){
 
-                        // Error In Updating Blocked Bids
-                        if(!val)
-                        {
-                            value = i;
-                            emailValue = bidRetEmail;
-                            callback();
-                        }
-
-                        else
-                        {
-                            if(value == length-i)
+                            // Error In Updating Blocked Bids
+                            if(!val)
                             {
-                                value = "Success";
+                                value = i;
+                                emailValue = bidRetEmail;
                                 callback();
                             }
-                        }
 
-                    });
+                            else
+                            {
+                                if(value == length-i)
+                                {
+                                    value = "Success";
+                                    callback();
+                                }
+                            }
+
+                        });
+                    }
+                    
                 }
             },
 
