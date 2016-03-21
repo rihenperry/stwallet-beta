@@ -321,7 +321,7 @@ module.exports.userManage = function (req, res){
             }
             
             log.info('Transactions Found Successfully');
-            master.sendResponse(req, res, 200, -1, results);
+            master.sendResponse(req, res, 200, -1, {result:results,count:results.length});
 
         }).sort(sort).skip(skip).limit(10);
         
