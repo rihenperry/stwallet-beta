@@ -320,8 +320,19 @@ module.exports.userManage = function (req, res){
                 return;
             }
             
-            log.info('Transactions Found Successfully');
-            master.sendResponse(req, res, 200, -1, {result:results,count:results.length});
+            userSchema.find(query, selectQuery, function(err, result){
+                
+                if (err)
+                {
+                    console.log(err);
+                    master.sendResponse(req, res, 200, 5, "Database Error");
+                    return;
+                }
+                
+                log.info('Transactions Found Successfully');
+                master.sendResponse(req, res, 200, -1, {result:results,count:result.length});
+                
+            })
 
         }).sort(sort).skip(skip).limit(10);
         

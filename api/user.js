@@ -3005,8 +3005,26 @@ module.exports.addSearchAffEarning = function(req, res){
                 return;
             }
 
-            log.info('Search Affiliate Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
-            master.sendResponse(req, res, 200, -1, 'Success');
+            else
+            {
+                if(retVal[0].email!="searchUser@searchtrade.com")
+                {
+                    poolSchema.findOneAndUpdate({},{$inc:{total_search_payout:amount}},function(err, results){
+                    
+                        if (err)
+                        {
+                            log.error(err);
+                            master.sendResponse(req, res, 200, 5, "Database Error");
+                            return;
+                        }
+
+                    })
+                }
+
+                log.info('Search Affiliate Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
+                master.sendResponse(req, res, 200, -1, 'Success');
+                
+            }
 
         })
         
@@ -3272,9 +3290,6 @@ module.exports.rejectBlockedBids = function(req, res){
                         var commission = singleJson[4];			// Storing Comision
 
                         var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
-						
-						log.info(bidRetEmail);
-                        log.info(totalAmount);
 						
                         var query = {"email": bidRetEmail};
 
