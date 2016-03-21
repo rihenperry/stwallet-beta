@@ -50,6 +50,20 @@ module.exports.addSearchEarning = function(req, res){
 
             else
             {
+				if(retVal[0].email!="searchUser@searchtrade.com")
+				{
+					poolSchema.findOneAndUpdate({},{$inc:{total_search_payout:amount}},function(err, result){
+					
+						if (err)
+						{
+							log.error(err);
+							master.sendResponse(req, res, 200, 5, "Database Error");
+							return;
+						}
+					
+					})
+				}
+			
                 log.info('Search Earning Amount '+amount+' Successfully Added To '+retVal[0].email);
                 master.sendResponse(req, res, 200, -1, 'Success');
             }
@@ -483,6 +497,8 @@ module.exports.checkExistanceEmail = function(req, res){
             return;
         }
       
+		email = email.toLowerCase();
+	  
         // Get Data From User
         userSchema.find({email:email},function(err, result){
             

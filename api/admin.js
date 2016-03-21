@@ -1082,10 +1082,10 @@ module.exports.setUserBalance = function(req, res){
 /* Get Email Type transaction */
 module.exports.getEmailTypeTransactions = function(req, res){
 
-	console.log('Page Name: admin.js.');
-	console.log('API Name : getEmailTypeTransactions');
-	console.log('Email Type Transaction API Hitted');
-	console.log('Parameters Receiving...');
+	log.info('Page Name: admin.js.');
+	log.info('API Name : getEmailTypeTransactions');
+	log.info('Email Type Transaction API Hitted');
+	log.info('Parameters Receiving...');
 
 	var email = req.body.email;
 	var type = req.body.type;

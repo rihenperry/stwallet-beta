@@ -249,6 +249,8 @@ module.exports.secureRegister = function (req, res) {
             return;
         }
     
+        email = email.toLowerCase();
+        
         // Find Existance of User
         userSchema.find({email:email},function(err, result){
 
@@ -620,6 +622,8 @@ exports.secureResendVerification = function(req, res) {
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
+		
+		email = email.toLowerCase();
         
         userSchema.find({email:email},function(err, result){
             
@@ -712,6 +716,8 @@ module.exports.secureLogin = function(req, res){
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
+		
+		email = email.toLowerCase();
     
         userSchema.find({email:email},function(err, results){
 
@@ -1179,6 +1185,8 @@ exports.secureForgotPassword = function(req, res) {
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
+		
+		email = email.toLowerCase();
     
         userSchema.find({email:email},function(err, result){
 
