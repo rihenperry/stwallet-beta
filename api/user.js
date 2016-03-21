@@ -3248,6 +3248,8 @@ module.exports.rejectBlockedBids = function(req, res){
             // Holding Return Bid Functionality 
             function (callback)
             {
+				console.log('Json : '+json);
+			
 				if(json == "" || json == null || json == undefined)
 				{
 					value = "Success";
@@ -3270,13 +3272,21 @@ module.exports.rejectBlockedBids = function(req, res){
                         var commission = singleJson[4];			// Storing Comision
 
                         var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
-
+						
+						log.info(bidRetEmail);
                         log.info(totalAmount);
-
+						
                         var query = {"email": bidRetEmail};
 
                         // Updating Blocked Bid Amount
-                        userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:-totalAmount}},function(val){
+                        userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:-totalAmount}},function(err, val){
+						
+							if (err)
+							{
+								log.error(err);
+								master.sendResponse(req, res, 200, 5, "Database Error");
+								return;
+							}
 
                             // Error In Updating Blocked Bids
                             if(!val)
@@ -3334,8 +3344,15 @@ module.exports.rejectBlockedBids = function(req, res){
                         var query = {"email": bidRetEmail};
 
                         // Updating Blocked Bid Amount
-                        userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:totalAmount}},function(val){
+                        userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:totalAmount}},function(err, val){
 
+							if (err)
+							{
+								log.error(err);
+								master.sendResponse(req, res, 200, 5, "Database Error");
+								return;
+							}
+						
                             // Error In Updating Blocked Bids
                             if(!val)
                             {
