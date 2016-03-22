@@ -14,25 +14,41 @@ var common = require('./common');
 var getAllSubOptions = function(req, res) {
   var notifylist = {};
   if (req.params) {
-    BuyOption
+    async.parallel({
+      buy: function(cb){
+        BuyOption
              .find()
              .exec(function(err, container){
                if (err) {
                  helpers.sendJsonResponse(res, 404, err);
                }
-               notifylist.buycontainer = container;
-              });
-    AskOption
+               cb(null, container);
+             });
+      },
+      ask: function(cb){
+        AskOption
              .find()
              .exec(function(err, container){
-               notifylist.askcontainer = container;
+               if (err) {
+                 helpers.sendJsonResponse(res, 404, err);
+               }
+               cb(null, container);
              });
-    BidOption
+      },
+      bid: function(cb){
+        BidOption
              .find()
              .exec(function(err, container){
-               notifylist.bidcontainer = container;
+               if (err) {
+                 helpers.sendJsonResponse(res, 404, err);
+               }
+               cb(null, container);
              });
-    helpers.sendJsonResponse(res, 200, notifylist);
+      }
+    }, function(err, results) {
+      //console.log(results);
+      helpers.sendJsonResponse(res, 200, results);
+    });
   } else {
     helpers.sendJsonResponse(res, 404, {
       "message": "abnormal request"
@@ -120,21 +136,30 @@ var createUserSubOptions = function(req, res){
 };
 
 var updateUserSubOptions = function(req, res) {
-  if ((!req.params.id) || (req.params.optionid) || (!req.params)) {
+  if ((!req.params.id) || (!req.params.optionid) || (!req.params)) {
+    helpers.sendJsonResponse(res, 404, {
+      "message": "No args in request"
+    });
     return;
   }
 
   Usr
     .findById(req.params.id)
-    .populate('notify_options_fk_key')
     .exec(function(err, user){
-      if (!user || (user.notify_options_fk_key !== req.params.optionid)) {
+      try {
+        if ((user.notify_options_fk_key.toString() !== req.params.optionid)) {
+          helpers.sendJsonResponse(res, 404, {
+            "message": "user optionID not found"
+          });
+          return;
+        } else if (err) {
+          helpers.sendJsonResponse(res, 404, err);
+          return;
+        }
+      } catch(err) {
         helpers.sendJsonResponse(res, 404, {
-          "message": "user id does not exist"
+          "message": "users option ID does not exist"
         });
-        return;
-      } else if (err) {
-        helpers.sendJsonResponse(res, 404, err);
         return;
       }
 
