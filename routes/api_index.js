@@ -11,7 +11,6 @@ router.get('/users', ctrlUser.userList);
 router.get('/users/:id', ctrlUser.getUser);
 router.post('/users', ctrlUser.createUser);
 router.put('/users/:id', ctrlUser.updateUser);
-router.delete('/users/:id', ctrlUser.deleteUser);
 
 /* user notification subscription flag api */
 //router.get('/users/:id/subnotify', ctrlNotify.isUserNotifiable);
@@ -22,6 +21,7 @@ router.get('/users/:id/notifyoptions', ctrlNotify.getUserSubOptions);
 //router.get('/users/:id/notifyoptions/:optionid'. ctrlNotify.getUserSubOpt);
 router.post('/users/:id/notifyoptions', ctrlNotify.createUserSubOptions);
 router.put('/users/:id/notifyoptions/:optionid', ctrlNotify.updateUserSubOptions);
+router.delete('/users/:id/notifyoptions', ctrlNotify.deleteUserSubOptions);
 
 /* following are user notification subscriptions*/
 /* purchase/buy keyword api */

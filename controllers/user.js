@@ -61,10 +61,12 @@ var getUser = function(req, res) {
 var createUser = function(req, res) {
   //.update({ $set : { buy_opt_container: [] }});
   if(req.body.buy_container || req.body.ask_container || req.body.bid_container) {
-    options = common.processOptions(req);
+    var updateoptions = null;
+    var options = common.processOptions(req, updateoptions);
 
     options.save(function(err) {
       if (err) {
+        console.log(err);
         helpers.sendJsonResponse(res, 404, err);
         return;
       }
@@ -74,21 +76,30 @@ var createUser = function(req, res) {
         uname: req.body.name,
         notify_options_fk_key: options._id
       });
+
+      newuser.save(function(err, newuser) {
+        if (err) {
+          helpers.sendJsonResponse(res, 404, err);
+          return;
+        }
+        helpers.sendJsonResponse(res, 201, newuser);
+      });
     });
   } else {
     var newuser = new Usr({
       user_id: req.body.user_id,
       uname: req.body.name
     });
-  }
 
-  newuser.save(function(err, newuser) {
+    newuser.save(function(err, newuser) {
       if (err) {
+        console.log("newuser");
         helpers.sendJsonResponse(res, 404, err);
         return;
       }
       helpers.sendJsonResponse(res, 201, newuser);
     });
+  }
 };
 
 var updateUser = function(req, res) {
@@ -120,54 +131,11 @@ var updateUser = function(req, res) {
    );
 };
 
-var deleteUser = function(req, res) {
-  var objId = req.params.id;
-  if (objId) {
-    Usr
-      .findById(req.params.id)
-      .populate('notify_options_fk_key')
-      .exec(
-        function(err, deleteuser) {
-          if (err) {
-            helpers.sendJsonResponse(res, 404, err);
-            return;
-          }
-          NotifyOption
-                     .findByIdAndRemove(deleteuser.notify_options_fk_key._id)
-                     .exec(
-                       function(err, deloptions) {
-                         if (err) {
-                           helpers.sendJsonResponse(res, 404, err);
-                           return;
-                         }
-                       }
-                     );
-        }
-      );
 
-    Usr
-      .findByIdAndRemove(objId)
-      .exec(
-        function(err, deleteuser) {
-          if (err) {
-            helpers.sendJsonResponse(res, 404, err);
-            return;
-          }
-          helpers.sendJsonResponse(res, 204, null);
-        }
-      );
-  } else {
-    helpers.sendJsonResponse(res, 404, {
-      "message": "object id not found"
-    });
-    return;
-  }
-};
 
 module.exports = {
   userList: userList,
   getUser: getUser,
   createUser: createUser,
-  updateUser: updateUser,
-  deleteUser: deleteUser
+  updateUser: updateUser
 };

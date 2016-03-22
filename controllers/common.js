@@ -4,7 +4,7 @@ var async = require('async');
 
 var NotifyOption = mongoose.model('NotifyOption');
 
-var processOptions = function(req) {
+var processOptions = function(req, updateoptions) {
 
   var unProcessedBox = {
     rawbuy: JSON.parse(req.body.buy_container) || [],
@@ -12,11 +12,26 @@ var processOptions = function(req) {
     rawbid: JSON.parse(req.body.bid_container) || []
   };
 
-  var options = new NotifyOption({
-    buy_opt_container: [],
-    ask_opt_container: [],
-    bid_opt_container: []
-  });
+  var options = updateoptions === null ? (
+    new NotifyOption({
+      buy_opt_container: [],
+      ask_opt_container: [],
+      bid_opt_container: []
+    })
+  ) : updateoptions;
+
+  //if (updateoptions === null) {
+  //  var options = new NotifyOption({
+  //    buy_opt_container: [],
+  //    ask_opt_container: [],
+  //    bid_opt_container: []
+  //  });
+  //} else {
+  //  updateoptions.buy_opt_container = [];
+  //  updateoptions.ask_opt_container = [];
+  //  updateoptions.bid_opt_container = [];
+  //  var options = updateoptions;
+  //}
 
   Object.keys(unProcessedBox).map(function(key){
 
@@ -48,7 +63,6 @@ var processOptions = function(req) {
         break;
     }
   });
-
   return options;
 };
 
