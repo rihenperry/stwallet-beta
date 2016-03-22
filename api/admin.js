@@ -211,7 +211,7 @@ module.exports.userManage = function (req, res){
         {
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
-        }
+        }        
 
         if(email == '' || email == undefined || email == null)
 		{
@@ -224,26 +224,32 @@ module.exports.userManage = function (req, res){
 				
 				else
 				{
-					query = {"last_name":{ $regex: last_name }};
+                    var ucfirst_last_name  = last_name.charAt(0).toUpperCase()+last_name.substr(1).toLowerCase();
+					query = {$or:[{"last_name":{ $regex: last_name.toLowerCase() }},{"last_name":{ $regex: ucfirst_last_name }}]};
 				}
 			}
 			
 			else
 			{
+                var ucfirst_first_name = first_name.charAt(0).toUpperCase()+first_name.substr(1).toLowerCase();
+                
 				if(last_name == "" || last_name == undefined || last_name == null)
 				{
-					query = {"first_name":{ $regex: first_name }};
+					query = {$or:[{"first_name":{ $regex: first_name.toLowerCase() }},{"first_name":{ $regex: ucfirst_first_name }}]};
 				}
 				
 				else
 				{
-					query = {$or:[{"last_name":{ $regex: last_name }},{"first_name":{ $regex: first_name }}]};
+                    var ucfirst_last_name  = last_name.charAt(0).toUpperCase()+last_name.substr(1).toLowerCase();
+					query = {$or:[{"last_name":{$regex:last_name.toLowerCase()}},{"last_name":{ $regex:ucfirst_last_name}},{"first_name":{ $regex: first_name.toLowerCase() }},{"first_name":{ $regex:ucfirst_first_name}}]};
 				}
 			}
 		}	
 		
 		else
-		{			
+		{	
+            email = email.toLowerCase();
+            
 			if(first_name == "" || first_name == undefined || first_name == null)
 			{
 				if(last_name == "" || last_name == undefined || last_name == null)
@@ -253,20 +259,24 @@ module.exports.userManage = function (req, res){
 				
 				else
 				{
-					query = {$or:[{"last_name":{ $regex: last_name }},{"email":{ $regex: email }}]};
+                    var ucfirst_last_name  = last_name.charAt(0).toUpperCase()+last_name.substr(1).toLowerCase();
+					query = {$or:[{"last_name":{ $regex: last_name.toLowerCase() }},{"last_name":{ $regex: ucfirst_last_name }},{"email":{ $regex: email }}]};
 				}
 			}
 			
 			else
 			{
+                var ucfirst_first_name = first_name.charAt(0).toUpperCase()+first_name.substr(1).toLowerCase();
+                
 				if(last_name == "" || last_name == undefined || last_name == null)
 				{
-					query = {$or:[{"email":{ $regex: email }},{"first_name":{ $regex: first_name }}]};
+					query = {$or:[{"email":{ $regex: email }},{"first_name":{ $regex: first_name.toLowerCase() }},{"first_name":{ $regex: ucfirst_first_name }}]};
 				}
 				
 				else
 				{
-					query = {$or:[{"last_name":{ $regex: last_name }},{"first_name":{ $regex: first_name }},{"email":{ $regex: email }}]};
+                    var ucfirst_last_name  = last_name.charAt(0).toUpperCase()+last_name.substr(1).toLowerCase();
+					query = {$or:[{"last_name":{$regex:last_name.toLowerCase()}},{"last_name":{ $regex:ucfirst_last_name}},{"first_name":{ $regex: first_name.toLowerCase() }},{"first_name":{ $regex:ucfirst_first_name}},{"email":{ $regex: email }}]};
 				}
 			}
 		}
