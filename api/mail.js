@@ -2,8 +2,8 @@
 /*jslint node: true */
 "use strict";
 
-var notificationschema  = require('../model/notification_model.js');
-var notiMessageSchema   = require('../model/notification_message_model.js');
+var notificationschema  = require('../models/notification_model.js');
+var notiMessageSchema   = require('../models/notification_message_model.js');
 var Mailgun             = require('mailgun-js');							// For Emails (Mailgun Module)
 var request             = require('request');                               // Request Module
 var from_who            = 'donotreply@searchtrade.com';						// Sender of Email
