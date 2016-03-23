@@ -5,22 +5,25 @@
 // Framwork
 var  express     	 = require('express'),
      helmet          = require('helmet'),
-	 app        	 = express(),
+     nunjucks        = require('nunjucks'),
+     path            = require('path'),
+     favicon         = require('favicon'),
+     logger          = require('morgan'),
+     cookieParser    = require('cookie-parser'),
 	 nconf 	    	 = require('nconf'),
 	 fs         	 = require('fs'),
 	 request 		 = require('request'),
      jsonfile        = require('jsonfile'),
-
+     bodyParser      = require('body-parser'),
+     debug           = require('debug')('Express4'),
      //util            = require('util'),
      bformat         = require('bunyan-format')  ,
 // Packages
-     bodyParser  	 = require('body-parser'),
-     logger          = require('./config/w_config.js'),
-     log             = logger(),
+     log             = require('./config/w_config.js')();
 
 // Pages
-	 mongoose        = require('./config/mongoose.js'),          // Moongoose
-	 user            = require('./api/user.js'),                 // User API
+require('./models/db');// keep the connection open to db when app boots/reboots
+var	 user            = require('./api/user.js'),                 // User API
 	 device          = require('./api/device.js'),               // Device API
 	 search          = require('./api/search.js'),               // Search API
 	 pool            = require('./api/pool'),                    // Get Pool API
@@ -28,9 +31,26 @@ var  express     	 = require('express'),
      admin     	     = require("./api/admin"),  	             // Get Admin API
      cron_api    	 = require("./api/cron_api.js");    	     // Get Admin API
 
-// code to useing helmet@wallet app
-app.use(helmet())
+var notification        = require('./api/notification.js');
+var mailer              = require('./api/mail.js');                     // Mail Functionality
+var routes              = require('./routes/index')
+var routesApi           = require('./routes/api_index');
 
+/* create http server and pass the express appln to it */
+var app                 = require('express')();
+var server              = require('http').createServer(app);
+
+
+/* view engine setup */
+/* its also possible to setup multiple view engines in express using package
+   consolidate.js */
+//app.set('view engine', 'ejs');
+
+app.set('views', path.join(__dirname, 'views'));
+nunjucks.configure('views', {
+  autoescape: true,
+  express: app
+});
 
 // code to set ENV for node app
 var loadconfig = require('./config/w_config.js')
@@ -39,12 +59,48 @@ var defaultOptions = loadconfig.DEFAULTS
 log.info("Configuration read from the JSON file using nconf is :")
 log.info(defaultOptions)
 
-// Middleware
+//add all sorts of required middlewares to the stack
+// code to useing helmet@wallet app
+app.use(logger('dev'));
+app.use(helmet())
 app.use(bodyParser.json({limit: '10mb'}));
 app.use(bodyParser.urlencoded({limit: '10mb', extended: false}));
+app.use(cookieParser());
 
 // Static Resource in public Folder To Display View
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/bower_components'))
+
+app.use('/', routes);       // normal html view request
+app.use('/api', routesApi); // add prefex 'api' to access the api like http://localhost:port:/api/*
+
+/* error handling for 404 routes */
+app.use(function(req, res, next) {
+  var err = new Error('request not found');
+  err.status = 404;
+  next(err);
+});
+
+// error handler middleware returns stacktraces
+if (app.get('env') === 'development') {
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error.html', {
+      message: err.message,
+      error: err
+    });
+  });
+}
+
+//production env error handler
+//In prod, dont return stacktrace to the browser
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  res.render('error.html', {
+    message: err.message,
+    error: {}
+  });
+});
 
 app.use(function (req, res, next) {
     log.info('==================================');
@@ -167,13 +223,27 @@ app.post('/secure/admin/totalCount', admin.totalCount);                         
 app.post('/secure/admin/userBalanceCalc', admin.userBalanceCalc);                               // User Balance Calculation By Email
 app.post('/secure/admin/allUsersBalance', admin.allUsersBalance);                               // All User's Total Balance
 
+/*=============================== send email API==============*/
+app.post('/secure/sendVerificationEmail', notification.sendVerificationEmail);
+app.post('/secure/sendforgotpassword', notification.sendforgotpassword);
+app.post('/secure/changePassEmail', notification.changePassEmail);
+app.post('/secure/resettedConfirmation', notification.resettedConfirmation);
+app.post('/secure/sendMail', mailer.sendPHPmail);
+app.post('/secure/getNotificationStatus', mailer.getNotificationStatus);
 
 app.post('/secure/cron', cron_api.cron);
 
-// Server Connectivity using nginx
-app.listen(5000, function () {
-    log.info('Connected To Server');
+app.set('port', process.env.PORT || 5000);
+
+var notifyServer = app.listen(app.get('port'), function(){
+  console.log('server listening on port ' + notifyServer.address().port);
+  debug('server listening on port ' + notifyServer.address().port);
 });
+
+// Server Connectivity using nginx
+//app.listen(5000, function () {
+//    log.info('Connected To Server');
+//});
 
 //Server Connectivity without nginx
 //
