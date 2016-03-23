@@ -75,40 +75,6 @@ app.use(express.static(__dirname + '/bower_components'))
 app.use('/', routes);       // normal html view request
 app.use('/api', routesApi); // add prefex 'api' to access the api like http://localhost:port:/api/*
 
-/* error handling for 404 routes */
-app.use(function(req, res, next) {
-  var err = new Error('request not found');
-  err.status = 404;
-  next(err);
-});
-
-// error handler middleware returns stacktraces
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error.html', {
-      message: err.message,
-      error: err
-    });
-  });
-}
-
-//production env error handler
-//In prod, dont return stacktrace to the browser
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error.html', {
-    message: err.message,
-    error: {}
-  });
-});
-
-app.use(function (req, res, next) {
-    log.info('==================================');
-    log.info(req.url);
-    next();
-});
-
 /*============================== Device Related API ==================================*/
 
 app.post('/api/register', device.deviceRegister);					                           // Device Register API
@@ -159,7 +125,7 @@ app.post('/secure/addBlockedForBids', user.addBlockedForBids);									// Add Bl
 app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// Deduct Blocked Bids API
 app.post('/secure/rejectBlockedBids', user.rejectBlockedBids);                                  // Reject Blocked Bids API (In cases of Accept bid and Buy now)
 app.post('/secure/updateNotificationStatus', user.updateNotificationStatus);                    // Update User's Notification Status API
-app.post('/secure/getNotificationStatus', user.getNotificationStatus);                          // Get Notification Status   
+app.post('/secure/getNotificationStatus', user.getNotificationStatus);                          // Get Notification Status
 
 /*============================== Pool Related API ==================================*/
 
@@ -228,6 +194,41 @@ app.post('/secure/sendMail', mailer.sendPHPmail);
 app.post('/secure/getNotificationStatus', mailer.getNotificationStatus);
 
 app.post('/secure/cron', cron_api.cron);
+
+/* error handling for 404 routes */
+app.use(function(req, res, next) {
+  var err = new Error('request not found');
+  err.status = 404;
+  next(err);
+});
+
+// error handler middleware returns stacktraces
+if (app.get('env') === 'development') {
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error.html', {
+      message: err.message,
+      error: err
+    });
+  });
+}
+
+//production env error handler
+//In prod, dont return stacktrace to the browser
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  res.render('error.html', {
+    message: err.message,
+    error: {}
+  });
+});
+
+app.use(function (req, res, next) {
+    log.info('==================================');
+    log.info(req.url);
+    next();
+});
+
 
 app.set('port', process.env.PORT || 5000);
 
