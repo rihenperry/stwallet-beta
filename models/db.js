@@ -8,7 +8,7 @@
 var mongoose = require('mongoose');
 
 //Format -> mongodb://username:password@localhost:27027/database
-var dbURI = 'mongodb://localhost/st-notify';
+var dbURI = 'mongodb://localhost/wallet';
 //var dbURI = 'mongodb://localhost/notification';
 
 var peacefulShutdown;

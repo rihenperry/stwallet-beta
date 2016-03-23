@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var async = require('async');
 
-var Usr = mongoose.model('User');
+var Usr = mongoose.model('user');
 var NotifyOption = mongoose.model('NotifyOption');
 var BuyOption = mongoose.model('BuyKeywordsOption');
 var AskOption = mongoose.model('AskKeywordsOption');

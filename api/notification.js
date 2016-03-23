@@ -1,4 +1,4 @@
-var notificationschema = require('../model/notification_model.js');
+var notificationschema = require('../models/notification_model.js');
 var mailer          = require('./mail.js');             // Mail Functionality
 var app = require('express')();
 var server = require('http').Server(app);

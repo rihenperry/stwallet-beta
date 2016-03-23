@@ -3,33 +3,34 @@
 "use strict";
 
 // Framwork
-var  express     	 = require('express'),
+var  express     	   = require('express'),
      helmet          = require('helmet'),
      nunjucks        = require('nunjucks'),
      path            = require('path'),
      favicon         = require('favicon'),
      logger          = require('morgan'),
      cookieParser    = require('cookie-parser'),
-	 nconf 	    	 = require('nconf'),
-	 fs         	 = require('fs'),
-	 request 		 = require('request'),
+	   nconf 	    	   = require('nconf'),
+	   fs         	   = require('fs'),
+	   request 		     = require('request'),
      jsonfile        = require('jsonfile'),
      bodyParser      = require('body-parser'),
      debug           = require('debug')('Express4'),
      //util            = require('util'),
      bformat         = require('bunyan-format')  ,
-// Packages
+     // Packages
      log             = require('./config/w_config.js')();
 
 // Pages
 require('./models/db');// keep the connection open to db when app boots/reboots
+
 var	 user            = require('./api/user.js'),                 // User API
-	 device          = require('./api/device.js'),               // Device API
-	 search          = require('./api/search.js'),               // Search API
-	 pool            = require('./api/pool'),                    // Get Pool API
-	 W_transaction   = require("./api/transaction.js"),          // Transaction API
+	   device          = require('./api/device.js'),               // Device API
+	   search          = require('./api/search.js'),               // Search API
+	   pool            = require('./api/pool'),                    // Get Pool API
+	   W_transaction   = require("./api/transaction.js"),          // Transaction API
      admin     	     = require("./api/admin"),  	             // Get Admin API
-     cron_api    	 = require("./api/cron_api.js");    	     // Get Admin API
+     cron_api    	   = require("./api/cron_api.js");    	     // Get Admin API
 
 var notification        = require('./api/notification.js');
 var mailer              = require('./api/mail.js');                     // Mail Functionality
@@ -106,11 +107,6 @@ app.use(function (req, res, next) {
     log.info('==================================');
     log.info(req.url);
     next();
-});
-
-// Router
-app.get('/', function (req, res) {
-    res.send('Hello Revised Wallet');
 });
 
 /*============================== Device Related API ==================================*/
