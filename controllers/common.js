@@ -16,22 +16,10 @@ var processOptions = function(req, updateoptions) {
     new NotifyOption({
       buy_opt_container: [],
       ask_opt_container: [],
-      bid_opt_container: []
+      bid_opt_container: [],
+      buy_ask_bid_perm_code: req.body.buy_ask_bid_perm_code || "000"
     })
   ) : updateoptions;
-
-  //if (updateoptions === null) {
-  //  var options = new NotifyOption({
-  //    buy_opt_container: [],
-  //    ask_opt_container: [],
-  //    bid_opt_container: []
-  //  });
-  //} else {
-  //  updateoptions.buy_opt_container = [];
-  //  updateoptions.ask_opt_container = [];
-  //  updateoptions.bid_opt_container = [];
-  //  var options = updateoptions;
-  //}
 
   Object.keys(unProcessedBox).map(function(key){
 
@@ -66,6 +54,38 @@ var processOptions = function(req, updateoptions) {
   return options;
 };
 
+var resolvePermissions = function(perm_code){
+    var permissionTypes = {
+        7: function(){
+            return "sms-email-push";
+        },
+        6: function(){
+            return "sms-email";
+        },
+        5: function(){
+            return "sms-push";
+        },
+        4: function(){
+            return "sms";
+        },
+        3: function(){
+            return "email-push";
+        },
+        2: function(){
+            return "email";
+        },
+        1: function(){
+            return "push";
+        },
+        0: function(){
+            return "none";
+        }
+    };
+
+    return (permissionTypes[perm_code] || permissionTypes[0])();
+};
+
 module.exports = {
-  processOptions: processOptions
+    processOptions: processOptions,
+    resolvePermissions: resolvePermissions
 }

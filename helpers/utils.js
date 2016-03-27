@@ -8,9 +8,14 @@ function randomString(length) {
     return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
 }
 
+function inPermCodeFormat(code) {
+    return /^[0-7]{3}$/.test(code);
+}
+
 module.exports= {
   sendJsonResponse : sendJsonResponse,
-  alphaNumr : randomString
+  alphaNumr : randomString,
+  inPermCodeFormat: inPermCodeFormat
 };
 
 //Usr

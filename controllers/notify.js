@@ -2,11 +2,12 @@
 var mongoose = require('mongoose');
 var async = require('async');
 
-var Usr = mongoose.model('user');
+var Usr = mongoose.model('User');
 var NotifyOption = mongoose.model('NotifyOption');
 var BuyOption = mongoose.model('BuyKeywordsOption');
 var AskOption = mongoose.model('AskKeywordsOption');
 var BidOption = mongoose.model('BidKeywordsOption');
+var NotifyPerm = mongoose.model('NotifyPerm');
 
 var helpers = require('../helpers/utils');
 var common = require('./common');
@@ -44,6 +45,16 @@ var getAllSubOptions = function(req, res) {
                }
                cb(null, container);
              });
+      },
+      perms: function(cb) {
+         NotifyPerm
+              .find()
+              .exec(function(err, container){
+                if (err) {
+                  helpers.sendJsonResponse(res, 404, err);
+                }
+                cb(null,container);
+              });
       }
     }, function(err, results) {
       //console.log(results);
@@ -67,6 +78,7 @@ var getUserSubOptions = function(req, res) {
         Usr
           .findById(req.params.id)
           .populate('notify_options_fk_key')
+          .lean()
           .exec(function(err, user){
             if (!user) {
               helpers.sendJsonResponse(res, 404, {
@@ -81,6 +93,13 @@ var getUserSubOptions = function(req, res) {
             Usr
                      .populate(user, notifyconfigs, function(err, result){
                        if (err) return helpers.sendJsonResponse(res, 404, err);
+                         var option_perm_code = result.notify_options_fk_key.buy_ask_bid_perm_code;
+                         result.notify_options_fk_key.buy_opt_permissions = common
+                                                                     .resolvePermissions(option_perm_code[0]);
+                         result.notify_options_fk_key.ask_opt_permissions = common
+                             .resolvePermissions(option_perm_code[1]);
+                         result.notify_options_fk_key.bid_opt_permissions = common
+                             .resolvePermissions(option_perm_code[2]);
                        helpers.sendJsonResponse(res, 200, result);
                      });
           });
@@ -103,6 +122,11 @@ var createUserSubOptions = function(req, res){
           return;
         } else if (err) {
           helpers.sendJsonResponse(res, 404, err);
+          return;
+        } else if (!helpers.inPermCodeFormat(req.body.buy_ask_bid_perm_code.toString())) {
+          helpers.sendJsonResponse(res, 404, {
+            "message": "unexpected permission code"
+          });
           return;
         }
 
@@ -141,6 +165,11 @@ var updateUserSubOptions = function(req, res) {
       "message": "No args in request"
     });
     return;
+  } else if (!helpers.inPermCodeFormat(req.body.buy_ask_bid_perm_code.toString())) {
+    helpers.sendJsonResponse(res, 404, {
+      "message": "unexpected permission code"
+    });
+    return;
   }
 
   Usr
@@ -173,6 +202,8 @@ var updateUserSubOptions = function(req, res) {
                    updateNotifyObj.buy_opt_container = [];
                    updateNotifyObj.ask_opt_container = [];
                    updateNotifyObj.bid_opt_container = [];
+                   updateNotifyObj.buy_ask_bid_perm_code = req.body.buy_ask_bid_perm_code.toString();
+
                    updateNotifyObj.updated_on = Date.now();
 
                    var options = common.processOptions(req, updateNotifyObj);
