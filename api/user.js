@@ -3,18 +3,22 @@
 "use strict";
 
 // Pages
-var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Schema
+var poolSchema          = require('../models/poolSchema.js'),           // Pool Schema
     userSchema          = require('../models/userSchema.js'),           // User Schema
     transactionSchema   = require('../models/transaction_Schema.js'),   // Transaction Schema
     master              = require('../config/masterfunc.js'),           // Master Functions
     crypt               = require('../config/crypt.js'),                // Crypt/Signature Related Functionality
     mailer              = require('../config/mail.js'),                 // Mail Functionality
-    protocol 		    = 'http',
-    fs 				    = require('fs'), 
-    im 				    = require('imagemagick'),
     logger              = require('../config/w_config.js'),
-    request             = require('request'),
-    log                 = logger();
+    
+// Packages
+    fs 				    = require('fs'),                                // To Handle File Functionality            
+    im 				    = require('imagemagick'),                       // To Handle Image Processing
+    request             = require('request'),                           // For Request 
+
+// Variales and Functions
+    protocol 		    = 'http',
+    log                 = logger();                                     // Looger Function to see logs                             
 
 //========================= Page Functions ========================= //
 
@@ -1030,8 +1034,6 @@ module.exports.setUserDetails = function(req, res){
 /*============================= Currency Preference =============================*/
 
 module.exports.currencyPrefrence = function(req, res) {
-    
-    console.log(req.body.currency_code);
     
     log.info('Page Name : user.js');
 	log.info('API Name : currencyPrefrence');
@@ -3265,9 +3267,7 @@ module.exports.rejectBlockedBids = function(req, res){
             // Function For Phase 2
             // Holding Return Bid Functionality 
             function (callback)
-            {
-				console.log('Json : '+json);
-			
+            {			
 				if(json == "" || json == null || json == undefined)
 				{
 					value = "Success";

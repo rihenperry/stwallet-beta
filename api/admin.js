@@ -1415,60 +1415,103 @@ module.exports.totalCount = function(req, res){
                             master.sendResponse(req, res, 200, 5, "Database Error");
                             return;
                         }
+						
+						transSchema.aggregate([{ $match:{"type":"credit_from_admin"}},{$group:{ _id:null, result:{$sum:"$amount"}}}], function(err, creditAdminResult){
                         
-                        var deposit, coinbase, paypal, wallet;
+							if(err)
+							{
+								log.error(err);
+								master.sendResponse(req, res, 200, 5, "Database Error");
+								return;
+							}
+							
+							transSchema.aggregate([{ $match:{"type":"debit_from_admin"}},{$group:{ _id:null, result:{$sum:"$amount"}}}], function(err, debitAdminResult){
                         
-                        if(fundResult.length==0)
-                        {
-                            deposit = 0;
-                        }
-                        
-                        else
-                        {
-                            deposit = fundResult[0].result;
-                        }
-                        
-                        if(conibaseResult.length==0)
-                        {
-                            coinbase = 0;
-                        }
-                        
-                        else
-                        {
-                            coinbase = conibaseResult[0].result;
-                        }
-                        
-                        if(paypalResult.length==0)
-                        {
-                            paypal = 0;
-                        }
-                        
-                        else
-                        {
-                            paypal = paypalResult[0].result;
-                        }
-                        
-                        if(walletResult.length==0)
-                        {
-                            wallet = 0;
-                        }
-                        
-                        else
-                        {
-                            wallet = walletResult[0].result;
-                        }
-                        
-                        var jsonResult = {
-                            
-                            deposit : deposit,
-                            coinbase : coinbase,
-                            paypal : paypal,
-                            wallet : wallet
-                            
-                        }
-                        
-                        log.info('Successfully Got Result');
-                        master.sendResponse(req, res, 200, -1, jsonResult);
+								if(err)
+								{
+									log.error(err);
+									master.sendResponse(req, res, 200, 5, "Database Error");
+									return;
+								}
+							
+								var deposit, coinbase, paypal, wallet, credit_from_admin, debit_from_admin;
+								
+								if(fundResult.length==0)
+								{
+									deposit = 0;
+								}
+								
+								else
+								{
+									deposit = fundResult[0].result;
+								}
+								
+								if(conibaseResult.length==0)
+								{
+									coinbase = 0;
+								}
+								
+								else
+								{
+									coinbase = conibaseResult[0].result;
+								}
+								
+								if(paypalResult.length==0)
+								{
+									paypal = 0;
+								}
+								
+								else
+								{
+									paypal = paypalResult[0].result;
+								}
+								
+								if(walletResult.length==0)
+								{
+									wallet = 0;
+								}
+								
+								else
+								{
+									wallet = walletResult[0].result;
+								}
+								
+								if(creditAdminResult.length==0)
+								{
+									credit_from_admin = 0;
+								}
+								
+								else
+								{
+									credit_from_admin = creditAdminResult[0].result;
+								}
+								
+								if(debitAdminResult.length==0)
+								{
+									debit_from_admin = 0;
+								}
+								
+								else
+								{
+									debit_from_admin = debitAdminResult[0].result;
+								}
+								
+								var jsonResult = {
+									
+									deposit : deposit,
+									coinbase : coinbase,
+									paypal : paypal,
+									wallet : wallet,
+									credit_from_admin : credit_from_admin,
+									debit_from_admin : debit_from_admin
+								}
+								
+								log.info('Successfully Got Result');
+								master.sendResponse(req, res, 200, -1, jsonResult);
+							
+							})
+							
+						})
                         
                     })
                     
