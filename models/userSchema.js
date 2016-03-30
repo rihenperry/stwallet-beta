@@ -14,7 +14,7 @@ var userDetails = mongoose.Schema({
     first_name:                       {type: String},                                       // First Name of User
     last_name:                        {type: String},                                       // Last Name of User
     email:                            {type: String},                                       // Email of User
-    notify_options_fk_key: {type: mongoose.Schema.Types.ObjectId, ref: 'NotifyOption', default: null},
+    notify_options_fk_key: 			  {type: mongoose.Schema.Types.ObjectId, ref: 'NotifyOption', default: null},
     password:                         {type: String},                    	                // Salted Hash Password
     mobile_number:                    {type: Number, default:0},		                    // Mobile Number
     ref_email:                        {type: String, default:''},		                    // Reference Person Email

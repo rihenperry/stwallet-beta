@@ -3499,3 +3499,85 @@ module.exports.getNotificationStatus = function(req, res){
     })
 
 }
+
+/*============================= Send PHP Email =============================*/
+
+module.exports.sendPHPmail = function (req, res){
+    
+    log.info('Page Name : user.js');
+	log.info('API Name : sendPHPmail')
+	log.info('Send PHP Email API Hitted');
+	log.info('Parameter Receiving..');
+    
+    var to                  = req.body.to;
+    var subject             = req.body.subject;
+    var email_body          = req.body.email_body;
+    
+    var notification_code   = req.body.notification_code;
+    var notification_body   = req.body.notification_body;
+    
+    var publicKey           = req.body.publicKey;
+    var signature           = req.body.signature;
+	
+	console.log('To : '+to);
+	console.log('Subject : '+subject);
+	console.log('Email Body : '+email_body);
+	console.log('Notification Code : '+notification_code);	
+	console.log('Notification Body : '+notification_body);
+	
+	var notifyconfigs = [
+		{path: 'notify_options_fk_key.buy_opt_container', model: 'BuyKeywordsOption'},
+		{path: 'notify_options_fk_key.ask_opt_container', model: 'AskKeywordsOption'},
+		{path: 'notify_options_fk_key.bid_opt_container', model: 'BidKeywordsOption'}
+	];
+	
+    // Find and Update User's Blocked For Bids
+    userSchema.find({email:to}).populate('notify_options_fk_key').exec(function(err, result){
+
+        if (err)
+        {
+            log.error(err);
+            master.sendResponse(req, res, 200, 5, "Database Error");
+            return;
+        }
+
+        if (result==null || result=="") // Email Not Found
+        {
+            log.info(to+" Not Registered");
+            master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+            return;
+        }
+		
+		//var notification = result[0].notify_options_fk_key;
+		
+		// Notification Code Spliting
+		notification_code = notification_code.split("&");
+		var notification_token = notification_code[1];
+		var notification_message = notification_code[0];
+		console.log('Notification Token : '+notification_token);
+		console.log('Notification Message : '+notification_message);
+		
+		var notification = result[0].notify_options_fk_key;	
+		console.log(notification);
+		
+		if(notification.notification_message == [] || notification.notification_message)
+		{
+				
+		}
+		
+		// if(notification_id == "" || notification_id == undefined || notification_id == null)
+		// {
+			// log.info('Notifications are Stopped From User');
+			// master.sendResponse(req, res, 200, -1, "Success");
+		// }
+		
+		// Method Part will be added here
+		
+		
+		
+        //log.info('Notification Status is '+result[0].notification_status+' For '+email);
+        //master.sendResponse(req, res, 200, -1, {notification_status:result[0].notification_status, user_id:result[0]._id});
+
+    })
+
+}
