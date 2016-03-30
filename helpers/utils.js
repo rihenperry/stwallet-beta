@@ -1,7 +1,14 @@
-var sendJsonResponse = function(res, status, content){
-  res.contentType('application/json');
-  res.status(status);
-  res.json(content);
+var sendJsonResponse = function(res, status, errCode, errMsg){
+//  res.contentType('application/json');
+//  res.status(status);
+//  res.json(content);
+    
+    res.status(status).send({
+        errCode: errCode, 
+        errMsg: errMsg
+    });
+    
+    
 };
 
 function randomString(length) {

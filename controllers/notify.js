@@ -21,7 +21,7 @@ var getAllSubOptions = function(req, res) {
              .find()
              .exec(function(err, container){
                if (err) {
-                 helpers.sendJsonResponse(res, 404, err);
+                 helpers.sendJsonResponse(res, 404, 5, err);
                }
                cb(null, container);
              });
@@ -31,7 +31,7 @@ var getAllSubOptions = function(req, res) {
              .find()
              .exec(function(err, container){
                if (err) {
-                 helpers.sendJsonResponse(res, 404, err);
+                 helpers.sendJsonResponse(res, 404, 5, err);
                }
                cb(null, container);
              });
@@ -41,19 +41,17 @@ var getAllSubOptions = function(req, res) {
              .find()
              .exec(function(err, container){
                if (err) {
-                 helpers.sendJsonResponse(res, 404, err);
+                 helpers.sendJsonResponse(res, 404, 5, err);
                }
                cb(null, container);
              });
       }
     }, function(err, results) {
       //console.log(results);
-      helpers.sendJsonResponse(res, 200, results);
+      helpers.sendJsonResponse(res, 200, -1, results);
     });
   } else {
-    helpers.sendJsonResponse(res, 404, {
-      "message": "abnormal request"
-    });
+      helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
   }
 };
 
@@ -75,14 +73,14 @@ var getUserSubOptions = function(req, res) {
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
 	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
 		return;
 	}
     
@@ -95,7 +93,7 @@ var getUserSubOptions = function(req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 404, result[0].errCode, result[0].message);
             return;
         }
         
@@ -104,27 +102,23 @@ var getUserSubOptions = function(req, res) {
         Usr
           .findById(req.params.id)
           .populate('notify_options_fk_key')
-          .exec(function(err, user){
+            .select({_id:1,email:1,notify_options_fk_key:1}).exec(function(err, user){
             if (!user) {
-              helpers.sendJsonResponse(res, 404, {
-                "message": "id not found"
-              });
+              helpers.sendJsonResponse(res, 404, 4, 'There is no user registered with that email address.');
               return;
             } else if (err) {
-              helpers.sendJsonResponse(res, 404, err);
+              helpers.sendJsonResponse(res, 404, 5, err);
               return;
             }
 
             Usr
                      .populate(user, notifyconfigs, function(err, result){
-                       if (err) return helpers.sendJsonResponse(res, 404, err);
-                       helpers.sendJsonResponse(res, 200, result);
+                       if (err) return helpers.sendJsonResponse(res, 200, 5, err);
+                       helpers.sendJsonResponse(res, 200, -1, result);
                      });
           });
       } else {
-        helpers.sendJsonResponse(res, 404, {
-          "message": "No id in request"
-        });
+        helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
       }
         
         
@@ -155,14 +149,14 @@ var createUserSubOptions = function(req, res){
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
 	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
 		return;
 	}
     
@@ -175,7 +169,7 @@ var createUserSubOptions = function(req, res){
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 404, result[0].errCode, result[0].message);
             return;
         }    
     
@@ -184,13 +178,16 @@ var createUserSubOptions = function(req, res){
           .findById(req.params.id)
           .exec(function(err, updateuser){
             if (!updateuser) {
-              helpers.sendJsonResponse(res, 404, {
-                "message": "id does not exist"
-              });
+                helpers.sendJsonResponse(res, 404, 4, 'There is no user registered with that email address.');
               return;
             } else if (err) {
-              helpers.sendJsonResponse(res, 404, err);
+              helpers.sendJsonResponse(res, 200, 5, err);
               return;
+            }
+            
+            if(updateuser.notify_options_fk_key){
+                helpers.sendJsonResponse(res, 404, 51, "User Preferences Already Exist");
+                return;
             }
 
             /* just accept the notify options params*/
@@ -199,7 +196,7 @@ var createUserSubOptions = function(req, res){
 
             options.save(function(err) {
               if (err) {
-                helpers.sendJsonResponse(res, 404, err);
+                helpers.sendJsonResponse(res, 404, 5, err);
                 return;
               }
 
@@ -208,17 +205,15 @@ var createUserSubOptions = function(req, res){
 
               updateuser.save(function(err, newuser) {
                 if (err) {
-                  helpers.sendJsonResponse(res, 404, err);
+                  helpers.sendJsonResponse(res, 404, 5, err);
                   return;
                 }
-                helpers.sendJsonResponse(res, 201, newuser);
+                helpers.sendJsonResponse(res, 201, -1, "Success");
               });
             });
           });
       } else {
-        helpers.sendJsonResponse(res, 404, {
-          "message": "No id in request"
-        });
+         helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
       }
         
     });
@@ -248,14 +243,14 @@ var updateUserSubOptions = function(req, res) {
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
 	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
 		return;
 	}
     
@@ -268,15 +263,13 @@ var updateUserSubOptions = function(req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 404, result[0].errCode, result[0].message);
             return;
         }    
     
     
       if ((!req.params.id) || (!req.params.optionid) || (!req.params)) {
-        helpers.sendJsonResponse(res, 404, {
-          "message": "No args in request"
-        });
+          helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
         return;
       }
 
@@ -285,18 +278,14 @@ var updateUserSubOptions = function(req, res) {
         .exec(function(err, user){
           try {
             if ((user.notify_options_fk_key.toString() !== req.params.optionid)) {
-              helpers.sendJsonResponse(res, 404, {
-                "message": "user optionID not found"
-              });
+                helpers.sendJsonResponse(res, 404, 4, 'There is no user registered with that email address.');
               return;
             } else if (err) {
-              helpers.sendJsonResponse(res, 404, err);
+              helpers.sendJsonResponse(res, 404, 5, err);
               return;
             }
           } catch(err) {
-            helpers.sendJsonResponse(res, 404, {
-              "message": "users option ID does not exist"
-            });
+              helpers.sendJsonResponse(res, 404, 61, 'Option id not found');
             return;
           }
 
@@ -304,7 +293,7 @@ var updateUserSubOptions = function(req, res) {
                      .findById(req.params.optionid)
                      .exec(function(err, updateNotifyObj) {
                        if (err) {
-                         helpers.sendJsonResponse(res, 404, err);
+                         helpers.sendJsonResponse(res, 404, 5, err);
                        }
 
                        updateNotifyObj.buy_opt_container = [];
@@ -315,9 +304,9 @@ var updateUserSubOptions = function(req, res) {
                        var options = common.processOptions(req, updateNotifyObj);
                        options.save(function(err, updated) {
                          if (err) {
-                           helpers.sendJsonResponse(res, 404, err);
+                           helpers.sendJsonResponse(res, 404, 5, err);
                          } else {
-                           helpers.sendJsonResponse(res, 200, updated);
+                           helpers.sendJsonResponse(res, 200, -1, "Success");
                          }
                        });
                      });
@@ -328,10 +317,9 @@ var updateUserSubOptions = function(req, res) {
 
 var deleteUserSubOptions = function(req, res) {
     
-    
     var id =  req.params.id;
-    var publicKey = req.query.publicKey;
-    var signature = req.query.signature;
+    var publicKey = req.query.publicKey || req.body.publicKey;
+    var signature = req.query.signature || req.body.signature;
     
     log.info('Id : '+id);
     log.info('Public Key : '+publicKey);
@@ -340,14 +328,14 @@ var deleteUserSubOptions = function(req, res) {
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
 		return;
 	}
 
 	// Validate Signature
 	if(!(master.validateParameter(signature, 'Signature')))
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
 		return;
 	}
     
@@ -360,7 +348,7 @@ var deleteUserSubOptions = function(req, res) {
          
         if(result[0].error == true || result[0].error == 'true')
         {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            master.sendResponse(req, res, 404, result[0].errCode, result[0].message);
             return;
         }
     
@@ -372,32 +360,44 @@ var deleteUserSubOptions = function(req, res) {
               .exec(
                 function(err, deleteuser) {
                   if (err) {
-                    helpers.sendJsonResponse(res, 404, err);
+                    helpers.sendJsonResponse(res, 404, 5, err);
                     return;
                   }
 
-                  if (true) {
-                    console.log("object has notify option object");
+                //console.log(deleteuser);
+                  //  return;
+                    
+                  if (deleteuser) {
+                    //console.log("object has notify option object");
                     NotifyOption
                                .findByIdAndRemove(deleteuser.notify_options_fk_key)
                                .exec(
                                  function(err, deloptions) {
                                    if (err) {
-                                     helpers.sendJsonResponse(res, 404, err);
+                                     helpers.sendJsonResponse(res, 404, 5, err);
                                      return;
                                    }
+                                     
+                                                       deleteuser.notify_options_fk_key = null;
+                  deleteuser.save(function(err, result){
+                      if(err)
+                      {
+                          helpers.sendJsonResponse(res, 404, 5, err);
+                          return;
+                      }
+                      console.log('Executed');
+                      
+                        helpers.sendJsonResponse(res, 200, -1, "Success");
+                  });
+                                     
                                  }
                                );
                   } else {
-                    helpers.sendJsonResponse(res, 404, {
-                      "message": "user has no option id."
-                    });
+                   helpers.sendJsonResponse(res, 404, 4, 'There is no user registered with that email address.');
+                      return;
                   }
 
-                  deleteuser.notify_options_fk_key = null;
-                  deleteuser.save(function(err, result){
-                    helpers.sendJsonResponse(res, 204, null);
-                  });
+
                 }
               );
 
@@ -413,9 +413,7 @@ var deleteUserSubOptions = function(req, res) {
             //    }
             //  );
           } else {
-            helpers.sendJsonResponse(res, 404, {
-              "message": "object id not found"
-            });
+            helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
             return;
           }
         
