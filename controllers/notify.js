@@ -111,8 +111,8 @@ var getUserSubOptions = function(req, res) {
           .findById(req.params.id)
           .populate('notify_options_fk_key')
           .lean()
+          .select({_id:1,email:1,notify_options_fk_key:1})
           .exec(function(err, user){
-            .select({_id:1,email:1,notify_options_fk_key:1}).exec(function(err, user){
             if (!user) {
               helpers.sendJsonResponse(res, 404, 4, 'There is no user registered with that email address.');
               return;
@@ -132,18 +132,13 @@ var getUserSubOptions = function(req, res) {
                          result.notify_options_fk_key.bid_opt_permissions = common
                              .resolvePermissions(option_perm_code[2]);
                          helpers.sendJsonResponse(res, 200, -1, result);
-
                      });
           });
       } else {
         helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
       }
-
-
-    });
-
+  });
 };
-
 
 
 
