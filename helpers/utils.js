@@ -13,6 +13,9 @@ function randomString(length) {
     return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
 }
 
+function permCodeBatch(container) {
+
+}
 function inPermCodeFormat(code) {
     return /^[0-7]{3}$/.test(code);
 }

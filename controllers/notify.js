@@ -123,8 +123,10 @@ var getUserSubOptions = function(req, res) {
 
             Usr
                      .populate(user, notifyconfigs, function(err, result){
-                       	if (err) return helpers.sendJsonResponse(res, 404, 5, err);
-                         var option_perm_code = result.notify_options_fk_key.buy_ask_bid_perm_code;
+                       if (err) return helpers.sendJsonResponse(res, 404, 5, err);
+                         var get_opt_perms = result.notify_options_fk_key.buy_ask_bid_perm_code;
+                         var option_perm_code = get_opt_perms === undefined ? "000" : get_opt_perms;
+
                          result.notify_options_fk_key.buy_opt_permissions = common
                                                                      .resolvePermissions(option_perm_code[0]);
                          result.notify_options_fk_key.ask_opt_permissions = common
@@ -240,7 +242,6 @@ var createUserSubOptions = function(req, res){
 
 var updateUserSubOptions = function(req, res) {
 
-
     var id =  req.params.id;
     var optionid = req.params.optionid;
     var publicKey = req.body.publicKey || req.query.publicKey;
@@ -273,8 +274,8 @@ var updateUserSubOptions = function(req, res) {
     	helpers.sendJsonResponse(res, 404, {
       		"message": "unexpected permission code"
     	});
-    	return;
-  	}
+		return;
+	}
 
 	// Validate Signature
 	if(!(master.validateParameter(signature, 'Signature')))
@@ -300,7 +301,12 @@ var updateUserSubOptions = function(req, res) {
       if ((!req.params.id) || (!req.params.optionid) || (!req.params)) {
           helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
         return;
-      }
+      } else if (!helpers.inPermCodeFormat(req.body.buy_ask_bid_perm_code.toString())) {
+        helpers.sendJsonResponse(res, 404, {
+          "message": "unexpected permission code"
+    	  });
+    	  return;
+  	  }
 
       Usr
         .findById(req.params.id)
@@ -339,10 +345,9 @@ var updateUserSubOptions = function(req, res) {
                            helpers.sendJsonResponse(res, 200, -1, "Success");
                          }
                        });
-                     });
-        });
-
-    });
+                 }); //end of NotifyOption
+    }); //end of Usr
+  }); //end of secure Auth
 };
 
 var deleteUserSubOptions = function(req, res) {

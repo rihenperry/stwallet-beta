@@ -17,7 +17,7 @@ var processOptions = function(req, updateoptions) {
       buy_opt_container: [],
       ask_opt_container: [],
       bid_opt_container: [],
-      buy_ask_bid_perm_code: req.body.buy_ask_bid_perm_code || "000"
+      buy_ask_bid_perm_code: req.body.buy_ask_bid_perm_code.toString() || "000"
     })
   ) : updateoptions;
 
