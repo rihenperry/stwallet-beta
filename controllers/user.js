@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var async = require('async');
 
-var Usr = mongoose.model('user');
+var Usr = mongoose.model('User');
 var NotifyOption = mongoose.model('NotifyOption');
 var BuyOption = mongoose.model('BuyKeywordsOption');
 var AskOption = mongoose.model('AskKeywordsOption');
@@ -93,7 +93,7 @@ var createUser = function(req, res) {
 
     newuser.save(function(err, newuser) {
       if (err) {
-        console.log("newuser");
+        console.log(err);
         helpers.sendJsonResponse(res, 404, err);
         return;
       }
