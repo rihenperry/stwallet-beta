@@ -65,6 +65,6 @@ process.on('SIGTERM', function(){
   });
 });
 
-require('./notify_options');
 require('./notify_permission');
+require('./notify_options');
 require('./user');

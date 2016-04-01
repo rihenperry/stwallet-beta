@@ -50,6 +50,8 @@ var getAllSubOptions = function(req, res) {
       perms: function(cb) {
          NotifyPerm
               .find()
+              .where('_id').in([1,2,4])
+              .sort('-_id')
               .exec(function(err, container){
                 if (err) {
                   helpers.sendJsonResponse(res, 404, err);
@@ -68,9 +70,12 @@ var getAllSubOptions = function(req, res) {
 
 var getUserSubOptions = function(req, res) {
   var notifyconfigs = [
-    {path: 'notify_options_fk_key.buy_opt_container', model: 'BuyKeywordsOption'},
-    {path: 'notify_options_fk_key.ask_opt_container', model: 'AskKeywordsOption'},
-    {path: 'notify_options_fk_key.bid_opt_container', model: 'BidKeywordsOption'}
+    {path: 'notify_options_fk_key.buy_opt_container.option', model: 'BuyKeywordsOption'},
+    {path: 'notify_options_fk_key.buy_opt_container.permissions', model: 'NotifyPerm'},
+    {path: 'notify_options_fk_key.ask_opt_container.option', model: 'AskKeywordsOption'},
+    {path: 'notify_options_fk_key.ask_opt_container.permissions', model: 'NotifyPerm'},
+    {path: 'notify_options_fk_key.bid_opt_container.option', model: 'BidKeywordsOption'},
+    {path: 'notify_options_fk_key.bid_opt_container.permissions', model: 'NotifyPerm'}
   ];
 
   var id =  req.params.id;
@@ -107,10 +112,9 @@ var getUserSubOptions = function(req, res) {
 
     // Write Your Code Here
        if(req.params && req.params.id) {
-        Usr
+         Usr
           .findById(req.params.id)
           .populate('notify_options_fk_key')
-          .lean()
           .select({_id:1,email:1,notify_options_fk_key:1})
           .exec(function(err, user){
             if (!user) {
@@ -122,19 +126,13 @@ var getUserSubOptions = function(req, res) {
             }
 
             Usr
-                     .populate(user, notifyconfigs, function(err, result){
-                       if (err) return helpers.sendJsonResponse(res, 404, 5, err);
-                         var get_opt_perms = result.notify_options_fk_key.buy_ask_bid_perm_code;
-                         var option_perm_code = get_opt_perms === undefined ? "000" : get_opt_perms;
-
-                         result.notify_options_fk_key.buy_opt_permissions = common
-                                                                     .resolvePermissions(option_perm_code[0]);
-                         result.notify_options_fk_key.ask_opt_permissions = common
-                             .resolvePermissions(option_perm_code[1]);
-                         result.notify_options_fk_key.bid_opt_permissions = common
-                             .resolvePermissions(option_perm_code[2]);
-                         helpers.sendJsonResponse(res, 200, -1, result);
-                     });
+              .populate(user, notifyconfigs, function(err, result){
+                if (err) {
+                  helpers.sendJsonResponse(res, 404, 5, err);
+                  return;
+                }
+                helpers.sendJsonResponse(res, 200, -1, result);
+              });
           });
       } else {
         helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
@@ -197,12 +195,13 @@ var createUserSubOptions = function(req, res){
             } else if (err) {
               helpers.sendJsonResponse(res, 200, 5, err);
               return;
-            } else if (!helpers.inPermCodeFormat(req.body.buy_ask_bid_perm_code.toString())) {
-          	  helpers.sendJsonResponse(res, 404, {
-                "message": "unexpected permission code"
-              });
-              return;
             }
+            //else if (!helpers.inPermCodeFormat(req.body.buy_perm_code.toString())) {
+          	//  helpers.sendJsonResponse(res, 404, {
+            //    "message": "unexpected permission code"
+            //  });
+            //  return;
+            //}
 
             if(updateuser.notify_options_fk_key){
                 helpers.sendJsonResponse(res, 404, 51, "User Preferences Already Exist");
@@ -270,12 +269,13 @@ var updateUserSubOptions = function(req, res) {
       		"message": "No args in request"
     	});
     	return;
-  	} else if (!helpers.inPermCodeFormat(req.body.buy_ask_bid_perm_code.toString())) {
-    	helpers.sendJsonResponse(res, 404, {
-      		"message": "unexpected permission code"
-    	});
-		return;
-	}
+  	}
+    //else if (!helpers.inPermCodeFormat(req.body.buy_ask_bid_perm_code.toString())) {
+    //	helpers.sendJsonResponse(res, 404, {
+    //  	"message": "unexpected permission code"
+    //	});
+		//  return;
+	  //}
 
 	// Validate Signature
 	if(!(master.validateParameter(signature, 'Signature')))
@@ -301,12 +301,13 @@ var updateUserSubOptions = function(req, res) {
       if ((!req.params.id) || (!req.params.optionid) || (!req.params)) {
           helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
         return;
-      } else if (!helpers.inPermCodeFormat(req.body.buy_ask_bid_perm_code.toString())) {
-        helpers.sendJsonResponse(res, 404, {
-          "message": "unexpected permission code"
-    	  });
-    	  return;
-  	  }
+      }
+      //else if (!helpers.inPermCodeFormat(req.body.buy_ask_bid_perm_code.toString())) {
+      //  helpers.sendJsonResponse(res, 404, {
+      //    "message": "unexpected permission code"
+    	//  });
+    	//  return;
+  	  //}
 
       Usr
         .findById(req.params.id)
@@ -316,6 +317,7 @@ var updateUserSubOptions = function(req, res) {
                 helpers.sendJsonResponse(res, 404, 4, 'option ID doesn not exist for this user ID');
               return;
             } else if (err) {
+              console.log("there is an error");
               helpers.sendJsonResponse(res, 404, 5, err);
               return;
             }
@@ -334,7 +336,6 @@ var updateUserSubOptions = function(req, res) {
                        updateNotifyObj.buy_opt_container = [];
                        updateNotifyObj.ask_opt_container = [];
                        updateNotifyObj.bid_opt_container = [];
-                   	   updateNotifyObj.buy_ask_bid_perm_code = req.body.buy_ask_bid_perm_code.toString();
                        updateNotifyObj.updated_on = Date.now();
 
                        var options = common.processOptions(req, updateNotifyObj);
@@ -419,7 +420,7 @@ var deleteUserSubOptions = function(req, res) {
                                      return;
                                    }
                                    console.log('Executed');
-                                   helpers.sendJsonResponse(res, 200, -1, "Success");
+                                   helpers.sendJsonResponse(res, 204, -1, "Success");
                                  });
                                });
                   } else {

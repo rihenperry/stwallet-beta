@@ -14,16 +14,34 @@ function randomString(length) {
 }
 
 function permCodeBatch(container) {
-
+  var permBool = true;
+  for (var index=0; index < container.length; index ++) {
+    if (!inPermCodeFormat(container[index])) {
+      permBool = false;
+      break;
+    }
+  }
+  return permBool;
 }
+
 function inPermCodeFormat(code) {
     return /^[0-7]{3}$/.test(code);
+}
+
+function permArrayToObj(perm_k, perm_v) {
+  var obj = {};
+  while(perm_k.length) {
+    obj[perm_k.splice(0, 1)] = perm_v.splice(0, 1).toString(10).split("").map(Number);
+  }
+  return obj;
 }
 
 module.exports= {
   sendJsonResponse : sendJsonResponse,
   alphaNumr : randomString,
-  inPermCodeFormat: inPermCodeFormat
+  inPermCodeFormat: inPermCodeFormat,
+  permCodeBatch: permCodeBatch,
+  permArrayToObj: permArrayToObj
 };
 
 //Usr
