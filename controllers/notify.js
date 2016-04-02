@@ -150,13 +150,21 @@ var createUserSubOptions = function(req, res){
     var buy_container = req.body.buy_container;
     var ask_container = req.body.ask_container;
     var bid_container = req.body.bid_container;
+    var buy_perm_code = req.body.buy_perm_code;
+    var ask_perm_code = req.body.ask_perm_code;
+    var bid_perm_code = req.body.bid_perm_code;
 
     log.info('Id : '+id);
     log.info('Public Key : '+publicKey);
     log.info('Signature : '+signature);
+  
     log.info('Buy Options : '+buy_container);
     log.info('Ask Options : '+ask_container);
     log.info('Bid Options : '+bid_container);
+
+    log.info('Buy perm : '+buy_perm_code);
+    log.info('Ask perm : '+ask_perm_code);
+    log.info('Bid perm : '+bid_perm_code);
 
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -175,7 +183,7 @@ var createUserSubOptions = function(req, res){
     var query = {publicKey:publicKey};
     //var text  = 'id='+encodeURIComponent(id)+'&buy_container='+encodeURIComponent(buy_container)+'&ask_container='+encodeURIComponent(ask_container)+'&bid_container='+encodeURIComponent(bid_container)+'&publicKey='+encodeURIComponent(publicKey);
 
-    var text  = 'id='+id+'&buy_container='+buy_container+'&ask_container='+ask_container+'&bid_container='+bid_container+'&publicKey='+publicKey;
+    var text  = 'id='+id+'&buy_container='+buy_container+'&ask_container='+ask_container+'&bid_container='+bid_container+'&buy_perm_code='+buy_perm_code+'&ask_perm_code='+ask_perm_code+'&bid_perm_code='+bid_perm_code+'&publicKey='+publicKey;
 
     master.secureAuth(query, text, signature, function (result){
 
@@ -237,7 +245,45 @@ var createUserSubOptions = function(req, res){
     });
 };
 
+/* called for every new and existing user account*/
+/* args: req     -> Object, express req param
+         user_id -> String, maps to its corresponding Option ID
+         next    -> Function, callback provided to return response
+ * returns: func(err, result)
+ */
+var createUserDefaultNotifyObj= function(req, user_id, next) {
+  Usr
+    .findById(user_id)
+    .exec(function(err, newuser){
+      if (!newuser) {
+        var noUserExist = new Error("no user exists");
+        next(noUserExist);
+        return;
+      } else if (err) {
+        next(err);
+        return;
+      } else if (newuser.notify_options_fk_key) {
+        var optionsExist = new Error('Option Object exists');
+        next(optionsExist);
+        return;
+      }
 
+      /* initialize options for new user */
+      var updateOptions = null;
+      var options = common.processOptions(req, updateOptions);
+
+      options.save(function(err) {
+        if (err) {
+          next(err);
+          return;
+        }
+
+        /* update option object's foreign key */
+        newuser.notify_options_fk_key = options._id;
+        next(null, newuser);
+      }); //end of options
+    }); //end of Usr
+};
 
 var updateUserSubOptions = function(req, res) {
 
@@ -249,14 +295,22 @@ var updateUserSubOptions = function(req, res) {
     var ask_container = req.body.ask_container;
     var bid_container = req.body.bid_container;
 
-    log.info('Id : '+id);
-    log.info('Option Id : '+optionid);
+    var buy_perm_code = req.body.buy_perm_code;
+    var ask_perm_code = req.body.ask_perm_code;
+    var bid_perm_code = req.body.bid_perm_code;
+
     log.info('Public Key : '+publicKey);
     log.info('Signature : '+signature);
+    log.info('user id: '+id);
+    log.info('option id: '+optionid);
+
     log.info('Buy Options : '+buy_container);
     log.info('Ask Options : '+ask_container);
     log.info('Bid Options : '+bid_container);
 
+    log.info('Buy perm : '+buy_perm_code);
+    log.info('Ask perm : '+ask_perm_code);
+    log.info('Bid perm : '+bid_perm_code);
     // Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
@@ -287,8 +341,7 @@ var updateUserSubOptions = function(req, res) {
     var query = {publicKey:publicKey};
     //var text  = 'id='+encodeURIComponent(id)+'&optionid='+encodeURIComponent(optionid)+'&buy_container='+encodeURIComponent(buy_container)+'&ask_container='+encodeURIComponent(ask_container)+'&bid_container='+encodeURIComponent(bid_container)+'&publicKey='+encodeURIComponent(publicKey);
 
-    var text  = 'id='+id+'&optionid='+optionid+'&buy_container='+buy_container+'&ask_container='+ask_container+'&bid_container='+bid_container+'&publicKey='+publicKey;
-
+var text  = 'id='+id+'&optionid='+optionid+'&buy_container='+buy_container+'&ask_container='+ask_container+'&bid_container='+bid_container+'&buy_perm_code='+buy_perm_code+'&ask_perm_code='+ask_perm_code+'&bid_perm_code='+bid_perm_code+'&publicKey='+publicKey;
     master.secureAuth(query, text, signature, function (result){
 
         if(result[0].error == true || result[0].error == 'true')
@@ -402,7 +455,7 @@ var deleteUserSubOptions = function(req, res) {
                 //console.log(deleteuser);
                   //  return;
 
-                  if (deleteuser) {
+                  if (deleteuser.notify_options_fk_key !== null) {
                     //console.log("object has notify option object");
                     NotifyOption
                                .findByIdAndRemove(deleteuser.notify_options_fk_key)
@@ -419,12 +472,14 @@ var deleteUserSubOptions = function(req, res) {
                                      helpers.sendJsonResponse(res, 404, 5, err);
                                      return;
                                    }
+
+                                   helpers.sendJsonResponse(res, 200, -1, "Success");
                                    console.log('Executed');
-                                   helpers.sendJsonResponse(res, 204, -1, "Success");
+                                   return;
                                  });
                                });
                   } else {
-                   helpers.sendJsonResponse(res, 404, 4, 'There is no user registered with that email address.');
+                   helpers.sendJsonResponse(res, 404, 4, 'user option ID does not exist');
                       return;
                   }
                 });
