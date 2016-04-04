@@ -8,9 +8,9 @@
 var mongoose = require('mongoose');
 
 //Format -> mongodb://username:password@localhost:27027/database
-//var dbURI = 'mongodb://localhost/mytest';
+var dbURI = 'mongodb://localhost/mytest';
 //var dbURI = 'mongodb://localhost/notification';
-var dbURI = 'mongodb://localhost/wallet';
+//var dbURI = 'mongodb://localhost/wallet';
 var peacefulShutdown;
 
 if(process.env.NODE_ENV === 'production') {

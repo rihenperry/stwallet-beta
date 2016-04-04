@@ -251,23 +251,7 @@ var createUserSubOptions = function(req, res){
          next    -> Function, callback provided to return response
  * returns: func(err, result)
  */
-var createUserDefaultNotifyObj= function(req, user_id, next) {
-  Usr
-    .findById(user_id)
-    .exec(function(err, newuser){
-      if (!newuser) {
-        var noUserExist = new Error("no user exists");
-        next(noUserExist);
-        return;
-      } else if (err) {
-        next(err);
-        return;
-      } else if (newuser.notify_options_fk_key) {
-        var optionsExist = new Error('Option Object exists');
-        next(optionsExist);
-        return;
-      }
-
+var createUserDefaultNotifyObj= function(req, next) {
       /* initialize options for new user */
       var updateOptions = null;
       var options = common.processOptions(req, updateOptions);
@@ -277,12 +261,8 @@ var createUserDefaultNotifyObj= function(req, user_id, next) {
           next(err);
           return;
         }
-
-        /* update option object's foreign key */
-        newuser.notify_options_fk_key = options._id;
-        next(null, newuser);
+        next(null, options._id);
       }); //end of options
-    }); //end of Usr
 };
 
 var updateUserSubOptions = function(req, res) {
@@ -495,5 +475,6 @@ module.exports = {
   getUserSubOptions: getUserSubOptions,
   createUserSubOptions: createUserSubOptions,
   updateUserSubOptions: updateUserSubOptions,
-  deleteUserSubOptions: deleteUserSubOptions
+  deleteUserSubOptions: deleteUserSubOptions,
+  createUserDefaultNotifyObj: createUserDefaultNotifyObj
 };

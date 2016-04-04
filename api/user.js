@@ -9,6 +9,7 @@ var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Sc
     master              = require('../config/masterfunc.js'),           // Master Functions
     crypt               = require('../config/crypt.js'),                // Crypt/Signature Related Functionality
     mailer              = require('../config/mail.js'),                 // Mail Functionality
+	notify				= require('../controllers/notify.js'),			
     protocol 		    = 'http',
     fs 				    = require('fs'), 
     im 				    = require('imagemagick'),
@@ -349,40 +350,56 @@ module.exports.secureRegister = function (req, res) {
                         {
                             refcode=refcode;
                         }
+						
+						notify.createUserDefaultNotifyObj(req, function(err, optionID){
+						
+							if(err)
+							{
+								log.error(err);
+								master.sendResponse(req, res, 200, 5, "Database Error");
+								return;
+							}
+							
+							else{
+							
+								// Making Object of myInfo
+								var myInfo = new userSchema({
+									_id: accountID,
+									first_name : first_name,
+									last_name : last_name,
+									email : email,
+									password : password,
+									mobile_number : mobile_number,
+									ref_email : referred_person_email,
+									my_referral_id : refcode,
+									seed : seed,
+									creationTime : creationTime,
+									salt : salt,
+									country : country,
+									first_buy_status: stat,
+									notify_options_fk_key: optionID
+								});
 
-                        // Making Object of myInfo
-                        var myInfo = new userSchema({
-                            _id: accountID,
-                            first_name : first_name,
-                            last_name : last_name,
-                            email : email,
-                            password : password,
-                            mobile_number : mobile_number,
-                            ref_email : referred_person_email,
-                            my_referral_id : refcode,
-                            seed : seed,
-                            creationTime : creationTime,
-                            salt : salt,
-                            country : country,
-                            first_buy_status: stat
-                        });
 
+								myInfo.save(function(err){
+									
+									if(err)
+									{
+										log.error(err);
+										master.sendResponse(req, res, 200, 5, "Database Error");
+										return;
+									}
+										
+									sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
+									
+									log.info('Saved SuccessFully');
+									master.sendResponse(req, res, 200, -1, "Success");
 
-                        myInfo.save(function(err){
-                            
-                            if(err)
-                            {
-                                log.error(err);
-                                master.sendResponse(req, res, 200, 5, "Database Error");
-                                return;
-                            }
-                                
-                            sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
-                            
-                            log.info('Saved SuccessFully');
-                            master.sendResponse(req, res, 200, -1, "Success");
-
-                        });
+								});
+							
+							}
+							
+						})
 
                     })
 
