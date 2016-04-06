@@ -93,7 +93,7 @@ var createUser = function(req, res) {
 
     newuser.save(function(err, newuser) {
       if (err) {
-        console.log("newuser");
+        console.log(err);
         helpers.sendJsonResponse(res, 404, err);
         return;
       }

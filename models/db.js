@@ -8,9 +8,9 @@
 var mongoose = require('mongoose');
 
 //Format -> mongodb://username:password@localhost:27027/database
-var dbURI = 'mongodb://localhost/mytest';
+//var dbURI = 'mongodb://localhost/mytest';
 //var dbURI = 'mongodb://localhost/notification';
-
+var dbURI = 'mongodb://localhost/wallet';
 var peacefulShutdown;
 
 if(process.env.NODE_ENV === 'production') {
@@ -65,5 +65,6 @@ process.on('SIGTERM', function(){
   });
 });
 
+require('./notify_permission');
 require('./notify_options');
 require('./user');
