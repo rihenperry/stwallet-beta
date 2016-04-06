@@ -14,12 +14,12 @@ var processOptions = function(req, updateoptions) {
     rawask: req.body.ask_container? JSON.parse(req.body.ask_container): [1,2,3],
     rawbid: req.body.bid_container? JSON.parse(req.body.bid_container): [1,2,3,4]
   };
-  console.log("unProcessedBox ->"+ util.inspect(unProcessedBox));
+  log.info("unProcessedBox -> %s", util.inspect(unProcessedBox));
 
-  console.dir("PermBox->" + util.inspect(Object.keys(unProcessedBox)));
+  log.info("PermBox-> %s", util.inspect(Object.keys(unProcessedBox)));
 
-  var unProcessedPermBox = mapPermsToOptions(req, Object.keys(unProcessedBox));
-  console.dir("processed PermBox ->" + util.inspect(unProcessedPermBox));
+  var unProcessedPermBox = mapPermsToOptions(req, unProcessedBox);
+  log.info("processed PermBox ->", util.inspect(unProcessedPermBox));
 
   var options = updateoptions === null ? (
     new NotifyOption({
@@ -43,7 +43,7 @@ var processOptions = function(req, updateoptions) {
           permIterator++ ;
           cb();
         }, function(err){
-          console.log("buy container ->" + util.inspect(options.buy_opt_container));
+          log.info("buy container -> %s", util.inspect(options.buy_opt_container));
           options.save();
         });
         break;
@@ -58,7 +58,7 @@ var processOptions = function(req, updateoptions) {
           permIterator++;
           cb();
         }, function(err){
-          console.log("ask container ->" + util.inspect(options.ask_opt_container));
+          log.info("ask container -> %s", util.inspect(options.ask_opt_container));
           options.save();
         });
         //processingAsk(unProcessedBox, key, options);
@@ -74,7 +74,7 @@ var processOptions = function(req, updateoptions) {
           permIterator++;
           cb();
         }, function(err){
-          console.log("bid container ->" + util.inspect(options.bid_opt_container));
+          log.info("bid container -> %s", util.inspect(options.bid_opt_container));
           options.save();
         });
         break;
@@ -85,16 +85,17 @@ var processOptions = function(req, updateoptions) {
 
 var mapPermsToOptions = function(req, unProcessedBox) {
   // unProcessedBox as [] -> The arg should be Option container keys as Array Object
-  var all_in_one_perm_container = req.body.buy_ask_perm_container? JSON.parse(req.body.buy_ask_perm_container): null;
+  var all_in_one_perm_container = req.body.buy_ask_bid_perm_container? JSON.parse(req.body.buy_ask_bid_perm_container): null;
   var unProcessedPermBox = all_in_one_perm_container !== null  ? (
-    helpers.permArrayToObj(unProcessedBox, all_in_one_perm_container)
+    helpers.permArrayToObj(Object.keys(unProcessedBox), all_in_one_perm_container)
   ): (
-    helpers.permArrayToObj(unProcessedBox,
-                           [req.body.buy_perm_code? JSON.parse(req.body.buy_perm_code): "222",
-                            req.body.ask_perm_code? JSON.parse(req.body.ask_perm_code): "222",
-                            req.body.bid_perm_code? JSON.parse(req.body.bid_perm_code): "2222"])
+    helpers.permArrayToObj(Object.keys(unProcessedBox),
+                           [req.body.buy_perm_code? req.body.buy_perm_code: "222",
+                            req.body.ask_perm_code? req.body.ask_perm_code: "222",
+                            req.body.bid_perm_code? req.body.bid_perm_code: "2222"])
   );
 
+  log.info("mapping Perms To Options -> %s", util.inspect(unProcessedPermBox));
   return unProcessedPermBox;
 };
 
