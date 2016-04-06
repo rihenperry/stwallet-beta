@@ -22,6 +22,7 @@ var getAllSubOptions = function(req, res) {
              .find()
              .exec(function(err, container){
                if (err) {
+                 log.info({err: err});
                  helpers.sendJsonResponse(res, 404, 5, err);
                }
                cb(null, container);
@@ -32,6 +33,7 @@ var getAllSubOptions = function(req, res) {
              .find()
              .exec(function(err, container){
                if (err) {
+                 log.info({err: err});
                  helpers.sendJsonResponse(res, 404, 5, err);
                }
                cb(null, container);
@@ -42,6 +44,7 @@ var getAllSubOptions = function(req, res) {
              .find()
              .exec(function(err, container){
                if (err) {
+                 log.info({err: err});
                  helpers.sendJsonResponse(res, 404, 5, err);
                }
                cb(null, container);
@@ -54,6 +57,7 @@ var getAllSubOptions = function(req, res) {
               .sort('-_id')
               .exec(function(err, container){
                 if (err) {
+                  log.info({err: err});
                   helpers.sendJsonResponse(res, 404, err);
                 }
                 cb(null,container);
@@ -61,6 +65,7 @@ var getAllSubOptions = function(req, res) {
       }
     }, function(err, results) {
       //console.log(results);
+      log.info("notify list -> %s", results);
       helpers.sendJsonResponse(res, 200, -1, results);
     });
   } else {
@@ -118,9 +123,11 @@ var getUserSubOptions = function(req, res) {
           .select({_id:1,email:1,notify_options_fk_key:1})
           .exec(function(err, user){
             if (!user) {
+              log.info({err: user});
               helpers.sendJsonResponse(res, 404, 4, 'There is no user registered with that email address.');
               return;
             } else if (err) {
+              log.info({err: err});
               helpers.sendJsonResponse(res, 404, 5, err);
               return;
             }
@@ -128,10 +135,12 @@ var getUserSubOptions = function(req, res) {
             Usr
               .populate(user, notifyconfigs, function(err, result){
                 if (err) {
+                  log.error(err);
                   helpers.sendJsonResponse(res, 404, 5, err);
                   return;
                 }
                 helpers.sendJsonResponse(res, 200, -1, result);
+                log.info("User notify options -> %s", result);
               });
           });
       } else {
@@ -157,7 +166,7 @@ var createUserSubOptions = function(req, res){
     log.info('Id : '+id);
     log.info('Public Key : '+publicKey);
     log.info('Signature : '+signature);
-  
+
     log.info('Buy Options : '+buy_container);
     log.info('Ask Options : '+ask_container);
     log.info('Bid Options : '+bid_container);
@@ -198,9 +207,11 @@ var createUserSubOptions = function(req, res){
           .findById(req.params.id)
           .exec(function(err, updateuser){
             if (!updateuser) {
+                log.info("no user registered %s". updateuser);
                 helpers.sendJsonResponse(res, 404, 4, 'There is no user registered with that email address.');
               return;
             } else if (err) {
+              log.error(err);
               helpers.sendJsonResponse(res, 200, 5, err);
               return;
             }
@@ -212,6 +223,7 @@ var createUserSubOptions = function(req, res){
             //}
 
             if(updateuser.notify_options_fk_key){
+                log.info("user already exits", updateuser.notify_options_fk_key);
                 helpers.sendJsonResponse(res, 404, 51, "User Preferences Already Exist");
                 return;
             }
@@ -222,6 +234,7 @@ var createUserSubOptions = function(req, res){
 
             options.save(function(err) {
               if (err) {
+                log.error(err);
                 helpers.sendJsonResponse(res, 404, 5, err);
                 return;
               }
@@ -231,6 +244,7 @@ var createUserSubOptions = function(req, res){
 
               updateuser.save(function(err, newuser) {
                 if (err) {
+                  log.error(err);
                   helpers.sendJsonResponse(res, 404, 5, err);
                   return;
                 }
@@ -247,7 +261,6 @@ var createUserSubOptions = function(req, res){
 
 /* called for every new and existing user account*/
 /* args: req     -> Object, express req param
-         user_id -> String, maps to its corresponding Option ID
          next    -> Function, callback provided to return response
  * returns: func(err, result)
  */
@@ -258,6 +271,7 @@ var createUserDefaultNotifyObj= function(req, next) {
 
       options.save(function(err) {
         if (err) {
+          log.info({err: err});
           next(err);
           return;
         }
@@ -347,14 +361,16 @@ var text  = 'id='+id+'&optionid='+optionid+'&buy_container='+buy_container+'&ask
         .exec(function(err, user){
           try {
             if ((user.notify_options_fk_key.toString() !== req.params.optionid)) {
+                log.warn({optionid: "optionid mismatched"}, 'option ID doesnt not exist for this user ID');
                 helpers.sendJsonResponse(res, 404, 4, 'option ID doesn not exist for this user ID');
               return;
             } else if (err) {
-              console.log("there is an error");
+              log.error(err);
               helpers.sendJsonResponse(res, 404, 5, err);
               return;
             }
           } catch(err) {
+              log.error(err);
               helpers.sendJsonResponse(res, 404, 61, 'Option id not found');
             return;
           }
@@ -363,6 +379,7 @@ var text  = 'id='+id+'&optionid='+optionid+'&buy_container='+buy_container+'&ask
                      .findById(req.params.optionid)
                      .exec(function(err, updateNotifyObj) {
                        if (err) {
+                         log.error(err);
                          helpers.sendJsonResponse(res, 404, 5, err);
                        }
 
@@ -374,6 +391,7 @@ var text  = 'id='+id+'&optionid='+optionid+'&buy_container='+buy_container+'&ask
                        var options = common.processOptions(req, updateNotifyObj);
                        options.save(function(err, updated) {
                          if (err) {
+                           log.error(err);
                            helpers.sendJsonResponse(res, 404, 5, err);
                          } else {
                            helpers.sendJsonResponse(res, 200, -1, "Success");
@@ -428,6 +446,7 @@ var deleteUserSubOptions = function(req, res) {
               .populate('notify_options_fk_key')
               .exec(function(err, deleteuser) {
                   if (err) {
+                    log.error(err);
                     helpers.sendJsonResponse(res, 404, 5, err);
                     return;
                   }
@@ -441,6 +460,7 @@ var deleteUserSubOptions = function(req, res) {
                                .findByIdAndRemove(deleteuser.notify_options_fk_key)
                                .exec(function(err, deloptions) {
                                    if (err) {
+                                     log.error(err);
                                      helpers.sendJsonResponse(res, 404, 5, err);
                                      return;
                                    }
@@ -449,12 +469,13 @@ var deleteUserSubOptions = function(req, res) {
                                  deleteuser.save(function(err, result){
 
                                    if(err){
+                                     log.error(err);
                                      helpers.sendJsonResponse(res, 404, 5, err);
                                      return;
                                    }
 
+                                   log.info('option object deleted for userid -> %s', deleteuser._id);
                                    helpers.sendJsonResponse(res, 200, -1, "Success");
-                                   console.log('Executed');
                                    return;
                                  });
                                });
