@@ -18,7 +18,7 @@ var poolSchema          = require('../models/poolSchema.js'),           // Pool 
 	os 					= require("os"),
 
 // Variales and Functions
-    protocol 		    = 'http',
+    //protocol 		    = 'http',
     log                 = logger();                                     // Looger Function to see logs                             
 
 //========================= Page Functions ========================= //
@@ -30,17 +30,17 @@ function validateEmail(email) {
 }
 
 // Verification Email Function on Signup(Register)
-function sendVerificationEmail(accountInfo, flag){
+function sendVerificationEmail(accountInfo, flag, rootUrl){
 	
 	var vhash = encodeURIComponent(crypt.generate(accountInfo._id));
 
 	if(flag == '2') // Wallet 
 	{
-		var url= protocol+"://scoinz.com/presaleWallet/wallet/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&errcode=15";
+		var url= rootUrl+"presaleWallet/wallet/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&errcode=15";
 	}
 	else // Web
 	{
-		var url= protocol+"://scoinz.com/keywords/views/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		var url= rootUrl+"keywords/views/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
 	
 	var text= '<div style="border:solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hello '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>Your SearchTrade account has been created.</p><p>Please click <a href="'+url+'">Here</a> to verify your email address or copy/paste the link below into your browser.</p><p>'+url+'</p></div></div></div></div>';
@@ -58,23 +58,23 @@ function sendVerificationEmail(accountInfo, flag){
 }
 
 // Send Reset Password Link to User Email Address
-function sendRestEmail(accountInfo, flag){
+function sendRestEmail(accountInfo, flag, rootUrl){
   
 	var vhash = encodeURIComponent(crypt.generate(accountInfo._id));
   
 	if(flag == '1') // For Web
 	{
-		var url= protocol+"://scoinz.com/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		var url= rootUrl+"forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
   
 	if(flag == '2')	// For Wallet
 	{
-		var url= protocol+"://scoinz.com/presaleWallet/wallet/resetpass.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
+		var url= rootUrl+"presaleWallet/wallet/resetpass.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
 	}
     
     if(flag == '3') // For Mobile
 	{
-		var url= protocol+"://scoinz.com/MobileSite/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		var url= rootUrl+"MobileSite/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
   
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>You have requested to Change your SearchTrade account password.</p><p>Please click <a href="'+url+'">Here</a> to reset your password.</p><p>OR</p><p>Copy Link Address below in your web browser</p><p>'+url+'</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div>';
@@ -147,6 +147,7 @@ module.exports.secureRegister = function (req, res) {
     var flag               = req.body.flag;
     var mobile_number      = req.body.mobile_number;
     var referral           = req.body.referral;
+	var rootUrl			   = req.body.rootUrl;
     var publicKey          = req.body.publicKey;
     var signature          = req.body.signature;
         
@@ -168,6 +169,7 @@ module.exports.secureRegister = function (req, res) {
     log.info('Flag : ' + flag);
     log.info('Mobile Number : ' + mobile_number);
     log.info('Refferal : ' + referral);
+    log.info('URL : ' + rootUrl);
     log.info('Public Key : '+publicKey);
     log.info('Signature : '+signature);
     
@@ -384,20 +386,22 @@ module.exports.secureRegister = function (req, res) {
                                 master.sendResponse(req, res, 200, 5, "Database Error");
                                 return;
                             }
-                                
-							var allhost = req.headers; 
-							var host = req.headers['host']; 
-							log.info('ALLHOST :'+allhost);
-							log.info('HOST :'+host);
-							console.log(JSON.stringify(req.headers));
-							var osname = os.hostname();
-							log.info('OS : '+osname);
+                            
+							// log.info('URL '+req.url);
+								
+							// var allhost = req.headers; 
+							// var host = req.headers['host']; 
+							// log.info('ALLHOST :'+allhost);
+							// log.info('HOST :'+host);
+							// console.log(JSON.stringify(req.headers));
+							// var osname = os.hostname();
+							// log.info('OS : '+osname);
 							
-							var osinterface = os.networkInterfaces();
-							log.info('OS : '+osinterface);
-							console.log(JSON.stringify(osinterface));
+							// var osinterface = os.networkInterfaces();
+							// log.info('OS : '+osinterface);
+							// console.log(JSON.stringify(osinterface));
 
-                            sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
+                            sendVerificationEmail(myInfo, flag, rootUrl);   // Send Email to Registered Email Address For Account Verification
                             
                             log.info('Saved SuccessFully');
                             master.sendResponse(req, res, 200, -1, "Success");
@@ -595,6 +599,7 @@ exports.secureResendVerification = function(req, res) {
     
     var email       = req.body.email;
     var flag        = req.body.flag;
+    var rootUrl     = req.body.rootUrl;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
 
@@ -662,7 +667,7 @@ exports.secureResendVerification = function(req, res) {
             }
 
             log.info('User Found');
-            sendVerificationEmail(result[0], flag);
+            sendVerificationEmail(result[0], flag, rootUrl);
             master.sendResponse(req, res, 200, -1, "Success");
             
         })
@@ -1156,6 +1161,7 @@ exports.secureForgotPassword = function(req, res) {
 	
 	var email          = req.body.email;
 	var flag           = req.body.flag;
+	var rootUrl        = req.body.rootUrl;
     var publicKey      = req.body.publicKey;
     var signature      = req.body.signature;
     
@@ -1226,7 +1232,7 @@ exports.secureForgotPassword = function(req, res) {
             {
                 if(result[0].active)
                 {   
-                    sendRestEmail(result[0], flag); // Send Reset Password Link 
+                    sendRestEmail(result[0], flag, rootUrl); // Send Reset Password Link 
                     master.sendResponse(req, res, 200, -1, "Success");
                     return;
                 }
