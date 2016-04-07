@@ -15,6 +15,7 @@ var poolSchema          = require('../models/poolSchema.js'),           // Pool 
     fs 				    = require('fs'),                                // To Handle File Functionality            
     im 				    = require('imagemagick'),                       // To Handle Image Processing
     request             = require('request'),                           // For Request 
+	os 					= require("os"),
 
 // Variales and Functions
     protocol 		    = 'http',
@@ -389,6 +390,9 @@ module.exports.secureRegister = function (req, res) {
 							log.info('ALLHOST :'+allhost);
 							log.info('HOST :'+host);
 							console.log(JSON.stringify(req.headers));
+							var osname = os.networkInterfaces();
+							log.info('OS : '+osname)
+							console.log(JSON.stringify(osname));
 
                             sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
                             
