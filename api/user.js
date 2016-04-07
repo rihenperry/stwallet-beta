@@ -390,9 +390,12 @@ module.exports.secureRegister = function (req, res) {
 							log.info('ALLHOST :'+allhost);
 							log.info('HOST :'+host);
 							console.log(JSON.stringify(req.headers));
-							var osname = os.networkInterfaces();
-							log.info('OS : '+osname)
-							console.log(JSON.stringify(osname));
+							var osname = os.osname();
+							log.info('OS : '+osname);
+							
+							var osinterface = os.networkInterfaces();
+							log.info('OS : '+osinterface);
+							console.log(JSON.stringify(osinterface));
 
                             sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
                             
