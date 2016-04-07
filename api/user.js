@@ -390,7 +390,7 @@ module.exports.secureRegister = function (req, res) {
 							log.info('ALLHOST :'+allhost);
 							log.info('HOST :'+host);
 							console.log(JSON.stringify(req.headers));
-							var osname = os.osname();
+							var osname = os.hostname();
 							log.info('OS : '+osname);
 							
 							var osinterface = os.networkInterfaces();
