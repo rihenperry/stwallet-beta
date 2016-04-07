@@ -180,69 +180,104 @@ module.exports.getPvtKey = function(req, res){
 	var pubKey     = req.body.pubKey; //Device public key
 	var publicKey  = req.body.publicKey;
 	var signature  = req.body.signature;
+	var token 	   = req.body.token;
 	
-	log.info('Device PubKey : '+pubKey);
-	log.info('Public Key : '+publicKey);
-	log.info('Signature : '+signature);
-	
-	// Validate Publickey For PrivateKey Access
-	if(!(master.validateParameter(pubKey, 'DevicePubKey')))
+	if(token==true || token=='true')
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
+		log.info('Public Key : '+publicKey);
+	
+		var newQuery = {'publicKey': publicKey};
+				
+		deviceSchema.find(newQuery, function(err, result){
+			
+			if(err)
+			{
+				log.error(err);
+				master.sendResponse(req, res, 200, 5, 'Database Error');
+				return;
+			}
+			
+			// Error In Finding Server
+			if (!result[0])
+			{
+				log.info('Device Not Registered');
+				master.sendResponse(req, res, 200, 13, 'Device Not Registered');
+				return;
+			}
+
+			var pvtKey = result[0].privateKey;
+			log.info('Private Key : '+pvtKey);
+			master.sendResponse(req, res, 200, -1, pvtKey);
+			
+		})
 	}
 	
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
+	else
 	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	var query = {'publicKey': publicKey};		    // For Authentication
-    //var text  = 'pubKey='+encodeURIComponent(pubKey)+'&publicKey='+encodeURIComponent(publicKey);
-    var text  = 'pubKey='+pubKey+'&publicKey='+publicKey;
+		log.info('Device PubKey : '+pubKey);
+		log.info('Public Key : '+publicKey);
+		log.info('Signature : '+signature);
 	
-    master.secureAuth(query, text, signature, function (result){
-         
-        if(result[0].error == true || result[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
-            return;
-        }
-			
-        var newQuery = {'publicKey': pubKey};
-			
-        deviceSchema.find(newQuery, function(err, result){
-			
-            if(err)
-            {
-                log.error(err);
-                master.sendResponse(req, res, 200, 5, 'Database Error');
-                return;
-            }
-            
-            // Error In Finding Server
-            if (!result[0])
-            {
-                log.info('Device Not Registered');
-                master.sendResponse(req, res, 200, 13, 'Device Not Registered');
-                return;
-            }
-
-            var pvtKey = result[0].privateKey;
-            log.info('Private Key : '+pvtKey);
-            master.sendResponse(req, res, 200, -1, pvtKey);
-			
-        })
+		// Validate Publickey For PrivateKey Access
+		if(!(master.validateParameter(pubKey, 'DevicePubKey')))
+		{
+			master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+			return;
+		}
 		
-	})
+		// Validate Public Key
+		if(!(master.validateParameter(publicKey, 'Public Key')))
+		{
+			master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+			return;
+		}
+
+		// Validate Signature
+		if(!(master.validateParameter(signature, 'Signature')))
+		{
+			master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+			return;
+		}
+
+		var query = {'publicKey': publicKey};		    // For Authentication
+		//var text  = 'pubKey='+encodeURIComponent(pubKey)+'&publicKey='+encodeURIComponent(publicKey);
+		var text  = 'pubKey='+pubKey+'&publicKey='+publicKey;
+		
+		master.secureAuth(query, text, signature, function (result){
+			 
+			if(result[0].error == true || result[0].error == 'true')
+			{
+				master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+				return;
+			}
+				
+			var newQuery = {'publicKey': pubKey};
+				
+			deviceSchema.find(newQuery, function(err, result){
+				
+				if(err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, 'Database Error');
+					return;
+				}
+				
+				// Error In Finding Server
+				if (!result[0])
+				{
+					log.info('Device Not Registered');
+					master.sendResponse(req, res, 200, 13, 'Device Not Registered');
+					return;
+				}
+
+				var pvtKey = result[0].privateKey;
+				log.info('Private Key : '+pvtKey);
+				master.sendResponse(req, res, 200, -1, pvtKey);
+				
+			})
+			
+		})
+	
+	}
 
 }

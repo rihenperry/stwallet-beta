@@ -92,6 +92,9 @@ function sendRestEmail(accountInfo, flag){
 
 // Send Email as Notification that Password is Changed Successfully
 function changePassEmail(accountInfo){
+	
+	console.log
+
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
   
 	// Setup e-mail data with unicode symbols
@@ -381,6 +384,12 @@ module.exports.secureRegister = function (req, res) {
                                 return;
                             }
                                 
+							var allhost = req.headers; 
+							var host = req.headers['host']; 
+							log.info('ALLHOST :'+allhost);
+							log.info('HOST :'+host);
+							console.log(JSON.stringify(req.headers));
+
                             sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
                             
                             log.info('Saved SuccessFully');
