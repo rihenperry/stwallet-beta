@@ -30,7 +30,7 @@ router.delete('/users/:id/notifyoptions', ctrlNotify.deleteUserSubOptions);
 //router.get('/users/:id/subbuykwd/trade/highbid', ctrlUserSub.getUserSubPurchasedKeywordsByTradeonHgBid);
 //router.get('/users/:id/subbuykwd/trade/onask', ctrlUserSub.getUserSubPurchasedKeywordsByTradeonAsk);
 
-/* sell keyword api */
+/* ask keyword api */
 //router.get('/users/:id/subsetask', ctrlUserSub.getUserSubSoldKeywords);
 //router.get('/users/:id/subeditask', ctrlUserSub.getUserSubSoldKeywords);
 //router.get('/users/:id/subdelask', ctrlUserSub.getUserSubSoldKeywords);
@@ -39,5 +39,6 @@ router.delete('/users/:id/notifyoptions', ctrlNotify.deleteUserSubOptions);
 //router.get('/users/:id/subsetbid', ctrlUserSub.getUserSubBidKeywords);
 //router.get('/users/:id/subeditbid', ctrlUserSub.getUserSubBidKeywords);
 //router.get('/users/:id/subdelbid', ctrlUserSub.getUserSubBidKeywords);
+router.get('/subrejectbid/users', ctrlUserSub.getUserSubRejectBidKeywords);
 
 module.exports = router;

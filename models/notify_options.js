@@ -18,18 +18,18 @@ var BidKeywordOptionsSchema = new mongoose.Schema({
 });
 
 var buyContainerSchema = new mongoose.Schema({
-  option: {type: mongoose.Schema.Types.Number, ref: 'BuyKeywordsOption', min:1, max:3},
-  permissions: {type: mongoose.Schema.Types.Number, ref: 'NotifyPerm', min:0, max:7}
+  option: {type: mongoose.Schema.Types.Number, refPath: 'BuyKeywordsOption._id', min:1, max:3},
+  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min:0, max:7}
 });
 
 var askContainerSchema = new mongoose.Schema({
-  option: {type: mongoose.Schema.Types.Number, ref: 'AskKeywordsOption', min:1, max:3},
-  permissions: {type: mongoose.Schema.Types.Number, ref: 'NotifyPerm', min:0, max:7}
+  option: {type: mongoose.Schema.Types.Number, refPath: 'AskKeywordsOption._id', min:1, max:3},
+  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min:0, max:7}
 });
 
 var bidContainerSchema = new mongoose.Schema({
-  option: {type: mongoose.Schema.Types.Number, ref: 'BidKeywordsOption', min:1, max:4},
-  permissions: {type: mongoose.Schema.Types.Number, ref: 'NotifyPerm', min:0, max:7}
+  option: {type: mongoose.Schema.Types.Number, refPath: 'BidKeywordsOption._id', min:1, max:4},
+  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min:0, max:7}
 });
 
 var notifyOptionsSchema = new mongoose.Schema({
