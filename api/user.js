@@ -3194,53 +3194,60 @@ module.exports.deductBlockedForBids = function(req, res){
 /*============================= Reject Blocked Bids =============================*/
 
 module.exports.rejectBlockedBids = function(req, res){
+    
+    log.info('Page Name : user.js');
+    log.info('API Name : rejectBlockedBids')
+    log.info('Reject Blocked Bids API Hitted');
+    log.info('Parameter Receiving..');
+    
+    // Require Modules
+    var http = require('http');
+    var https = require('https');
+    var async = require('async');
+    
+    // Storing Parameters
+    var reject_bids_json 	= req.body.reject_bids_json;  
+    var publicKey 			= req.body.publicKey;
+    var signature 			= req.body.signature;
+    var rootUrl            	= req.body.rootUrl;
 	
-	log.info('Page Name : user.js');
-	log.info('API Name : rejectBlockedBids')
-	log.info('Reject Blocked Bids API Hitted');
-	log.info('Parameter Receiving..');
-	
-	// Require Modules
-	var http = require('http');
-	var https = require('https');
-	var async = require('async');
-	
-	// Storing Parameters
-	var reject_bids_json = req.body.reject_bids_json;  
-	var publicKey = req.body.publicKey;
-	var signature = req.body.signature;
-	var json = '';
-	var length = '';
-	var value = '';
-	var emailValue = '';
+	var filterUrl = rootUrl.replace(/^https?\:\/\//i, "");
+	var hostUrl	= filterUrl.split('/');
+	var pathUrl = filterUrl.replace(hostUrl[0], "");
+	var bidJsonPath = pathUrl+'keywords/active_bids/'+reject_bids_json+'.json';
+ 
+    var json = '';
+    var length = '';
+    var value = '';
+    var emailValue = '';
 
-	log.info('Json File : '+reject_bids_json);
-	
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
+    log.info('Json File : '+reject_bids_json);
+    
+    // Validate Public Key
+    if(!(master.validateParameter(publicKey, 'Public Key')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
 
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-	
-	if(reject_bids_json == "" && reject_bids_json == null)
-	{
-		log.info('Reject Bids Json Missing');
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-	
-	var options = {
-		host: 'scoinz.com',
-		path: '/keywords/active_bids/'+reject_bids_json+'.json'
-	};  	
+    // Validate Signature
+    if(!(master.validateParameter(signature, 'Signature')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+    
+    if(reject_bids_json == "" && reject_bids_json == null)
+    {
+        log.info('Reject Bids Json Missing');
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+    
+    var options = {
+        host: hostUrl[0],
+        path: bidJsonPath
+    };   
 	
     var query = {publicKey:publicKey};
     //var text = 'reject_bids_json='+encodeURIComponent(reject_bids_json)+'&publicKey='+encodeURIComponent(publicKey);
@@ -3253,7 +3260,7 @@ module.exports.rejectBlockedBids = function(req, res){
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
-
+	
         async.series([
 
             // Function For Phase 1
@@ -3261,18 +3268,18 @@ module.exports.rejectBlockedBids = function(req, res){
             {
                 //Collecting Data From Json File;
                 https.get(options, function(res){
-
+				
                     // Receiving Data In Chunk
                     res.on('data', function(chunk){
 
                         log.info('Chunk Started');
 
                         json = chunk.toString();
-						json = json.replace(/\[/g,"");
-						json = json.replace(/\]/g,"");
-						json = json.replace(/\\/g,"");
-						json = json.split(",");
-						
+                        json = json.replace(/\[/g,"");
+                        json = json.replace(/\]/g,"");
+                        json = json.replace(/\\/g,"");
+                        json = json.split(",");
+                        
                     });
 
                     // After Receiving All Data Calling callback Function
@@ -3289,41 +3296,41 @@ module.exports.rejectBlockedBids = function(req, res){
             // Function For Phase 2
             // Holding Return Bid Functionality 
             function (callback)
-            {			
-				if(json == "" || json == null || json == undefined)
-				{
-					value = "Success";
+            {           
+                if(json == "" || json == null || json == undefined)
+                {
+                    value = "Success";
                     callback();
-				}
-				
+                }
+                
                 else
                 {
-					length = json.length; 
-				
+                    length = json.length; 
+                
                     // Loop To Fetch Records From Received Json File Data
                     for(var i=0; i<length; i++)
                     {
-                        var singleJson = json[i].split("/"); 	
+                        var singleJson = json[i].split("/");    
 
-                        var bidRetEmail = singleJson[1];		// Storing Email 
+                        var bidRetEmail = singleJson[1];        // Storing Email 
 
-                        var bidRetAmount = singleJson[3];		// Storing Amount
+                        var bidRetAmount = singleJson[3];       // Storing Amount
 
-                        var commission = singleJson[4];			// Storing Comision
+                        var commission = singleJson[4];         // Storing Comision
 
-                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
-						
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        
                         var query = {"email": bidRetEmail};
 
                         // Updating Blocked Bid Amount
                         userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:-totalAmount}},function(err, val){
-						
-							if (err)
-							{
-								log.error(err);
-								master.sendResponse(req, res, 200, 5, "Database Error");
-								return;
-							}
+                        
+                            if (err)
+                            {
+                                log.error(err);
+                                master.sendResponse(req, res, 200, 5, "Database Error");
+                                return;
+                            }
 
                             // Error In Updating Blocked Bids
                             if(!val)
@@ -3358,7 +3365,7 @@ module.exports.rejectBlockedBids = function(req, res){
                 if(value == "Success")
                 {
                     master.sendResponse(req, res, 200, -1, "Success");
-					return;
+                    return;
                 }
 
                 // Error Returning Bid Functionality of Phase 2 
@@ -3368,28 +3375,28 @@ module.exports.rejectBlockedBids = function(req, res){
 
                     for(var j=0; j<value; j++)
                     {
-                        var singleJson = json[j].split("/"); 	
+                        var singleJson = json[j].split("/");    
 
-                        var bidRetEmail = singleJson[1];		// Storing Email 
+                        var bidRetEmail = singleJson[1];        // Storing Email 
 
-                        var bidRetAmount = singleJson[3];		// Storing Amount
+                        var bidRetAmount = singleJson[3];       // Storing Amount
 
-                        var commission = singleJson[4];			// Storing Comision
+                        var commission = singleJson[4];         // Storing Comision
 
-                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
 
                         var query = {"email": bidRetEmail};
 
                         // Updating Blocked Bid Amount
                         userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:totalAmount}},function(err, val){
 
-							if (err)
-							{
-								log.error(err);
-								master.sendResponse(req, res, 200, 5, "Database Error");
-								return;
-							}
-						
+                            if (err)
+                            {
+                                log.error(err);
+                                master.sendResponse(req, res, 200, 5, "Database Error");
+                                return;
+                            }
+                        
                             // Error In Updating Blocked Bids
                             if(!val)
                             {
@@ -3436,6 +3443,7 @@ module.exports.rejectBlockedBids = function(req, res){
             
     })
 }
+
 
 /*============================= Update Notification Status =============================*/
 
