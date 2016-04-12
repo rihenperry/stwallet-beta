@@ -53,7 +53,7 @@ var bunyan = require('bunyan'),
   logger,
 
  bunyanOpts = {
-    name: 'ST-Wallet',
+    name: 'myapp',
     streams: [
     {
         level: 'debug',
