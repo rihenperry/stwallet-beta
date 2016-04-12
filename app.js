@@ -35,7 +35,7 @@ var	 routesUserApi   = require('./routes/api_user'),                 // User API
 var routesNotificationApi = require('./routes/api_notification');
 var routesMailApi       = require('./routes/api_mail');
 var routes              = require('./routes/index');
-var routesNotifyApi           = require('./routes/api_index');
+var routesUserPrefApi           = require('./routes/api_index');
 
 /* create http server and pass the express appln to it */
 var app                 = require('express')();
@@ -73,7 +73,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/bower_components'))
 
 app.use('/', routes);       // normal html view request
-app.use('/api', routesNotifyApi); // add prefex 'api' to access the api like http://localhost:port:/api/*
+app.use('/api', routesUserPrefApi); // add prefex 'api' to access the api like http://localhost:port:/api/*
 
 /*============================== Device Related API ==================================*/
 app.use('/api', routesDeviceApi);

@@ -1,4 +1,5 @@
 # README #
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 STRICT NOTE:Commit you code in your Branch only. don't commit anything in Master , it will be removed if commited.
 This README documents whatever steps are necessary to get your application up and running.
