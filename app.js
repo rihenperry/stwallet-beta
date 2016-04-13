@@ -27,7 +27,8 @@ var  express     	 = require('express'),
 	 W_transaction   = require("./api/transaction.js"),          // Transaction API
      admin     	     = require("./api/admin"),  	             // Get Admin API
      cron_api    	 = require("./api/cron_api.js");    	     // Get Admin API
-
+var morgan = require('morgan');
+app.use(morgan('dev'))
 // code to useing helmet@wallet app
 app.use(helmet())
 
