@@ -874,7 +874,7 @@ module.exports.getDetails = function(req, res) {
             return;
         }
     
-        userSchema.find({email:email}).lean().exec(function(err, userdata){
+        userSchema.find({email:email},{"recent_searches":0}).lean().exec(function(err, userdata){
 
             if(err)
             {
@@ -890,26 +890,28 @@ module.exports.getDetails = function(req, res) {
                 return;
             }
             
-            transactionSchema.find({$or:[{sender:email},{receiver:email}]},{_id:0}, function(err, retVal){
+			master.sendResponse(req, res, 200, -1, userdata[0]);
+			
+            // transactionSchema.find({$or:[{sender:email},{receiver:email}]},{_id:0}, function(err, retVal){
                 
-                if(err)
-                {
-                    log.error(err);
-                    master.sendResponse(req, res, 200, 5, "Database Error");
-                    return;
-                }
+                // if(err)
+                // {
+                    // log.error(err);
+                    // master.sendResponse(req, res, 200, 5, "Database Error");
+                    // return;
+                // }
                 
-                if(retVal == null || retVal == undefined || retVal == "")
-                {
-                    log.info('No Transactions Of This User');
-                    master.sendResponse(req, res, 200, -1, userdata[0]);
-                    return;
-                }
+                // if(retVal == null || retVal == undefined || retVal == "")
+                // {
+                    // log.info('No Transactions Of This User');
+                    // master.sendResponse(req, res, 200, -1, userdata[0]);
+                    // return;
+                // }
                 
-                userdata[0].transactions = retVal;
-                master.sendResponse(req, res, 200, -1, userdata[0]);
+                // userdata[0].transactions = retVal;
+                // master.sendResponse(req, res, 200, -1, userdata[0]);
                 
-            }).sort({time:-1}).limit(50);
+            // }).sort({time:-1}).limit(50);
 
         })
         
