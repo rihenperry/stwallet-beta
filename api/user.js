@@ -2067,7 +2067,8 @@ module.exports.creditUserAmount = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Deposit
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
@@ -2112,7 +2113,8 @@ module.exports.deductUserAmount = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Deposit
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
@@ -2157,7 +2159,8 @@ module.exports.addPurchases = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Purchases
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
@@ -2202,7 +2205,8 @@ module.exports.deductPurchases = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Purchases
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
@@ -2247,7 +2251,8 @@ module.exports.addCashback = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Cashback
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
@@ -2292,7 +2297,8 @@ module.exports.deductCashback = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Cashback
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
@@ -2337,7 +2343,8 @@ module.exports.addAffEarning = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Affiliate Earning
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
@@ -2382,7 +2389,8 @@ module.exports.deductAffEarning = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Affiliate Earning
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
@@ -2427,7 +2435,8 @@ module.exports.addSales = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Sales
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
@@ -2472,7 +2481,8 @@ module.exports.deductSales = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Sales
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
@@ -2517,7 +2527,8 @@ module.exports.addTrade = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Trade
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
@@ -2562,7 +2573,8 @@ module.exports.deductTrade = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Trade
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
@@ -2607,7 +2619,8 @@ module.exports.addTotalKeywordIncome = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total Keyword Income
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
@@ -2652,7 +2665,8 @@ module.exports.deductTotalKeywordIncome = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total Keyword Income
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
@@ -2697,7 +2711,8 @@ module.exports.addBlockedPendingWithdrawals = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+        var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked Pending Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
@@ -2742,7 +2757,8 @@ module.exports.deductBlockedPendingWithdrawals = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+        var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked Pending Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
@@ -2787,7 +2803,8 @@ module.exports.addApprovedWithdrawals = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+        var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
@@ -2832,7 +2849,8 @@ module.exports.deductApprovedWithdrawals = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+        var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
@@ -2877,7 +2895,8 @@ module.exports.addRenewalFees = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+		var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
@@ -2922,7 +2941,8 @@ module.exports.deductRenewalFees = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount);
+        var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
@@ -2967,7 +2987,8 @@ module.exports.addTotalAppIncome = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+        var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total App Income
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_app_income:amount}},function(err, result){
@@ -3012,7 +3033,8 @@ module.exports.addSearchAffEarning = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+        var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Search Affiliate Earnings
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_affiliate_earnings:amount}},function(err, result){
@@ -3120,7 +3142,8 @@ module.exports.addBlockedForBids = function(req, res){
             return;
         }
         
-        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount);
+        var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked For Bids
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}},function(err, result){
@@ -3165,7 +3188,8 @@ module.exports.deductBlockedForBids = function(req, res){
             return;
         }
         
-        var amount = -parseFloat(retVal[0].amount);
+        //var amount = -parseFloat(retVal[0].amount);
+        var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked For Bids
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}},function(err, result){
@@ -3320,7 +3344,8 @@ module.exports.rejectBlockedBids = function(req, res){
 
                         var commission = singleJson[4];         // Storing Comision
 
-                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        //var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
                         
                         var query = {"email": bidRetEmail};
 
@@ -3385,7 +3410,8 @@ module.exports.rejectBlockedBids = function(req, res){
 
                         var commission = singleJson[4];         // Storing Comision
 
-                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        //var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
 
                         var query = {"email": bidRetEmail};
 

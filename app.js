@@ -3,35 +3,34 @@
 "use strict";
 
 // Framwork
-var  express     	 = require('express'),
-     helmet          = require('helmet'),
-	 app        	 = express(),
-	 nconf 	    	 = require('nconf'),
-	 fs         	 = require('fs'),
-	 request 		 = require('request'),
-     jsonfile        = require('jsonfile'),
-
-     //util            = require('util'),
-     bformat         = require('bunyan-format')  ,
+var express    		= require('express'),
+    helmet        	= require('helmet'),
+	app        	 	= express(),
+	nconf 	    	= require('nconf'),
+	fs         	 	= require('fs'),
+	request 		= require('request'),
+    jsonfile        = require('jsonfile'),
+    bformat         = require('bunyan-format'),
+	morgan 			= require('morgan'),
+	
 // Packages
-     bodyParser  	 = require('body-parser'),
-     logger          = require('./config/w_config.js'),
-     log             = logger(),
+    bodyParser  	= require('body-parser'),
+    logger          = require('./config/w_config.js'),
+    log             = logger(),
 
 // Pages
-	 mongoose        = require('./config/mongoose.js'),          // Moongoose
-	 user            = require('./api/user.js'),                 // User API
-	 device          = require('./api/device.js'),               // Device API
-	 search          = require('./api/search.js'),               // Search API
-	 pool            = require('./api/pool'),                    // Get Pool API
-	 W_transaction   = require("./api/transaction.js"),          // Transaction API
-     admin     	     = require("./api/admin"),  	             // Get Admin API
-     cron_api    	 = require("./api/cron_api.js");    	     // Get Admin API
-var morgan = require('morgan');
+	mongoose        = require('./config/mongoose.js'),          // Moongoose
+	user            = require('./api/user.js'),                 // User API
+	device          = require('./api/device.js'),               // Device API
+	search          = require('./api/search.js'),               // Search API
+	pool            = require('./api/pool'),                    // Get Pool API
+	W_transaction   = require("./api/transaction.js"),          // Transaction API
+    admin     	    = require("./api/admin"),  	             // Get Admin API
+    cron_api    	= require("./api/cron_api.js");    	     // Get Admin API
+
 app.use(morgan('dev'))
 // code to useing helmet@wallet app
 app.use(helmet())
-
 
 // code to set ENV for node app
 var loadconfig = require('./config/w_config.js')
@@ -147,7 +146,7 @@ app.post('/secure/search/deductSearchEarning', search.deductSearchEarning);     
 app.post('/secure/search/deductQualifiedSearches', search.deductQualifiedSearches);				// Deduct Qualified Searches For User API
 app.post('/secure/search/addunQualifiedSearches', search.addunQualifiedSearches);				// Add UnQualified Searches For User API
 app.post('/secure/search/updateLastHourValue', search.updateLastHourValue);						// Update Last Hour Timing For User API
-app.post('/secure/search/recentSearches', search.recentSearches);                               // Add Recent Searches For User API
+//app.post('/secure/search/recentSearches', search.recentSearches);                               // Add Recent Searches For User API
 app.post('/secure/search/checkExistanceEmail', search.checkExistanceEmail);						// Check Email Existance API
 
 /*============================== Admin Related API ==================================*/
