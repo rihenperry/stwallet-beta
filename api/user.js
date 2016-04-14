@@ -1,6 +1,7 @@
 /*global require, module, console */
 /*jslint node: true */
 "use strict";
+var util = require('util');
 
 // Pages
 var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Schema
@@ -356,7 +357,7 @@ module.exports.secureRegister = function (req, res) {
 							if(err)
 							{
 								log.error(err);
-								master.sendResponse(req, res, 200, 5, "Database Error");
+								master.sendResponse(req, res, 200, 5, err);
 								return;
 							}
 							
@@ -727,7 +728,7 @@ module.exports.secureLogin = function(req, res){
     var text  = "email="+email+"&password="+password+"&publicKey="+publicKey;
     
     master.secureAuth(query, text, signature, function (result){
-         
+       
         if(result[0].error == true || result[0].error == 'true')
         {
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
@@ -755,7 +756,6 @@ module.exports.secureLogin = function(req, res){
             else
             {
                 var hashpass = crypt.hashIt((results[0].salt)+password);
-
                 if(hashpass === results[0].password)
                 {
                     if (!results[0].active)
@@ -765,10 +765,24 @@ module.exports.secureLogin = function(req, res){
                         return;
                     }
 
-                    var currentTIme = Date.now();
+                  var currentTIme = Date.now();
 
-                    userSchema.findOneAndUpdate({email:email},{$set:{lastLogin:currentTIme}, $inc:{noOfLogins:1}}, function(err, result){
+                  if (!results[0].notify_options_fk_key) {
+                    notify.createUserDefaultNotifyObj(req, function(err, optionID) {
+                      if (err) {
+                        log.error(err);
+                        master.sendResponse(req, res, 200, 5, err);
+                        return;
+                      }
 
+                      log.info("initializing default user preferences");
+                      log.info("optionID ->", optionID);
+
+                      userSchema.findOneAndUpdate({email:email},
+                                                  {$set:{lastLogin: currentTIme, notify_options_fk_key: optionID},
+                                                   $inc:{noOfLogins:1}},
+                                                  {new: true},
+                                                  function(err, result){
                         if(err)
                         {
                             log.error(err);
@@ -784,14 +798,42 @@ module.exports.secureLogin = function(req, res){
                         }
 
                         else
-                        {   
+                        {
                             log.info('Successfully Login');
                             master.sendResponse(req, res, 200, -1, result);
                             return;
                         }
 
+                                                  }) //endof userSchema.findOneAndUpdate
                     })
+                  } else {
+                    userSchema.findOneAndUpdate({email:email},
+                                                {$set:{lastLogin:currentTIme},
+                                                 $inc:{noOfLogins:1}},
+                                                {new: true},
+                                                function(err, result){
+                        if(err)
+                        {
+                            log.error(err);
+                            master.sendResponse(req, res, 200, 5, "Database Error");
+                            return;
+                        }
 
+                        if(result==null || result=="") // Email Not Found
+                        {
+                            log.info('Error In Login');
+                            master.sendResponse(req, res, 200, 5, 'Datbase Error');
+                            return;
+                        }
+
+                        else
+                        {
+                            log.info('Successfully Login');
+                            master.sendResponse(req, res, 200, -1, result);
+                            return;
+                        }
+                    }) //endof userSchema.findOneAndUpdate
+                  }
                 }
 
                 else
@@ -800,13 +842,9 @@ module.exports.secureLogin = function(req, res){
                     master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
                     return;
                 }
-
             }
-
         })
-    
     })
-    
 }
 
 /*============================= Get Details =============================*/
