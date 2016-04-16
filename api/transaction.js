@@ -346,6 +346,11 @@ module.exports.getTransactions = function(req, res) {
         {
             query = {$and:[{$and:[{"time":{$gt:from}},{"time":{$lt:to}}]}, {$or:[{"sender":email},{"receiver":email}]}]};
         }
+		
+		if(type == "referral")
+		{
+			query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]},{$or:[{"type":"affiliate_earnings"},{"type":"search_referral_earnings"}]}]};
+		}
         
         else
         {	

@@ -293,31 +293,32 @@ module.exports.secureRegister = function (req, res) {
                         master.sendResponse(req, res, 200, 5, "Database Error");
                         return;
                     }
+					
+					// Blank Referral
+					if(referred_person_code=="" || referred_person_code==null || referred_person_code==undefined)
+					{
+						referred_person_email = "";
+						stat = 0;
+					}
+					
+					else
+					{
+						// If No Referred Email Found
+						if(result.length<=0)
+						{
+							// Wrong Refferal
+							log.info('Wrong Affiliate Ref Code Entered');
+							master.sendResponse(req, res, 200, 18, "Wrong Affiliate Reference");
+							return;
+						}
 
-                    // If No Referred Email Found
-                    if(result.length<=0)
-                    {
-                        // Blank Referral
-                        if(referred_person_code=="" || referred_person_code==null || referred_person_code==undefined)
-                        {
-                            referred_person_email = "";
-                            stat = 0;
-                        }
-
-                        else // Wrong Refferal
-                        {
-                            log.info('Wrong Affiliate Ref Code Entered');
-                            master.sendResponse(req, res, 200, 18, "Wrong Affiliate Reference");
-                            return;
-                        }
-                    }
-
-                    // If Referral Is Provided
-                    else
-                    {
-                        referred_person_email = result[0].email;
-                        stat = 1;
-                    }
+						// If Referral Is Provided
+						else
+						{
+							referred_person_email = result[0].email;
+							stat = 1;
+						}
+					}
 
                     // Checking length of fname (If first Name is of less than 4 letters)
                     if(first_name.length<4)				
@@ -2067,8 +2068,8 @@ module.exports.creditUserAmount = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Deposit
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
@@ -2113,8 +2114,8 @@ module.exports.deductUserAmount = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Deposit
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
@@ -2159,8 +2160,8 @@ module.exports.addPurchases = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Purchases
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
@@ -2205,8 +2206,8 @@ module.exports.deductPurchases = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Purchases
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
@@ -2251,8 +2252,8 @@ module.exports.addCashback = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Cashback
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
@@ -2297,8 +2298,8 @@ module.exports.deductCashback = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Cashback
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
@@ -2343,8 +2344,8 @@ module.exports.addAffEarning = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Affiliate Earning
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
@@ -2389,8 +2390,8 @@ module.exports.deductAffEarning = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Affiliate Earning
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
@@ -2435,8 +2436,8 @@ module.exports.addSales = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Sales
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
@@ -2481,8 +2482,8 @@ module.exports.deductSales = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Sales
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
@@ -2527,8 +2528,8 @@ module.exports.addTrade = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Trade
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
@@ -2573,8 +2574,8 @@ module.exports.deductTrade = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Trade
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
@@ -2619,8 +2620,8 @@ module.exports.addTotalKeywordIncome = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total Keyword Income
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
@@ -2665,8 +2666,8 @@ module.exports.deductTotalKeywordIncome = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total Keyword Income
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
@@ -2711,8 +2712,8 @@ module.exports.addBlockedPendingWithdrawals = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-        var amount = parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked Pending Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
@@ -2757,8 +2758,8 @@ module.exports.deductBlockedPendingWithdrawals = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-        var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked Pending Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
@@ -2803,8 +2804,8 @@ module.exports.addApprovedWithdrawals = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-        var amount = parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
@@ -2849,8 +2850,8 @@ module.exports.deductApprovedWithdrawals = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-        var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
@@ -2895,8 +2896,8 @@ module.exports.addRenewalFees = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-		var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
@@ -2941,8 +2942,8 @@ module.exports.deductRenewalFees = function(req, res){
             return;
         }
         
-        // var amount = -parseFloat(retVal[0].amount);
-        var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
@@ -2987,8 +2988,8 @@ module.exports.addTotalAppIncome = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-        var amount = parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total App Income
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_app_income:amount}},function(err, result){
@@ -3033,8 +3034,8 @@ module.exports.addSearchAffEarning = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-        var amount = parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Search Affiliate Earnings
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_affiliate_earnings:amount}},function(err, result){
@@ -3142,11 +3143,11 @@ module.exports.addBlockedForBids = function(req, res){
             return;
         }
         
-        // var amount = parseFloat(retVal[0].amount);
-        var amount = parseFloat(retVal[0].amount).toFixed(8);
+        var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked For Bids
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{"blocked_for_bids":amount}},function(err, result){
 
             if (err)
             {
@@ -3188,8 +3189,8 @@ module.exports.deductBlockedForBids = function(req, res){
             return;
         }
         
-        //var amount = -parseFloat(retVal[0].amount);
-        var amount = -parseFloat(retVal[0].amount).toFixed(8);
+        var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked For Bids
         userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}},function(err, result){
@@ -3344,8 +3345,8 @@ module.exports.rejectBlockedBids = function(req, res){
 
                         var commission = singleJson[4];         // Storing Comision
 
-                        //var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
-                        var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        // var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
                         
                         var query = {"email": bidRetEmail};
 
@@ -3410,8 +3411,8 @@ module.exports.rejectBlockedBids = function(req, res){
 
                         var commission = singleJson[4];         // Storing Comision
 
-                        //var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
-                        var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        // var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
 
                         var query = {"email": bidRetEmail};
 
@@ -3555,5 +3556,158 @@ module.exports.getNotificationStatus = function(req, res){
         master.sendResponse(req, res, 200, -1, {notification_status:result[0].notification_status, user_id:result[0]._id});
 
     })
+
+}
+
+module.exports.refCode = function(req, res){
+
+	var async = require('async');
+
+	userSchema.find({my_referral_id:""},{email:1, first_name:1, last_name:1},function(err, result){
+		
+		if (err)
+        {
+            log.error(err);
+            master.sendResponse(req, res, 200, 5, "Database Error");
+            return;
+        }
+	
+		var length = result.length;
+		
+		console.log(typeof(result));
+		
+		async.forEach(result, function (item, callback2) {
+		
+			var first_name = item.first_name;
+			var last_name = item.last_name;
+			var refCode;
+		
+			//Checking length of fname (If first Name is of less than 4 letters)
+			if(first_name.length<4)				
+			{
+				var charlist = 'abcdefghijklmnopqrstuvwxyz';	// Character String Value need to generate Random Characters
+				var diff = 4-first_name.length;	
+				var randchar = "";
+				for (var i=0; i<diff; i++)
+				{
+					randchar = randchar+charlist.charAt(Math.floor(Math.random() * charlist.length));	// Random Character function
+				}
+
+				refCode=first_name+randchar+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having less than 4 characters 	
+			}
+			
+			//If length is Greter Or equal to 4
+			else 
+			{
+				refCode=first_name.substr(0,4)+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having greater than or equal to 4 characters 
+			}
+		
+			refCode = refCode.toLowerCase();
+			
+			userSchema.find({my_referral_id:{$regex:refCode}},{email:1, my_referral_id:1},function(err, results){
+			
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+				
+				if(results.length>0)
+				{
+					refCode = refCode+results.length;
+				}
+			
+				userSchema.findOneAndUpdate({email:item.email},{$set:{my_referral_id:refCode}},function(err, resultData){
+				
+					if (err)
+					{
+						log.error(err);
+						master.sendResponse(req, res, 200, 5, "Database Error");
+						return;
+					}
+					
+					console.log(item);
+					callback2();
+				
+				})
+			
+			})
+		
+		})
+		
+		//master.sendResponse(req, res, 200, -1, result);
+		
+		// for(var p=0,j=0; p<3; p++)
+		// {
+			// var first_name = result[p].first_name;
+			// var last_name = result[p].last_name;
+			// var refCode;
+			// var final_Ref = [];
+		
+			//Checking length of fname (If first Name is of less than 4 letters)
+			// if(first_name.length<4)				
+			// {
+				// var charlist = 'abcdefghijklmnopqrstuvwxyz';	// Character String Value need to generate Random Characters
+				// var diff = 4-first_name.length;	
+				// var randchar = "";
+				// for (var i=0; i<diff; i++)
+				// {
+					// randchar = randchar+charlist.charAt(Math.floor(Math.random() * charlist.length));	// Random Character function
+				// }
+
+				// refCode=first_name+randchar+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having less than 4 characters 	
+			// }
+
+			//If length is Greter Or equal to 4
+			// else 
+			// {
+				// refCode=first_name.substr(0,4)+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having greater than or equal to 4 characters 
+			// }
+
+			// refCode = refCode.toLowerCase();	// Convert Referral Code to LOWER CASE
+			// final_Ref[p] = refCode;
+			// console.log(p);
+			// console.log('Email :'+result[p].email);
+			// console.log('First Name :'+result[p].first_name);
+			// console.log('Last Name :'+result[p].last_name);
+			// console.log('RefCode :'+refCode);
+			
+			// userSchema.find({my_referral_id:{$regex:final_Ref[p]}},{email:1, my_referral_id:1},function(err, results){
+				
+				// if (err)
+				// {
+					// log.error(err);
+					// master.sendResponse(req, res, 200, 5, "Database Error");
+					// return;
+				// }
+				
+				// if(results.length>0)
+				// {
+					// final_Ref[p] = final_Ref[p]+results.length;
+				// }
+				
+				// console.log('Email :'+result[0].email);
+				// console.log('RefCode :'+final_Ref[0]);
+				// console.log('Email :'+result[1].email);
+				// console.log('RefCode :'+final_Ref[1]);
+				// console.log('Email :'+result[2].email);
+				// console.log('RefCode :'+final_Ref[2]);
+				// j++;
+				
+				// userSchema.findOneAndUpdate({email:retVal[0].email},{$set:{notification_status:notificationStatus}},function(err, result){
+				
+				
+				// })
+				
+				// console.log('Length :'+results.length);
+				// console.log('Result :'+results);
+				// console.log('-----------------------');
+			
+			// })
+			
+		// }
+	
+	})
 
 }

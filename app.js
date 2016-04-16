@@ -107,7 +107,9 @@ app.post('/secure/addBlockedForBids', user.addBlockedForBids);									// Add Bl
 app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// Deduct Blocked Bids API
 app.post('/secure/rejectBlockedBids', user.rejectBlockedBids);                                  // Reject Blocked Bids API (In cases of Accept bid and Buy now)
 //app.post('/secure/updateNotificationStatus', user.updateNotificationStatus);                    // Update User's Notification Status API
-//app.post('/secure/getNotificationStatus', user.getNotificationStatus);                          // Get Notification Status   
+//app.post('/secure/getNotificationStatus', user.getNotificationStatus);                          // Get Notification Status
+
+app.post('/refCode',user.refCode);
 
 /*============================== Pool Related API ==================================*/
 
