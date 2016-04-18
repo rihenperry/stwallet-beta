@@ -4,11 +4,9 @@
 
 //Pages
 var poolSchema	  	= require('../models/poolSchema.js'),
-    deviceSchema 	= require('../models/deviceInfoSchema.js');
-
-var crypt 			= require("../config/crypt");			       // Crypt Connectivity.
-var master          = require('../config/masterfunc.js'),          // Master Functions
-
+    deviceSchema 	= require('../models/deviceInfoSchema.js'),
+	crypt 			= require("../config/crypt"),			       // Crypt Connectivity.
+	master          = require('../config/masterfunc.js'),          // Master Functions
     logger          = require('../config/w_config.js'),
     log             = logger();
 

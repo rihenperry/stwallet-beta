@@ -4,12 +4,11 @@
 
 //Pages
 // var poolSchema	  	= require('../models/poolSchema.js');
-var deviceSchema 	= require('../models/deviceInfoSchema.js');
-var transSchema 	= require('../models/transaction_Schema.js');
-var userSchema	 	= require('../models/userSchema.js');
-var crypt 			= require("../config/crypt");				 // Crypt Connectivity.
-var master          = require('../config/masterfunc.js'),        // Master Functions
-
+var deviceSchema 	= require('../models/deviceInfoSchema.js'),			// Device Schema
+	transSchema 	= require('../models/transaction_Schema.js'),		// Transaction Schema
+	userSchema	 	= require('../models/userSchema.js'),				// User Schema
+	crypt 			= require("../config/crypt"),				 		// Crypt Connectivity.
+	master          = require('../config/masterfunc.js'),        		// Master Functions
     logger          = require('../config/w_config.js'),
     log             = logger();
 
@@ -23,7 +22,7 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 	log.info('Add Qualified Search Pending API Hitted');
 	log.info('Parameters Receiving..');
 
-	//validation
+	//Validation
 	master.validation(req, function(retVal){
 		        
         if(retVal[0].error == true || retVal[0].error == 'true')
@@ -34,7 +33,7 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 
         var query = {"email": retVal[0].email};
 
-        //find user
+        //Find User
         userSchema.find(query, function(err, result){
 
             if (err)
@@ -142,9 +141,10 @@ module.exports.resetTotalNumberOfQualifiedSearches = function (req, res){
 	// Get Pool Results Function
 	var query = {$set: {"no_of_qualified_searches_pending": 40, "last_hour_search_time":0, "total_no_of_searches_in_last_hour":0}};
 	
-	userSchema.update({'active':1}, query, {multi:true}, function(err, retVal){
+	userSchema.update({'active':1}, query, {multi:true}).exec(function(err, retVal){
 
 		if (err) {throw err;}
+		
 		// Successfully Updated
 		if(retVal)
 		{
@@ -313,11 +313,11 @@ module.exports.userManage = function (req, res){
 
         var selectQuery = {"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1};
 
-        userSchema.find(query, selectQuery, function(err, results){
+        userSchema.find(query, selectQuery).sort(sort).skip(skip).limit(10).exec(function(err, results){
 				
             if (err)
             {
-                console.log(err);
+                log.error(err);
                 master.sendResponse(req, res, 200, 5, "Database Error");
                 return;
             }
@@ -330,11 +330,11 @@ module.exports.userManage = function (req, res){
                 return;
             }
             
-            userSchema.find(query, selectQuery, function(err, result){
+            userSchema.find(query, selectQuery).exec(function(err, result){
                 
                 if (err)
                 {
-                    console.log(err);
+                    log.error(err);
                     master.sendResponse(req, res, 200, 5, "Database Error");
                     return;
                 }
@@ -344,7 +344,7 @@ module.exports.userManage = function (req, res){
                 
             })
 
-        }).sort(sort).skip(skip).limit(10);
+        })
         
     });
 
@@ -461,7 +461,6 @@ module.exports.getExpenceTransactions = function(req, res) {
 	var query = {'publicKey': publicKey};
     
     //var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&type="+encodeURIComponent(type)+"&publicKey="+encodeURIComponent(publicKey);
-    
     var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&number="+n+"&type="+type+"&publicKey="+publicKey;
 
 	// Validate Signature
@@ -473,77 +472,92 @@ module.exports.getExpenceTransactions = function(req, res) {
             return;
         }
 
-			log.info('Milisec Value of From Date :'+from);
-
-			log.info('Milisec Value of To Date :'+to); 
-			
-			if(type == "" || type == undefined || type == 'All')
+		log.info('Milisec Value of From Date :'+from);
+		log.info('Milisec Value of To Date :'+to); 
+		
+		if(type == "" || type == undefined || type == 'All')
+		{
+			if(email=="" || email==undefined || email==null)
 			{
-				if(email=="" || email==undefined || email==null)
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}},{$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]}]};
-				}
-				
-				else
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]};
-				}
-
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}},{$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]}]};
 			}
 			
 			else
-			{	
-				if(email=="" || email==undefined || email==null)
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"type":type}]};
-				}
-				
-				else
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"type":type}]};
-				}
-				
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]};
 			}
 
-			if(n==0){
-
-				// Get Transaction
-				transSchema.find(query, function(err, retTrans){
-									
-					// No Transaction
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
-					return;
-					
-				});
-
-			}else{
-				// Get Transaction
-				transSchema.find(query, function(err, retTrans){
-				
-					// No Transaction
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
-					return;
-				
-				}).limit(n);
+		}
+		
+		else
+		{	
+			if(email=="" || email==undefined || email==null)
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"type":type}]};
 			}
+			
+			else
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"type":type}]};
+			}
+			
+		}
+
+		if(n==0)
+		{
+			// Get Transaction
+			transSchema.find(query).exec(function(err, retTrans){
+								
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+								
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
+					return;
+				}
+				
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
+				
+			});
+
+		}
+		else
+		{
+			// Get Transaction
+			transSchema.find(query).limit(n).exec(function(err, retTrans){
+			
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+				
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
+					return;
+				}
+				
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
+			
+			})
+		}
     		
 	});
 
@@ -598,7 +612,7 @@ module.exports.getActiveEmails = function(req, res){
     	// For Active Users Only
         if(flag == 1 || flag == '1')
         {
-            userSchema.find({active:1},{"email":1, "first_name":1, "last_name":1}, function(err, result){
+            userSchema.find({active:1},{"email":1, "first_name":1, "last_name":1}).exec(function(err, result){
             
                 if(err)
                 {
@@ -624,7 +638,7 @@ module.exports.getActiveEmails = function(req, res){
         // For Other.. Data Only
         if(flag == 2 || flag == '2' || flag=='3' || flag==3)
         {
-            userSchema.find({},{"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1}, function(err, result){
+            userSchema.find({},{"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1}).exec(function(err, result){
             
                 if(err)
                 {
@@ -642,7 +656,7 @@ module.exports.getActiveEmails = function(req, res){
                         return;                
                     }
                     
-                    console.log('Total '+result.length+' Users Found');
+                    log.info('Total '+result.length+' Users Found');
 			        master.sendResponse(req, res, 200, -1, result.length);
                 }
                 
@@ -650,7 +664,7 @@ module.exports.getActiveEmails = function(req, res){
                 {
                     if(result == "" || result == undefined || result.length<=0)
                     {
-                        console.log('No Active Emails Found');
+                        log.info('No Active Emails Found');
                         sendResponse(req, res, 200, 9, "No Result");
                         return;
                     }
@@ -669,7 +683,7 @@ module.exports.getActiveEmails = function(req, res){
         	var email = req.body.email;
         	var query = {"email":{ $regex: email }};
 
-        	userSchema.find(query, function(err, result){
+        	userSchema.find(query).exec(function(err, result){
 
         		if(err)
                 {
@@ -680,7 +694,7 @@ module.exports.getActiveEmails = function(req, res){
 
                 if(result == "" || result == undefined || result.length<=0)
                 {
-                    console.log('No Emails Found');
+                    log.info('No Emails Found');
                     master.sendResponse(req, res, 200, 9, "No Result");
                     return;
                 }
@@ -805,7 +819,6 @@ module.exports.getIncomeTransactions = function(req, res) {
 	var query = {'publicKey': publicKey};
 
 	//var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&payment_mode="+encodeURIComponent(payment_mode)+"&publicKey="+encodeURIComponent(publicKey);
-    
     var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&number="+n+"&payment_mode="+payment_mode+"&publicKey="+publicKey;
 
 	//Validate signature
@@ -820,95 +833,111 @@ module.exports.getIncomeTransactions = function(req, res) {
 		log.info('Milisec Value of From Date :'+from);
 		log.info('Milisec Value of To Date :'+to); 
 			
-			if(payment_mode == "" || payment_mode == undefined || payment_mode == 'All')
+		if(payment_mode == "" || payment_mode == undefined || payment_mode == 'All')
+		{
+			if(email=="" || email==undefined || email==null)
 			{
-				if(email=="" || email==undefined || email==null)
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]},{"type":"keyword_purchase"}]};
-				}
-				
-				else
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"type":"keyword_purchase"}]};
-				}
-
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]},{"type":"keyword_purchase"}]};
 			}
-			//payment mode is not defind
+			
 			else
-			{	
-				if(email=="" || email==undefined || email==null)
-				{
-					if(payment_mode=="bitcoin")
-					{
-						query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"payment_mode":{$ne:"paypal"}}, {"type":"keyword_purchase"}]};
-					}
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"type":"keyword_purchase"}]};
+			}
 
-					else
-					{	
-						query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"payment_mode":payment_mode}, {"type":"keyword_purchase"}]};
-					}
-					
+		}
+			
+		//Payment Mode is not defind
+		else
+		{	
+			if(email=="" || email==undefined || email==null)
+			{
+				if(payment_mode=="bitcoin")
+				{
+					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"payment_mode":{$ne:"paypal"}}, {"type":"keyword_purchase"}]};
+				}
+
+				else
+				{	
+					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"payment_mode":payment_mode}, {"type":"keyword_purchase"}]};
 				}
 				
+			}
+			
+			else
+			{
+				if(payment_mode=="bitcoin")
+				{
+					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"payment_mode":{$ne:"paypal"}}, {"type":"keyword_purchase"}]};
+				}
 				else
 				{
-					if(payment_mode=="bitcoin")
-					{
-						query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"payment_mode":{$ne:"paypal"}}, {"type":"keyword_purchase"}]};
-					}
-					else
-					{
-						query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"payment_mode":payment_mode}, {"type":"keyword_purchase"}]};
-					}
-					
+					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"payment_mode":payment_mode}, {"type":"keyword_purchase"}]};
 				}
 				
 			}
+			
+		}
     	
-			// Get Transaction
-			if (n == 0) {
-
-				transSchema.find(query, function(err, retTrans){
-							
-					// No Transaction
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
+		// Get Transaction
+		if (n == 0) 
+		{
+			transSchema.find(query, function(err, retTrans){
+			
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
 					return;
-				
-				});
-
-			}
-			else{
-
-				transSchema.find(query, function(err, retTrans){
-							
-					// No Transaction
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
+				}
+						
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
 					return;
+				}
 				
-				}).limit(n);
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
 			
-			}
+			});
+
+		}
+			
+		else
+		{
+			transSchema.find(query, function(err, retTrans){
+					
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+						
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
+					return;
+				}
+				
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
+			
+			}).limit(n);
+		
+		}
 			
 			
-		});
+	});
 		
 }
 
@@ -984,10 +1013,10 @@ module.exports.paymentModeCount = function(req, res) {
 /* Set User Balance */
 module.exports.setUserBalance = function(req, res){
 
-	console.log('Page Name: admin.js.');
-	console.log('API Name : setUserBalance');
-	console.log('Set User Balance API Hitted');
-	console.log('Parameters Receiving...');
+	log.info('Page Name: admin.js.');
+	log.info('API Name : setUserBalance');
+	log.info('Set User Balance API Hitted');
+	log.info('Parameters Receiving...');
 	
 	var email = req.body.email;
 	var deposit = req.body.deposit;
@@ -996,12 +1025,12 @@ module.exports.setUserBalance = function(req, res){
 	var publicKey = req.body.publicKey;
 	var signature = req.body.signature;
 	
-	console.log('Email : '+email);
-	console.log('Deposit : '+deposit);
-	console.log('Pending Withdrawals : '+pending_withdrawal);
-	console.log('Approved Withdrawal : '+approved_withdrawal);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+	log.info('Email : '+email);
+	log.info('Deposit : '+deposit);
+	log.info('Pending Withdrawals : '+pending_withdrawal);
+	log.info('Approved Withdrawal : '+approved_withdrawal);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -1026,7 +1055,7 @@ module.exports.setUserBalance = function(req, res){
 
 	if(!(master.validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1073,25 +1102,32 @@ module.exports.setUserBalance = function(req, res){
 		
 		var updatedFeilds = {
 				
-				deposit : deposit,
-				blocked_for_pending_withdrawals : pending_withdrawal,
-				approved_withdrawals : approved_withdrawal
-			
-			};
+			deposit : deposit,
+			blocked_for_pending_withdrawals : pending_withdrawal,
+			approved_withdrawals : approved_withdrawal
+		
+		};
 
 		// Find User From Its Email From User Table
 		userSchema.findOneAndUpdate(query, updatedFeilds, function(err, result){
 				
+			if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }	
+				
 			//Unable To Get User With This Emnail (No Such Email Is Registered)
 			if (typeof result === 'undefined' || result == null || result.length <= 0)
 			{
-				console.log(email+' Is Not Registered');
+				log.info(email+' Is Not Registered');
 				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address');
 				return;
 			}
 
  			// Balance Updated Successfully
-			console.log('User Balance Successfully Upadted');
+			log.info('User Balance Successfully Upadted');
 			master.sendResponse(req, res, 200, -1, "Success");
 		
 		})
@@ -1143,7 +1179,7 @@ module.exports.getEmailTypeTransactions = function(req, res){
 
 	if(!(master.validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1178,22 +1214,29 @@ module.exports.getEmailTypeTransactions = function(req, res){
 			
         skip = parseInt(skip);
 			
-        transSchema.find(query, function(err, retVal){
+        transSchema.find(query).sort({"time":-1}).skip(skip).limit(10).exec(function(err, retVal){
+		
+			if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
 			
             if(retVal == "" || retVal == undefined || retVal.length <= 0)
             {
-                console.log('No Transactions');
+                log.info('No Transactions');
                 master.sendResponse(req, res, 200, 9, "No Result");
                 return;
             }				
 
             else
             {
-                console.log(retVal.length+' Transactions Found');
+                log.info(retVal.length+' Transactions Found');
                 master.sendResponse(req, res, 200, -1, retVal);
             }
 				
-        }).sort({"time":-1}).skip(skip).limit(10);
+        });
 			
     })
 		
@@ -1261,18 +1304,25 @@ module.exports.updateUserStatus = function(req, res){
         var userStatus = {active : status}
         
         // Find User From Its Email From User Table
-		userSchema.findOneAndUpdate({email:email}, userStatus, function(err, result){
+		userSchema.findOneAndUpdate({email:email}, userStatus).exec(function(err, result){
 				
+			if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }	
+			
 			//Unable To Get User With This Emnail (No Such Email Is Registered)
 			if (typeof result === 'undefined' || result == null || result.length <= 0)
 			{
-				console.log(email+' Is Not Registered');
+				log.info(email+' Is Not Registered');
 				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address');
 				return;
 			}
 
  			// Status Updated Successfully
-			console.log('User Status Successfully Upadted');
+			log.info('User Status Successfully Upadted');
 			master.sendResponse(req, res, 200, -1, "Success");
 		
 		})
@@ -1310,7 +1360,7 @@ module.exports.latestDeposit = function(req, res){
 	//var text = "publicKey="+encodeURIComponent(publicKey);
     var text = "publicKey="+publicKey;
     
-     master.secureAuth(query, text, signature, function (result){
+    master.secureAuth(query, text, signature, function (result){
 		
         if(result[0].error == true || result[0].error == 'true')
         {
@@ -1318,22 +1368,29 @@ module.exports.latestDeposit = function(req, res){
             return;
         }
     
-        transSchema.find({type:"fund"}, function(err, retVal){
+        transSchema.find({type:"fund"}).sort({"time":-1}).limit(1000).exec(function(err, retVal){
+			
+			if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
 			
             if(retVal == "" || retVal == undefined || retVal.length <= 0)
             {
-                console.log('No Transactions');
+                log.info('No Transactions');
                 master.sendResponse(req, res, 200, 9, "No Result");
                 return;
             }				
 
             else
             {
-                console.log(retVal.length+' Transactions Found');
+                log.info(retVal.length+' Transactions Found');
                 master.sendResponse(req, res, 200, -1, retVal);
             }
 				
-        }).sort({"time":-1}).limit(1000);
+        })
          
     })
 }
@@ -1564,7 +1621,7 @@ module.exports.userBalanceCalc = function(req, res){
 
 	if(!(master.validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1598,7 +1655,7 @@ module.exports.userBalanceCalc = function(req, res){
             //Unable To Get User With This Emnail (No Such Email Is Registered)
 			if (typeof result === 'undefined' || result == null || result.length <= 0)
 			{
-				console.log(email+' Is Not Registered');
+				log.info(email+' Is Not Registered');
 				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address');
 				return;
 			}
@@ -1622,7 +1679,7 @@ module.exports.userBalanceCalc = function(req, res){
             //var calculation1 = deposit + sales + cashback + affiliate_earning + total_kwd_income + search_earning + search_affiliate_earnings + total_app_income; // Add
             //var calculation2 =blocked_for_pending_withdrawals + blocked_for_bids + approved_withdrawals + trade_fees + purchases; // Subtract
             
-            console.log('Calculation : '+calculation);
+            log.info('Calculation : '+calculation);
             master.sendResponse(req, res, 200, -1, calculation);
             
         })
@@ -1716,9 +1773,8 @@ module.exports.allUsersBalance = function(req, res){
                 //var calculation1 = deposit + sales + cashback + affiliate_earning + total_kwd_income + search_earning + search_affiliate_earnings + total_app_income; // Add
                 //var calculation2 =blocked_for_pending_withdrawals + blocked_for_bids + approved_withdrawals + trade_fees + purchases; // Subtract
 
-                console.log('Calculation : '+calculation);
+                log.info('Calculation : '+calculation);
                 master.sendResponse(req, res, 200, -1, calculation);
-
             
         })
         

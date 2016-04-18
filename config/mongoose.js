@@ -35,4 +35,4 @@ process.on('SIGINT', function() {
   }); 
 }); 
 
-mongoose.set('debug', true)
+// mongoose.set('debug', true)

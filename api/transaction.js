@@ -188,7 +188,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
             return;
         }
         
-        userSchema.find({email:email},function(err, retVal){
+        userSchema.find({email:email}).exec(function(err, retVal){
             
             if(err)
             {
@@ -214,7 +214,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
                 var query = {$and:[{$or:[{"sender":email},{"receiver":email}]},{"type":type}]};
             }
             
-            transactionSchema.find(query, function(err, retValue){
+            transactionSchema.find(query).exec(function(err, retValue){
                 
                 if(err)
                 {
@@ -324,7 +324,6 @@ module.exports.getTransactions = function(req, res) {
 	if(isNaN(n))
 	{
 		log.info('Number is Blank');
-		console.log(req.body);
 		n = 50;
 	}
 	
@@ -347,7 +346,7 @@ module.exports.getTransactions = function(req, res) {
             query = {$and:[{$and:[{"time":{$gt:from}},{"time":{$lt:to}}]}, {$or:[{"sender":email},{"receiver":email}]}]};
         }
 		
-		if(type == "referral")
+		else if(type == "referral")
 		{
 			query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]},{$or:[{"type":"affiliate_earnings"},{"type":"search_referral_earnings"}]}]};
 		}
@@ -357,7 +356,7 @@ module.exports.getTransactions = function(req, res) {
             query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]},{"type":type}]};
         }
         
-        transactionSchema.find(query,function(err, retVal){
+        transactionSchema.find(query).sort({time:order}).limit(n).exec(function(err, retVal){
             
             if(err)
             {
@@ -376,7 +375,7 @@ module.exports.getTransactions = function(req, res) {
             log.info('Transactions from '+ from +' to ' + to + ': ');
             master.sendResponse(req, res, 200, -1, retVal);
             
-        }).sort({time:order}).limit(n);
+        })
         
     })
     

@@ -93,8 +93,6 @@ function sendRestEmail(accountInfo, flag, rootUrl){
 
 // Send Email as Notification that Password is Changed Successfully
 function changePassEmail(accountInfo){
-	
-	console.log
 
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
   
@@ -387,21 +385,7 @@ module.exports.secureRegister = function (req, res) {
                                 master.sendResponse(req, res, 200, 5, "Database Error");
                                 return;
                             }
-                            
-							// log.info('URL '+req.url);
-								
-							// var allhost = req.headers; 
-							// var host = req.headers['host']; 
-							// log.info('ALLHOST :'+allhost);
-							// log.info('HOST :'+host);
-							// console.log(JSON.stringify(req.headers));
-							// var osname = os.hostname();
-							// log.info('OS : '+osname);
 							
-							// var osinterface = os.networkInterfaces();
-							// log.info('OS : '+osinterface);
-							// console.log(JSON.stringify(osinterface));
-
                             sendVerificationEmail(myInfo, flag, rootUrl);   // Send Email to Registered Email Address For Account Verification
                             
                             log.info('Saved SuccessFully');
@@ -3474,90 +3458,6 @@ module.exports.rejectBlockedBids = function(req, res){
 }
 
 
-/*============================= Update Notification Status =============================*/
-
-module.exports.updateNotificationStatus = function(req, res){
-    
-    log.info('Page Name : user.js');
-	log.info('API Name : updateNotificationStatus')
-	log.info('Update Notification Status API Hitted');
-	log.info('Parameter Receiving..');
-    
-    master.validation(req, function(retVal){
-        
-        if(retVal[0].error == true || retVal[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
-            return;
-        }
-        
-        var amount = parseFloat(retVal[0].amount);
-        
-        var notificationStatus = false;
-        
-        if(amount == 1)
-        {
-            notificationStatus == true;
-        }
-        
-        // Find and Update User's Blocked For Bids
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$set:{notification_status:notificationStatus}},function(err, result){
-            
-            if (err)
-            {
-                log.error(err);
-                master.sendResponse(req, res, 200, 5, "Database Error");
-                return;
-            }
-
-            if (result==null || result=="") // Email Not Found
-            {
-                log.info(retVal[0].email+" Not Registered");
-                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
-                return;
-            }
-            
-            log.info('Notification Status '+notificationStatus+' Successfully Updated To '+retVal[0].email);
-            master.sendResponse(req, res, 200, -1, 'Success');
-            
-        })
-    })
-}
-
-/*============================= Get Notification Status =============================*/
-
-module.exports.getNotificationStatus = function(req, res){
-    
-    log.info('Page Name : user.js');
-	log.info('API Name : getNotificationStatus')
-	log.info('Get Notification Status API Hitted');
-	log.info('Parameter Receiving..');
-    
-    var email = req.body.email;
-
-    // Find and Update User's Blocked For Bids
-    userSchema.find({email:email},{notification_status:1,_id:1},function(err, result){
-
-        if (err)
-        {
-            log.error(err);
-            master.sendResponse(req, res, 200, 5, "Database Error");
-            return;
-        }
-
-        if (result==null || result=="") // Email Not Found
-        {
-            log.info(email+" Not Registered");
-            master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
-            return;
-        }
-
-        log.info('Notification Status is '+result[0].notification_status+' For '+email);
-        master.sendResponse(req, res, 200, -1, {notification_status:result[0].notification_status, user_id:result[0]._id});
-
-    })
-
-}
 
 module.exports.refCode = function(req, res){
 
@@ -3635,79 +3535,7 @@ module.exports.refCode = function(req, res){
 			})
 		
 		})
-		
-		//master.sendResponse(req, res, 200, -1, result);
-		
-		// for(var p=0,j=0; p<3; p++)
-		// {
-			// var first_name = result[p].first_name;
-			// var last_name = result[p].last_name;
-			// var refCode;
-			// var final_Ref = [];
-		
-			//Checking length of fname (If first Name is of less than 4 letters)
-			// if(first_name.length<4)				
-			// {
-				// var charlist = 'abcdefghijklmnopqrstuvwxyz';	// Character String Value need to generate Random Characters
-				// var diff = 4-first_name.length;	
-				// var randchar = "";
-				// for (var i=0; i<diff; i++)
-				// {
-					// randchar = randchar+charlist.charAt(Math.floor(Math.random() * charlist.length));	// Random Character function
-				// }
-
-				// refCode=first_name+randchar+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having less than 4 characters 	
-			// }
-
-			//If length is Greter Or equal to 4
-			// else 
-			// {
-				// refCode=first_name.substr(0,4)+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having greater than or equal to 4 characters 
-			// }
-
-			// refCode = refCode.toLowerCase();	// Convert Referral Code to LOWER CASE
-			// final_Ref[p] = refCode;
-			// console.log(p);
-			// console.log('Email :'+result[p].email);
-			// console.log('First Name :'+result[p].first_name);
-			// console.log('Last Name :'+result[p].last_name);
-			// console.log('RefCode :'+refCode);
 			
-			// userSchema.find({my_referral_id:{$regex:final_Ref[p]}},{email:1, my_referral_id:1},function(err, results){
-				
-				// if (err)
-				// {
-					// log.error(err);
-					// master.sendResponse(req, res, 200, 5, "Database Error");
-					// return;
-				// }
-				
-				// if(results.length>0)
-				// {
-					// final_Ref[p] = final_Ref[p]+results.length;
-				// }
-				
-				// console.log('Email :'+result[0].email);
-				// console.log('RefCode :'+final_Ref[0]);
-				// console.log('Email :'+result[1].email);
-				// console.log('RefCode :'+final_Ref[1]);
-				// console.log('Email :'+result[2].email);
-				// console.log('RefCode :'+final_Ref[2]);
-				// j++;
-				
-				// userSchema.findOneAndUpdate({email:retVal[0].email},{$set:{notification_status:notificationStatus}},function(err, result){
-				
-				
-				// })
-				
-				// console.log('Length :'+results.length);
-				// console.log('Result :'+results);
-				// console.log('-----------------------');
-			
-			// })
-			
-		// }
-	
 	})
 
 }

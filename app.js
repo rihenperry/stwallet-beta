@@ -2,8 +2,8 @@
 /*jslint node: true */
 "use strict";
 
-// Framwork
-var express    		= require('express'),
+// Framwork & Packages
+var express    		= require('express'),						// Express Framwork
     helmet        	= require('helmet'),
 	app        	 	= express(),
 	nconf 	    	= require('nconf'),
@@ -11,12 +11,8 @@ var express    		= require('express'),
 	request 		= require('request'),
     jsonfile        = require('jsonfile'),
     bformat         = require('bunyan-format'),
-	morgan 			= require('morgan'),
-	
-// Packages
-    bodyParser  	= require('body-parser'),
-    logger          = require('./config/w_config.js'),
-    log             = logger(),
+	morgan 			= require('morgan'),						// To see Execution time logs
+    bodyParser  	= require('body-parser'),					// Post Requst
 
 // Pages
 	mongoose        = require('./config/mongoose.js'),          // Moongoose
@@ -25,16 +21,15 @@ var express    		= require('express'),
 	search          = require('./api/search.js'),               // Search API
 	pool            = require('./api/pool'),                    // Get Pool API
 	W_transaction   = require("./api/transaction.js"),          // Transaction API
-    admin     	    = require("./api/admin"),  	             // Get Admin API
-    cron_api    	= require("./api/cron_api.js");    	     // Get Admin API
+    admin     	    = require("./api/admin"),  	             	// Get Admin API
+    cron_api    	= require("./api/cron_api.js");    	     	// Get Cron API
+	logger          = require('./config/w_config.js'),			// Logger to see Logs
+    log             = logger();
 
 app.use(morgan('dev'))
-// code to useing helmet@wallet app
-app.use(helmet())
+app.use(helmet())												// Code to useing helmet@wallet app
 
-// code to set ENV for node app
-var loadconfig = require('./config/w_config.js')
-
+var loadconfig 		= require('./config/w_config.js')			// Code to set ENV for node app
 var defaultOptions = loadconfig.DEFAULTS
 log.info("Configuration read from the JSON file using nconf is :")
 log.info(defaultOptions)
@@ -106,8 +101,6 @@ app.post('/secure/firstBuy', user.firstBuy);													// FirstBuy API
 app.post('/secure/addBlockedForBids', user.addBlockedForBids);									// Add Blocked For Bids API
 app.post('/secure/deductBlockedForBids', user.deductBlockedForBids);							// Deduct Blocked Bids API
 app.post('/secure/rejectBlockedBids', user.rejectBlockedBids);                                  // Reject Blocked Bids API (In cases of Accept bid and Buy now)
-//app.post('/secure/updateNotificationStatus', user.updateNotificationStatus);                    // Update User's Notification Status API
-//app.post('/secure/getNotificationStatus', user.getNotificationStatus);                          // Get Notification Status
 
 app.post('/refCode',user.refCode);
 
@@ -168,7 +161,6 @@ app.post('/secure/admin/latestDeposit', admin.latestDeposit);                   
 app.post('/secure/admin/totalCount', admin.totalCount);                                         // Count By Type and Payment Mode
 app.post('/secure/admin/userBalanceCalc', admin.userBalanceCalc);                               // User Balance Calculation By Email
 app.post('/secure/admin/allUsersBalance', admin.allUsersBalance);                               // All User's Total Balance
-
 
 app.post('/secure/cron', cron_api.cron);
 
