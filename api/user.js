@@ -260,7 +260,7 @@ module.exports.secureRegister = function (req, res) {
         email = email.toLowerCase();
         
         // Find Existance of User
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -283,7 +283,7 @@ module.exports.secureRegister = function (req, res) {
                 accountID = crypt.hashIt(email);
                 var referred_person_code = referral;
 
-                userSchema.find({my_referral_id:referred_person_code},function(err, result){
+                userSchema.find({my_referral_id:referred_person_code}).lean().exec(function(err, result){
 
                     if(err)
                     {
@@ -340,7 +340,7 @@ module.exports.secureRegister = function (req, res) {
 
                     refcode = refcode.toLowerCase();	// Convert Referral Code to LOWER CASE
 
-                    userSchema.find({my_referral_id:{$regex:refcode}},function(err, result){
+                    userSchema.find({my_referral_id:{$regex:refcode}}).lean().exec(function(err, result){
 
                         if(err)
                         {
@@ -465,7 +465,7 @@ module.exports.verifyAccount = function(req, res){
             return;
         }
     
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -522,7 +522,7 @@ module.exports.verifyAccount = function(req, res){
 
                 else
                 {
-                    userSchema.findOneAndUpdate({email:email},{$set:{active:1}}, function(err, result){
+                    userSchema.findOneAndUpdate({email:email},{$set:{active:1}}).lean().exec(function(err, result){
 
                         if(err)
                         {
@@ -541,7 +541,7 @@ module.exports.verifyAccount = function(req, res){
                         else
                         {                            
                             // Update Pool totalActiveUsers
-                            poolSchema.findOneAndUpdate({}, {$inc:{totalActiveUsers:1}}, function(err, retVals){
+                            poolSchema.findOneAndUpdate({}, {$inc:{totalActiveUsers:1}}).lean().exec(function(err, retVals){
 
                                 // Error In Updating Database
                                 if(err)
@@ -729,7 +729,7 @@ module.exports.secureLogin = function(req, res){
 		
 		email = email.toLowerCase();
     
-        userSchema.find({email:email},function(err, results){
+        userSchema.find({email:email}).lean().exec(function(err, results){
 
             if(err)
             {
@@ -760,7 +760,7 @@ module.exports.secureLogin = function(req, res){
 
                     var currentTIme = Date.now();
 
-                    userSchema.findOneAndUpdate({email:email},{$set:{lastLogin:currentTIme}, $inc:{noOfLogins:1}}, function(err, result){
+                    userSchema.findOneAndUpdate({email:email},{$set:{lastLogin:currentTIme}, $inc:{noOfLogins:1}}).lean().exec(function(err, result){
 
                         if(err)
                         {
@@ -1011,7 +1011,7 @@ module.exports.setUserDetails = function(req, res){
         }
 
         // Find and Update User
-        userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+        userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1109,7 +1109,7 @@ module.exports.currencyPrefrence = function(req, res) {
         }
 
         // Find and Update User's Currency Preference
-        userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+        userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, result){
 
             if (err)
             {
@@ -1199,7 +1199,7 @@ exports.secureForgotPassword = function(req, res) {
 		
 		email = email.toLowerCase();
     
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1334,7 +1334,7 @@ module.exports.resetpassword = function(req, res) {
             return;
         }
     
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1404,7 +1404,7 @@ module.exports.resetpassword = function(req, res) {
                 };
                 
                 // Find and Update User's Currency Preference
-                userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, results){
+                userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, results){
 
                     if (err)
                     {
@@ -1509,7 +1509,7 @@ module.exports.changePassword = function (req, res) {
         }
         
         // Find Existance of User
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1582,7 +1582,7 @@ module.exports.changePassword = function (req, res) {
             };
 
             // Find and Update User's Currency Preference
-            userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, results){
+            userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, results){
 
                 if (err)
                 {
@@ -1691,7 +1691,7 @@ module.exports.setAppId = function (req, res) {
         };
 
         // Find and Update User's App Id
-        userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+        userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, result){
 
             if (err)
             {
@@ -1776,7 +1776,7 @@ module.exports.getAppId = function (req, res) {
             return;
         }
     
-        userSchema.find({email:email},{default_search_appId:1},function(err, result){
+        userSchema.find({email:email},{default_search_appId:1}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1796,6 +1796,93 @@ module.exports.getAppId = function (req, res) {
             {
                 log.info('App Id : '+result[0].default_search_appId);
                 master.sendResponse(req, res, 200, -1, result[0].default_search_appId);
+            }
+
+        })
+        
+    })
+    
+}
+
+/*============================= Set Favourite App Id's =============================*/
+
+module.exports.setFavouriteAppIds = function (req, res) {
+    
+    log.info('Page Name : user.js');
+	log.info('API Name : setFavouriteAppIds');
+	log.info('Set Favourite App API Hitted');
+	log.info('Parameters Receiving..');
+    
+    var email       	= req.body.email;
+    var favouriteApps   = req.body.favouriteApps;
+    var publicKey   	= req.body.publicKey;
+    var signature   	= req.body.signature;
+    
+    log.info('Email : ' + email);
+    log.info('Favourite Apps : ' + favouriteApps);
+    log.info('Public Key : ' + publicKey);
+    log.info('Signature : ' + signature);
+
+    // Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if(!(master.validateParameter(email, 'Email')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		log.info('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+
+    var query = {publicKey:publicKey};
+    //var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&favouriteApps='+favouriteApps+'&publicKey='+publicKey;
+   
+    master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+    
+        userSchema.findOneAndUpdate({email:email},{favourite_app_ids:favouriteApps}).lean().exec(function(err, result){
+
+            if(err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                log.info(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                log.info('Favourite App Ids : '+favouriteApps+' Set To '+email);
+                master.sendResponse(req, res, 200, -1, "Success");
             }
 
         })
@@ -2002,8 +2089,8 @@ module.exports.editProfilePic = function(req, res){
                 srcPath: path+fileName,
                 dstPath: thumbPath+fileName,
                 width:   80
-            }, function(err, stdout, stderr){
-              if (err) throw err;
+            }, 	function(err, stdout, stderr){
+				if (err) throw err;
               log.info('resized profile pic to fit within 64px');
             });
 
@@ -2056,7 +2143,7 @@ module.exports.creditUserAmount = function(req, res){
 		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Deposit
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2102,7 +2189,7 @@ module.exports.deductUserAmount = function(req, res){
 		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Deposit
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2148,7 +2235,7 @@ module.exports.addPurchases = function(req, res){
 		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Purchases
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2194,7 +2281,7 @@ module.exports.deductPurchases = function(req, res){
 		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Purchases
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2240,7 +2327,7 @@ module.exports.addCashback = function(req, res){
 		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Cashback
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2286,7 +2373,7 @@ module.exports.deductCashback = function(req, res){
 		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Cashback
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2332,7 +2419,7 @@ module.exports.addAffEarning = function(req, res){
 		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Affiliate Earning
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2378,7 +2465,7 @@ module.exports.deductAffEarning = function(req, res){
 		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Affiliate Earning
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2424,7 +2511,7 @@ module.exports.addSales = function(req, res){
 		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Sales
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2470,7 +2557,7 @@ module.exports.deductSales = function(req, res){
 		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Sales
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2516,7 +2603,7 @@ module.exports.addTrade = function(req, res){
 		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Trade
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2562,7 +2649,7 @@ module.exports.deductTrade = function(req, res){
 		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Trade
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2608,7 +2695,7 @@ module.exports.addTotalKeywordIncome = function(req, res){
 		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total Keyword Income
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2654,7 +2741,7 @@ module.exports.deductTotalKeywordIncome = function(req, res){
 		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total Keyword Income
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2700,7 +2787,7 @@ module.exports.addBlockedPendingWithdrawals = function(req, res){
         // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked Pending Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2746,7 +2833,7 @@ module.exports.deductBlockedPendingWithdrawals = function(req, res){
         // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked Pending Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2792,7 +2879,7 @@ module.exports.addApprovedWithdrawals = function(req, res){
         // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2838,7 +2925,7 @@ module.exports.deductApprovedWithdrawals = function(req, res){
         // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2884,7 +2971,7 @@ module.exports.addRenewalFees = function(req, res){
 		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2930,7 +3017,7 @@ module.exports.deductRenewalFees = function(req, res){
         // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2976,7 +3063,7 @@ module.exports.addTotalAppIncome = function(req, res){
         // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total App Income
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_app_income:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_app_income:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -3022,7 +3109,7 @@ module.exports.addSearchAffEarning = function(req, res){
         // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Search Affiliate Earnings
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_affiliate_earnings:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_affiliate_earnings:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -3042,7 +3129,7 @@ module.exports.addSearchAffEarning = function(req, res){
             {
                 if(retVal[0].email!="searchUser@searchtrade.com")
                 {
-                    poolSchema.findOneAndUpdate({},{$inc:{total_search_payout:amount}},function(err, results){
+                    poolSchema.findOneAndUpdate({},{$inc:{total_search_payout:amount}}).lean().exec(function(err, results){
                     
                         if (err)
                         {
@@ -3085,7 +3172,7 @@ module.exports.firstBuy = function(req, res){
         var amount = parseFloat(retVal[0].amount);
         
         // Find and Update User's First Buy Status
-        userSchema.findOneAndUpdate({email:retVal[0].email}, {first_buy_status:amount}, function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email}, {first_buy_status:amount}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -3131,7 +3218,7 @@ module.exports.addBlockedForBids = function(req, res){
         // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked For Bids
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{"blocked_for_bids":amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{"blocked_for_bids":amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -3177,7 +3264,7 @@ module.exports.deductBlockedForBids = function(req, res){
         // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked For Bids
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}}).lean().exec(function(err, result){
 
             if (err)
             {

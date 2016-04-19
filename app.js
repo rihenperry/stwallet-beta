@@ -71,7 +71,8 @@ app.post('/secure/forgotPassword', user.secureForgotPassword);                  
 app.post('/secure/resetpassword', user.resetpassword);				                            // Reset New Password API
 app.post('/secure/changePassword', user.changePassword);			                            // Change Password API
 app.post('/secure/setAppId', user.setAppId);                                                    // Set App Id API
-app.post('/secure/getAppId', user.getAppId);                                                    // Get USer's App Id
+app.post('/secure/getAppId', user.getAppId);                                                    // Get User's App Id
+app.post('/secure/setFavouriteAppIds', user.setFavouriteAppIds);                                // Set User's Favourite App Id
 app.post('/secure/editProfilePic', user.editProfilePic);										// Edit Profile Picture API
 
 // Account Related API

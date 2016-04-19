@@ -176,6 +176,7 @@ module.exports.userManage = function (req, res){
 	var skip       = req.body.skip;
 	var order      = req.body.order;
 	var column     = req.body.column;
+	var flag	   = req.body.flag;
     var publicKey  = req.body.publicKey;
     var signature  = req.body.signature;
 
@@ -186,7 +187,8 @@ module.exports.userManage = function (req, res){
 	log.info('Last Name : '+last_name);
 	log.info('Skip : '+skip);
 	log.info('Order : '+order);
-	log.info('column : '+column);
+	log.info('Column : '+column);
+	log.info('Flag : '+flag);
 
 	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
@@ -313,37 +315,55 @@ module.exports.userManage = function (req, res){
 
         var selectQuery = {"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1};
 
-        userSchema.find(query, selectQuery).sort(sort).skip(skip).limit(10).exec(function(err, results){
+		userSchema.count(query).lean().exec(function(err, result){
+			
+			if (err)
+			{
+				log.error(err);
+				master.sendResponse(req, res, 200, 5, "Database Error");
+				return;
+			}
+			
+			// Successfully Fetched
+			if(result=="" || result==undefined || result==0)
+			{
+				log.info('No Results Found');
+				master.sendResponse(req, res, 200, -1, "No Results");
+				return;
+			}	
 				
-            if (err)
-            {
-                log.error(err);
-                master.sendResponse(req, res, 200, 5, "Database Error");
-                return;
-            }
+			if(flag == '1' || flag == 1)
+			{
+				log.info(result+' Results Found');
+				master.sendResponse(req, res, 200, -1, result);
+				return;
+			}
+			
+			else
+			{
+				userSchema.find(query).select(selectQuery).sort(sort).skip(skip).limit(10).lean().exec(function(err, results){
+					
+					if (err)
+					{
+						log.error(err);
+						master.sendResponse(req, res, 200, 5, "Database Error");
+						return;
+					}
 
-            // Successfully Fetched
-            if(results=="" || results==undefined || results.length==0)
-            {
-                log.info('No Results Found');
-                master.sendResponse(req, res, 200, -1, "No Results");
-                return;
-            }
-            
-            userSchema.find(query, selectQuery).exec(function(err, result){
-                
-                if (err)
-                {
-                    log.error(err);
-                    master.sendResponse(req, res, 200, 5, "Database Error");
-                    return;
-                }
-                
-                log.info('Transactions Found Successfully');
-                master.sendResponse(req, res, 200, -1, {result:results,count:result.length});
-                
-            })
-
+					// Successfully Fetched
+					if(results=="" || results==undefined || results.length==0)
+					{
+						log.info('No Results Found');
+						master.sendResponse(req, res, 200, -1, "No Results");
+						return;
+					}	
+					
+					log.info('Transactions Found Successfully');
+					master.sendResponse(req, res, 200, -1, {result:results,count:result});
+					
+				})
+			}
+			
         })
         
     });
@@ -506,7 +526,7 @@ module.exports.getExpenceTransactions = function(req, res) {
 		if(n==0)
 		{
 			// Get Transaction
-			transSchema.find(query).exec(function(err, retTrans){
+			transSchema.find(query).lean().exec(function(err, retTrans){
 								
 				if (err)
 				{
@@ -534,7 +554,7 @@ module.exports.getExpenceTransactions = function(req, res) {
 		else
 		{
 			// Get Transaction
-			transSchema.find(query).limit(n).exec(function(err, retTrans){
+			transSchema.find(query).limit(n).lean().exec(function(err, retTrans){
 			
 				if (err)
 				{
@@ -612,7 +632,7 @@ module.exports.getActiveEmails = function(req, res){
     	// For Active Users Only
         if(flag == 1 || flag == '1')
         {
-            userSchema.find({active:1},{"email":1, "first_name":1, "last_name":1}).exec(function(err, result){
+            userSchema.find({active:1}).select({"email":1, "first_name":1, "last_name":1}).lean().exec(function(err, result){
             
                 if(err)
                 {
@@ -627,18 +647,18 @@ module.exports.getActiveEmails = function(req, res){
                     master.sendResponse(req, res, 200, 9, "No Result");
                     return;                
                 }
-                
-                log.info(result.length+' Active Emails Found');
-                master.sendResponse(req, res, 200, -1, result);
-                return; 
-            
+
+				log.info(result.length+' Active Emails Found');
+				master.sendResponse(req, res, 200, -1, result);
+				return;
+				
             });
         }
         
         // For Other.. Data Only
-        if(flag == 2 || flag == '2' || flag=='3' || flag==3)
+        if(flag == 2 || flag == '2')
         {
-            userSchema.find({},{"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1}).exec(function(err, result){
+            userSchema.find({}).select({"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1}).lean().exec(function(err, result){
             
                 if(err)
                 {
@@ -646,33 +666,18 @@ module.exports.getActiveEmails = function(req, res){
                     master.sendResponce(req, res, 200, 5, "Datbase Error");
                     return;
                 }
+
+				if(result == "" || result == undefined || result.length<=0)
+				{
+					log.info('No Active Emails Found');
+					sendResponse(req, res, 200, 9, "No Result");
+					return;
+				}
+		
+				log.info(result.length+' Results Found');
+				master.sendResponse(req, res, 200, -1, result);
+				return;
                 
-                if(flag == 3 || flag == '3')
-                {
-                    if(result == null || result == undefined || result == "")
-                    {
-                        log.info('No User Found');
-                        master.sendResponse(req, res, 200, 9, 0);
-                        return;                
-                    }
-                    
-                    log.info('Total '+result.length+' Users Found');
-			        master.sendResponse(req, res, 200, -1, result.length);
-                }
-                
-                else
-                {
-                    if(result == "" || result == undefined || result.length<=0)
-                    {
-                        log.info('No Active Emails Found');
-                        sendResponse(req, res, 200, 9, "No Result");
-                        return;
-                    }
-			
-                    log.info(result.length+' Results Found');
-                    master.sendResponse(req, res, 200, -1, result);
-                    return;
-                }
                 
             });
         }
@@ -683,7 +688,7 @@ module.exports.getActiveEmails = function(req, res){
         	var email = req.body.email;
         	var query = {"email":{ $regex: email }};
 
-        	userSchema.find(query).exec(function(err, result){
+        	userSchema.count(query).exec(function(err, result){
 
         		if(err)
                 {
@@ -692,15 +697,51 @@ module.exports.getActiveEmails = function(req, res){
                     return;
                 }
 
-                if(result == "" || result == undefined || result.length<=0)
+                if(result == "" || result == undefined || result<=0)
                 {
                     log.info('No Emails Found');
                     master.sendResponse(req, res, 200, 9, "No Result");
                     return;
                 }
 
-             	log.info(result.length+' Results Found');
-                master.sendResponse(req, res, 200, -1, result.length);
+             	log.info(result+' Results Found');
+                master.sendResponse(req, res, 200, -1, result);
+        	})
+        }
+		
+		// Active Users Count
+		if(flag == 5 || flag == '5' || flag == 3 || flag == '3')
+        {
+			var query;
+			
+			if(flag == 3 || flag == '3')
+			{
+				query = {}
+			}
+			
+			if(flag == 5 || flag == '5')
+			{
+				query = {active:1}
+			}
+		
+        	userSchema.count(query).exec(function(err, result){
+
+        		if(err)
+                {
+                    log.error(err);
+                    master.sendResponce(req, res, 200, 5, "Datbase Error");
+                    return;
+                }
+
+                if(result == "" || result == undefined || result<=0)
+                {
+                    log.info('No Emails Found');
+                    master.sendResponse(req, res, 200, 9, "No Result");
+                    return;
+                }
+
+             	log.info(result+' Results Found');
+                master.sendResponse(req, res, 200, -1, result);
         	})
         }
 
@@ -882,7 +923,7 @@ module.exports.getIncomeTransactions = function(req, res) {
 		// Get Transaction
 		if (n == 0) 
 		{
-			transSchema.find(query, function(err, retTrans){
+			transSchema.find(query).lean().exec(function(err, retTrans){
 			
 				if (err)
 				{
@@ -910,7 +951,7 @@ module.exports.getIncomeTransactions = function(req, res) {
 			
 		else
 		{
-			transSchema.find(query, function(err, retTrans){
+			transSchema.find(query).limit(n).lean().exec(function(err, retTrans){
 					
 				if (err)
 				{
@@ -932,7 +973,7 @@ module.exports.getIncomeTransactions = function(req, res) {
 				master.sendResponse(req, res, 200, -1, retTrans);
 				return;
 			
-			}).limit(n);
+			});
 		
 		}
 			
@@ -985,7 +1026,7 @@ module.exports.paymentModeCount = function(req, res) {
     
         var query = {$and:[{"type":"keyword_purchase"},{"payment_mode":mode}]}
         
-        transSchema.find(query, function(err, retTrans){
+        transSchema.count(query).exec(function(err, retTrans){
             
             if(err)
             {
@@ -994,15 +1035,15 @@ module.exports.paymentModeCount = function(req, res) {
                 return;
             }
             
-            if(retTrans==null || retTrans==undefined || retTrans=="")
+            if(retTrans==null || retTrans==undefined || retTrans==0)
             {
                 log.info('No Transactions');
                 master.sendResponse(req, res, 200, 5, 0);
                 return;
             }
             
-            log.info(retTrans.length+' Transactions Found');
-            master.sendResponse(req, res, 200, 5, retTrans.length);
+            log.info(retTrans+' Transactions Found');
+            master.sendResponse(req, res, 200, 5, retTrans);
             
         })
         
@@ -1109,7 +1150,7 @@ module.exports.setUserBalance = function(req, res){
 		};
 
 		// Find User From Its Email From User Table
-		userSchema.findOneAndUpdate(query, updatedFeilds, function(err, result){
+		userSchema.findOneAndUpdate(query, updatedFeilds).lean().exec(function(err, result){
 				
 			if (err)
             {
@@ -1214,7 +1255,7 @@ module.exports.getEmailTypeTransactions = function(req, res){
 			
         skip = parseInt(skip);
 			
-        transSchema.find(query).sort({"time":-1}).skip(skip).limit(10).exec(function(err, retVal){
+        transSchema.find(query).sort({"time":-1}).skip(skip).limit(10).lean().exec(function(err, retVal){
 		
 			if (err)
             {
@@ -1304,7 +1345,7 @@ module.exports.updateUserStatus = function(req, res){
         var userStatus = {active : status}
         
         // Find User From Its Email From User Table
-		userSchema.findOneAndUpdate({email:email}, userStatus).exec(function(err, result){
+		userSchema.findOneAndUpdate({email:email}, userStatus).lean().exec(function(err, result){
 				
 			if (err)
             {
@@ -1368,7 +1409,7 @@ module.exports.latestDeposit = function(req, res){
             return;
         }
     
-        transSchema.find({type:"fund"}).sort({"time":-1}).limit(1000).exec(function(err, retVal){
+        transSchema.find({type:"fund"}).sort({"time":-1}).limit(1000).lean().exec(function(err, retVal){
 			
 			if (err)
             {
@@ -1643,7 +1684,7 @@ module.exports.userBalanceCalc = function(req, res){
         query = {"email": email};
         
         // Find User From Its Email From User Table
-		userSchema.find(query, {deposit:1,sales:1,cashback:1,affiliate_earning:1,total_kwd_income:1,search_earning:1,search_affiliate_earnings:1,total_app_income:1,blocked_for_pending_withdrawals:1,blocked_for_bids:1,approved_withdrawals:1,trade_fees:1,purchases:1}, function(err, result){
+		userSchema.find(query).select({deposit:1,sales:1,cashback:1,affiliate_earning:1,total_kwd_income:1,search_earning:1,search_affiliate_earnings:1,total_app_income:1,blocked_for_pending_withdrawals:1,blocked_for_bids:1,approved_withdrawals:1,trade_fees:1,purchases:1}).lean().exec(function(err, result){
             
             if(err)
             {
@@ -1744,8 +1785,8 @@ module.exports.allUsersBalance = function(req, res){
                                        blocked_for_bids:{$sum:"$blocked_for_bids"},
                                        approved_withdrawals:{$sum:"$approved_withdrawals"},
                                        trade_fees:{$sum:"$trade_fees"},
-                                       purchases:{$sum:"$purchases"}}}],
-            function(err, result){
+                                       purchases:{$sum:"$purchases"}}}])
+            .exec(function(err, result){
             
                 if(err){
                     log.error(err);

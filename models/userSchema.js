@@ -42,6 +42,7 @@ var userDetails = mongoose.Schema({
     no_of_unQualified_searches:       {type: Number, default:0},                            // No of Unpaid Searches
     favourite_search_app:             {type: String, default:''},                           // Favourite Search App
     default_search_appId:             {type: String, default:''},                           // Default Search App Id
+    favourite_app_ids:             	  {type: String, default:''},                           // Favourite App Ids
     total_no_of_searches_in_last_hour:{type: Number, default:0},                            // Total Searches in Last Hour
     last_hour_search_time:            {type: Number, default:0},                            // Last Hour Time
     total_kwd_income:                 {type: Number, default:0},                            // Total Keyword Income

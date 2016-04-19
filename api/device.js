@@ -56,7 +56,6 @@ module.exports.deviceRegister = function(req, res){
 
         deviceInfo=JSON.parse(deviceInfo)
         
-        
         // Checking Device ID in Device Info
         if (deviceInfo.Device_ID != "" || deviceInfo.Device_ID != null) 
         {

@@ -188,7 +188,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
             return;
         }
         
-        userSchema.find({email:email}).exec(function(err, retVal){
+        userSchema.find({email:email}).lean().exec(function(err, retVal){
             
             if(err)
             {
@@ -214,7 +214,7 @@ module.exports.getUsersTotalTransactions = function(req, res) {
                 var query = {$and:[{$or:[{"sender":email},{"receiver":email}]},{"type":type}]};
             }
             
-            transactionSchema.find(query).exec(function(err, retValue){
+            transactionSchema.count(query).exec(function(err, retValue){
                 
                 if(err)
                 {
@@ -223,15 +223,15 @@ module.exports.getUsersTotalTransactions = function(req, res) {
                     return;
                 }
                 
-                if(retValue == undefined || retValue.length == 0 || retValue == "" || retValue == null)
+                if(retValue == undefined || retValue == 0 || retValue == "" || retValue == null)
                 {
                     log.info('No Transactions of This User')
                     master.sendResponse(req, res, 200, -1, 0);
                     return;
                 }
                 
-                log.info(retValue.length+' Transactions For '+email);
-                master.sendResponse(req, res, 200, -1, retValue.length);
+                log.info(retValue+' Transactions For '+email);
+                master.sendResponse(req, res, 200, -1, retValue);
             })
             
         })
@@ -356,7 +356,7 @@ module.exports.getTransactions = function(req, res) {
             query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]},{"type":type}]};
         }
         
-        transactionSchema.find(query).sort({time:order}).limit(n).exec(function(err, retVal){
+        transactionSchema.find(query).sort({time:order}).limit(n).lean().exec(function(err, retVal){
             
             if(err)
             {
