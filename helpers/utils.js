@@ -64,10 +64,16 @@ function permArrayToObj(perm_k, perm_v) {
   return obj;
 }
 
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+	return re.test(email);
+}
+
 module.exports= {
   sendJsonResponse : sendJsonResponse,
   alphaNumr : randomString,
   inPermCodeFormat: inPermCodeFormat,
   permCodeBatch: permCodeBatch,
-  permArrayToObj: permArrayToObj
+  permArrayToObj: permArrayToObj,
+  validateEmail: validateEmail
 };
