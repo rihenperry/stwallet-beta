@@ -1,7 +1,9 @@
 var mongoose = require( 'mongoose' ); 
 
 // Build the connection string 
-var dbURI = 'mongodb://localhost/mytest'; 
+var dbURI = 'mongodb://localhost/wallet'; 
+// var dbURI = 'mongodb://localhost/mytest'; 
+// var dbURI = 'mongodb://localhost/crondb'; 
 
 // Create the database connection 
 mongoose.connect(dbURI); 
@@ -32,3 +34,5 @@ process.on('SIGINT', function() {
     process.exit(0); 
   }); 
 }); 
+
+// mongoose.set('debug', true)
