@@ -88,20 +88,6 @@ var getUserSubOptions = function(req, res) {
   var signature = req.query.signature;
 
   log.info('Id : '+id);
-  log.info('Public Key : '+publicKey);
-  log.info('Signature : '+signature);
-
-    // Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key'))){
-		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature'))){
-		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
-		return;
-	}
 
   var query = {publicKey:publicKey};
   //var text  = 'id='+encodeURIComponent(id)+'&publicKey='+encodeURIComponent(publicKey);
@@ -145,6 +131,7 @@ var getUserSubOptions = function(req, res) {
           });
       } else {
         helpers.sendJsonResponse(res, 404, 1, 'Mandatory field not found');
+        return;
       }
   });
 };
@@ -164,8 +151,6 @@ var createUserSubOptions = function(req, res){
     var bid_perm_code = req.body.bid_perm_code;
 
     log.info('Id : '+id);
-    log.info('Public Key : '+publicKey);
-    log.info('Signature : '+signature);
 
     log.info('Buy Options : '+buy_container);
     log.info('Ask Options : '+ask_container);
@@ -174,20 +159,6 @@ var createUserSubOptions = function(req, res){
     log.info('Buy perm : '+buy_perm_code);
     log.info('Ask perm : '+ask_perm_code);
     log.info('Bid perm : '+bid_perm_code);
-
-    // Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
-		return;
-	}
 
     var query = {publicKey:publicKey};
     //var text  = 'id='+encodeURIComponent(id)+'&buy_container='+encodeURIComponent(buy_container)+'&ask_container='+encodeURIComponent(ask_container)+'&bid_container='+encodeURIComponent(bid_container)+'&publicKey='+encodeURIComponent(publicKey);
@@ -293,8 +264,6 @@ var updateUserSubOptions = function(req, res) {
     var ask_perm_code = req.body.ask_perm_code;
     var bid_perm_code = req.body.bid_perm_code;
 
-    log.info('Public Key : '+publicKey);
-    log.info('Signature : '+signature);
     log.info('user id: '+id);
     log.info('option id: '+optionid);
 
@@ -305,12 +274,6 @@ var updateUserSubOptions = function(req, res) {
     log.info('Buy perm : '+buy_perm_code);
     log.info('Ask perm : '+ask_perm_code);
     log.info('Bid perm : '+bid_perm_code);
-    // Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
-		return;
-	}
 
   	if ((!req.params.id) || (!req.params.optionid) || (!req.params)) {
     	helpers.sendJsonResponse(res, 404, {
@@ -324,13 +287,6 @@ var updateUserSubOptions = function(req, res) {
     //	});
 		//  return;
 	  //}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
-		return;
-	}
 
     var query = {publicKey:publicKey};
     //var text  = 'id='+encodeURIComponent(id)+'&optionid='+encodeURIComponent(optionid)+'&buy_container='+encodeURIComponent(buy_container)+'&ask_container='+encodeURIComponent(ask_container)+'&bid_container='+encodeURIComponent(bid_container)+'&publicKey='+encodeURIComponent(publicKey);
@@ -409,22 +365,6 @@ var deleteUserSubOptions = function(req, res) {
     var signature = req.query.signature || req.body.signature;
 
     log.info('Id : '+id);
-    log.info('Public Key : '+publicKey);
-    log.info('Signature : '+signature);
-
-    // Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 404, 1, "Mandatory field not found");
-		return;
-	}
 
     var query = {publicKey:publicKey};
     //var text  = 'id='+encodeURIComponent(id)+'&publicKey='+encodeURIComponent(publicKey);
