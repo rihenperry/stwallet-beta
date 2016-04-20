@@ -1,7 +1,18 @@
 var express = require('express');
 var router = express.Router();
 
+var mw = require('../config/middleware');
 var pool = require('../api/pool');
+
+router.use(function(req, res, next) {
+  //exempt this api from passing through defined middleware
+  log.info('URL path ->'+ req.path);
+  if (req.path.match(/^\/admin\/resetQualifiedSearches/) !== null) {
+    next();
+  } else {
+    mw.checkPubSignKey(req, res, next);
+  }
+});
 
 router.post('/creditPoolAmountKeywords', pool.addTokwdIncome);                              // Add To Keyword Income API
 router.post('/deductPoolAmountKeywords', pool.deductFromkwdIncome);                         // Deduct From Keyword Income API
