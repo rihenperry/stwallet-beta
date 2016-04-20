@@ -17,9 +17,10 @@ var  express     	   = require('express'),
      bodyParser      = require('body-parser'),
      debug           = require('debug')('Express4'),
      //util            = require('util'),
-     bformat         = require('bunyan-format')  ,
+     bformat         = require('bunyan-format');
      // Packages
-     log             = require('./config/w_config.js')();
+var helpers         = require('./helpers/utils');
+var log             = require('./config/w_config.js')();
 
 // Pages
 require('./models/db');// keep the connection open to db when app boots/reboots
@@ -34,7 +35,7 @@ var	 routesUserApi   = require('./routes/api_user'),                 // User API
 
 var routesNotificationApi = require('./routes/api_notification');
 var routesMailApi       = require('./routes/api_mail');
-var routes              = require('./routes/index');
+var routeWelcome              = require('./routes/index');
 var routesUserPrefApi           = require('./routes/api_index');
 
 /* create http server and pass the express appln to it */
@@ -72,13 +73,11 @@ app.use(cookieParser());
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/bower_components'))
 
-app.use('/', routes);       // normal html view request
+app.use('/', routeWelcome);       // normal html view request
 app.use('/api', routesUserPrefApi); // add prefex 'api' to access the api like http://localhost:port:/api/*
 
 /*============================== Device Related API ==================================*/
 app.use('/api', routesDeviceApi);
-/*============================== User Related API ==================================*/
-app.use('/', routesUserApi);
 /*============================== Pool Related API ==================================*/
 app.use('/secure', routesPoolApi);
 /*============================== Transactions Related API ==================================*/
@@ -87,6 +86,8 @@ app.use('/secure', routesWtransactionApi);
 app.use('/secure/search', routesSearchApi);
 /*============================== Admin Related API ==================================*/
 app.use('/secure/admin', routesAdminApi);
+/*============================== User Related API ==================================*/
+app.use('/secure', routesUserApi);
 /*=============================== send email API==============*/
 app.use('/secure', routesNotificationApi);
 app.use('/secure', routesMailApi);
@@ -100,25 +101,11 @@ app.use(function(req, res, next) {
   next(err);
 });
 
-// error handler middleware returns stacktraces
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error.html', {
-      message: err.message,
-      error: err
-    });
-  });
-}
-
 //production env error handler
 //In prod, dont return stacktrace to the browser
 app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error.html', {
-    message: err.message,
-    error: {}
-  });
+  var http_res_code = err.status || 500;
+  helpers.sendJsonResponse(res, http_res_code, -1, err.message);
 });
 
 app.use(function (req, res, next) {
