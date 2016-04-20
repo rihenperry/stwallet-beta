@@ -48,23 +48,7 @@ module.exports.insertUserTransaction = function(req, res){
 	log.info('Origin Ip : '+origin_ip);
 	log.info('USD : '+usd);
 	log.info('SGD : '+sgd);
-	log.info('Public Key :'+publicKey);
-	log.info('Signature :'+signature);
 
-    // Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-	
     var query = {publicKey:publicKey};
     //var text  = 'sender='+encodeURIComponent(sender)+'&receiver='+encodeURIComponent(receiver)+'&amount='+encodeURIComponent(amount)+'&type='+encodeURIComponent(type)+'&desc='+encodeURIComponent(desc)+'&keyword='+encodeURIComponent(keyword)+'&payment_mode='+encodeURIComponent(payment_mode)+'&discount='+encodeURIComponent(discount)+'&commision='+encodeURIComponent(commision)+'&origin_ip='+encodeURIComponent(origin_ip)+'&usd='+encodeURIComponent(usd)+'&sgd='+encodeURIComponent(sgd)+'&publicKey='+encodeURIComponent(publicKey);
     
@@ -145,36 +129,6 @@ module.exports.getUsersTotalTransactions = function(req, res) {
     
     log.info('Email : '+email);
     log.info('Type : '+type);
-	log.info('Public Key :'+publicKey);
-	log.info('Signature :'+signature);
-    
-    // Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-    
-    // Validate Email
-	if (!(master.validateParameter(email, 'Email')))
-    {
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	if (!(master.validateEmail(email)))
-    {
-		log.info('Incorrect Email Format');
-		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
-		return;
-    }
     
     var query = {publicKey:publicKey};
     //var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
@@ -263,36 +217,6 @@ module.exports.getTransactions = function(req, res) {
 	log.info('To Date : '+to);
 	log.info('Number of Transactions : '+n);
 	log.info('Type : '+type);
-	log.info('Public Key :'+publicKey);
-	log.info('Signature :'+signature);
-    
-    // Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-    
-    // Validate Email
-	if (!(master.validateParameter(email, 'Email')))
-    {
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	if (!(master.validateEmail(email)))
-    {
-		log.info('Incorrect Email Format');
-		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
-		return;
-    }
     
     // Validate Number
 	if(!(master.validateParameter(n, 'Number')))

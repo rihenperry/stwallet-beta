@@ -23,38 +23,12 @@ var poolvalidate = function(req, cb){
 	var signature = req.body.signature;
 	
 	//var text = 'amount='+encodeURIComponent(amount)+'&publicKey='+encodeURIComponent(publicKey);
-    var text = 'amount='+amount+'&publicKey='+publicKey;	
+    var text = 'amount='+amount+'&publicKey='+publicKey;
     
 	var reqParam = [amount, publicKey, signature];
 	var query = {'publicKey': publicKey};
 
 	log.info('Amount	   : '+amount);
-	log.info('PublicKey  : '+publicKey);
-	log.info('Signature  : '+signature);
-
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		var retVal = [{
-            "message" : "Mandatory field not found",
-            "errCode" : 1,
-            "error" : "true"
-        }];
-		cb(retVal);
-		return;
-	}
 
 	// Amount Validation
 	if(amount=="" || isNaN(amount))

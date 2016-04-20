@@ -19,22 +19,6 @@ module.exports.deviceRegister = function(req, res){
     var signature      = req.body.signature;
 
 	log.info('Device Info : '+deviceInfo);
-	log.info('Public Key : '+publicKey);
-	log.info('Signature : '+signature);
-
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
 
 	if(!(master.validateParameter(deviceInfo, 'deviceInfo')))
 	{
@@ -182,8 +166,6 @@ module.exports.getPvtKey = function(req, res){
 	var signature  = req.body.signature;
 	
 	log.info('Device PubKey : '+pubKey);
-	log.info('Public Key : '+publicKey);
-	log.info('Signature : '+signature);
 	
 	// Validate Publickey For PrivateKey Access
 	if(!(master.validateParameter(pubKey, 'DevicePubKey')))
@@ -192,20 +174,6 @@ module.exports.getPvtKey = function(req, res){
 		return;
 	}
 	
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
 	var query = {'publicKey': publicKey};		    // For Authentication
     //var text  = 'pubKey='+encodeURIComponent(pubKey)+'&publicKey='+encodeURIComponent(publicKey);
     var text  = 'pubKey='+pubKey+'&publicKey='+publicKey;
