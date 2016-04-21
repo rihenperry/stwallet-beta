@@ -38,5 +38,14 @@
     "request": "^2.72.0",
     "socket.io": "^1.4.5",
     "token": "0.0.0"
+  },
+  "devDependencies": {
+    "standard": "^6.0.8",
+    "standard-format": "^2.1.1"
+  },
+    "scripts": {
+        "start": "pm2 start app.js -i 0 --name \"wallet-api\"",
+        "start-dev": "nodemon app.js",
+        "auto-lint": "standard-format -w api/*.js"
   }
 }
