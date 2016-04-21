@@ -391,6 +391,7 @@ module.exports.getExpenceTransactions = function(req, res) {
 	log.info('From Date : '+from);
 	log.info('To Date: '+to);
 	log.info('N (Number Of Tansactions) :'+n);
+	log.info('Type :'+type);
 	log.info('Public Key :'+publicKey);
 	log.info('Signature :'+signature);
 	
@@ -497,14 +498,16 @@ module.exports.getExpenceTransactions = function(req, res) {
 		
 		if(type == "" || type == undefined || type == 'All')
 		{
+			var subQuery = {$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"},{"type":"search_earnings"},{"type":"App Earning"},{"type":"keyword_ownership_earning"}]}
+		
 			if(email=="" || email==undefined || email==null)
 			{
-				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}},{$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]}]};
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}},subQuery]}]};
 			}
 			
 			else
 			{
-				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]};
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, subQuery]};
 			}
 
 		}
