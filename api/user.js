@@ -74,7 +74,7 @@ function sendRestEmail(accountInfo, flag, rootUrl){
     
     if(flag == '3') // For Mobile
 	{
-		var url= rootUrl+"MobileSite/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		var url= rootUrl+"mobile/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
   
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>You have requested to Change your SearchTrade account password.</p><p>Please click <a href="'+url+'">Here</a> to reset your password.</p><p>OR</p><p>Copy Link Address below in your web browser</p><p>'+url+'</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div>';
@@ -3377,7 +3377,6 @@ module.exports.rejectBlockedBids = function(req, res){
                         json = json.replace(/\]/g,"");
                         json = json.replace(/\\/g,"");
                         json = json.split(",");
-                        
                     });
 
                     // After Receiving All Data Calling callback Function
@@ -3394,8 +3393,8 @@ module.exports.rejectBlockedBids = function(req, res){
             // Function For Phase 2
             // Holding Return Bid Functionality 
             function (callback)
-            {           
-                if(json == "" || json == null || json == undefined)
+            {   
+                if(json == "" || json == null || json == 'null' || json == undefined || json == 'undefined')
                 {
                     value = "Success";
                     callback();
