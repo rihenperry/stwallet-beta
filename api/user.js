@@ -4,19 +4,29 @@
 var util = require('util');
 
 // Pages
-var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Schema
+var poolSchema          = require('../models/poolSchema.js'),           // Pool Schema
     userSchema          = require('../models/userSchema.js'),           // User Schema
     transactionSchema   = require('../models/transaction_Schema.js'),   // Transaction Schema
     master              = require('../config/masterfunc.js'),           // Master Functions
     crypt               = require('../config/crypt.js'),                // Crypt/Signature Related Functionality
     mailer              = require('../config/mail.js'),                 // Mail Functionality
+
 	notify				= require('../controllers/notify.js'),			
     protocol 		    = 'http',
     fs 				    = require('fs'), 
     im 				    = require('imagemagick'),
+
     logger              = require('../config/w_config.js'),
-    request             = require('request'),
-    log                 = logger();
+    
+// Packages
+    fs 				    = require('fs'),                                // To Handle File Functionality            
+    im 				    = require('imagemagick'),                       // To Handle Image Processing
+    request             = require('request'),                           // For Request 
+	os 					= require("os"),
+
+// Variales and Functions
+    //protocol 		    = 'http',
+    log                 = logger();                                     // Looger Function to see logs                             
 
 //========================= Page Functions ========================= //
 
@@ -27,17 +37,17 @@ function validateEmail(email) {
 }
 
 // Verification Email Function on Signup(Register)
-function sendVerificationEmail(accountInfo, flag){
+function sendVerificationEmail(accountInfo, flag, rootUrl){
 	
 	var vhash = encodeURIComponent(crypt.generate(accountInfo._id));
 
 	if(flag == '2') // Wallet 
 	{
-		var url= protocol+"://scoinz.com/presaleWallet/wallet/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&errcode=15";
+		var url= rootUrl+"presaleWallet/wallet/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&errcode=15";
 	}
 	else // Web
 	{
-		var url= protocol+"://scoinz.com/keywords/views/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		var url= rootUrl+"keywords/views/verifyUser.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
 	
 	var text= '<div style="border:solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hello '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>Your SearchTrade account has been created.</p><p>Please click <a href="'+url+'">Here</a> to verify your email address or copy/paste the link below into your browser.</p><p>'+url+'</p></div></div></div></div>';
@@ -55,23 +65,23 @@ function sendVerificationEmail(accountInfo, flag){
 }
 
 // Send Reset Password Link to User Email Address
-function sendRestEmail(accountInfo, flag){
+function sendRestEmail(accountInfo, flag, rootUrl){
   
 	var vhash = encodeURIComponent(crypt.generate(accountInfo._id));
   
 	if(flag == '1') // For Web
 	{
-		var url= protocol+"://scoinz.com/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		var url= rootUrl+"forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
   
 	if(flag == '2')	// For Wallet
 	{
-		var url= protocol+"://scoinz.com/presaleWallet/wallet/resetpass.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
+		var url= rootUrl+"presaleWallet/wallet/resetpass.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
 	}
     
     if(flag == '3') // For Mobile
 	{
-		var url= protocol+"://scoinz.com/MobileSite/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		var url= rootUrl+"MobileSite/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
 	}
   
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>You have requested to Change your SearchTrade account password.</p><p>Please click <a href="'+url+'">Here</a> to reset your password.</p><p>OR</p><p>Copy Link Address below in your web browser</p><p>'+url+'</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div>';
@@ -90,6 +100,7 @@ function sendRestEmail(accountInfo, flag){
 
 // Send Email as Notification that Password is Changed Successfully
 function changePassEmail(accountInfo){
+
 	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>This is a confirmation mail that you have successfully changed your password</p><br><p>You can log into your account with your new password.</p><br><p>Regards from the SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div></div>';
   
 	// Setup e-mail data with unicode symbols
@@ -141,6 +152,7 @@ module.exports.secureRegister = function (req, res) {
     var flag               = req.body.flag;
     var mobile_number      = req.body.mobile_number;
     var referral           = req.body.referral;
+	var rootUrl			   = req.body.rootUrl;
     var publicKey          = req.body.publicKey;
     var signature          = req.body.signature;
         
@@ -162,6 +174,7 @@ module.exports.secureRegister = function (req, res) {
     log.info('Flag : ' + flag);
     log.info('Mobile Number : ' + mobile_number);
     log.info('Refferal : ' + referral);
+    log.info('URL : ' + rootUrl);
     log.info('Public Key : '+publicKey);
     log.info('Signature : '+signature);
     
@@ -254,7 +267,7 @@ module.exports.secureRegister = function (req, res) {
         email = email.toLowerCase();
         
         // Find Existance of User
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -277,7 +290,7 @@ module.exports.secureRegister = function (req, res) {
                 accountID = crypt.hashIt(email);
                 var referred_person_code = referral;
 
-                userSchema.find({my_referral_id:referred_person_code},function(err, result){
+                userSchema.find({my_referral_id:referred_person_code}).lean().exec(function(err, result){
 
                     if(err)
                     {
@@ -285,31 +298,32 @@ module.exports.secureRegister = function (req, res) {
                         master.sendResponse(req, res, 200, 5, "Database Error");
                         return;
                     }
+					
+					// Blank Referral
+					if(referred_person_code=="" || referred_person_code==null || referred_person_code==undefined)
+					{
+						referred_person_email = "";
+						stat = 0;
+					}
+					
+					else
+					{
+						// If No Referred Email Found
+						if(result.length<=0)
+						{
+							// Wrong Refferal
+							log.info('Wrong Affiliate Ref Code Entered');
+							master.sendResponse(req, res, 200, 18, "Wrong Affiliate Reference");
+							return;
+						}
 
-                    // If No Referred Email Found
-                    if(result.length<=0)
-                    {
-                        // Blank Referral
-                        if(referred_person_code=="" || referred_person_code==null || referred_person_code==undefined)
-                        {
-                            referred_person_email = "";
-                            stat = 0;
-                        }
-
-                        else // Wrong Refferal
-                        {
-                            log.info('Wrong Affiliate Ref Code Entered');
-                            master.sendResponse(req, res, 200, 18, "Wrong Affiliate Reference");
-                            return;
-                        }
-                    }
-
-                    // If Referral Is Provided
-                    else
-                    {
-                        referred_person_email = result[0].email;
-                        stat = 1;
-                    }
+						// If Referral Is Provided
+						else
+						{
+							referred_person_email = result[0].email;
+							stat = 1;
+						}
+					}
 
                     // Checking length of fname (If first Name is of less than 4 letters)
                     if(first_name.length<4)				
@@ -333,7 +347,7 @@ module.exports.secureRegister = function (req, res) {
 
                     refcode = refcode.toLowerCase();	// Convert Referral Code to LOWER CASE
 
-                    userSchema.find({my_referral_id:{$regex:refcode}},function(err, result){
+                    userSchema.find({my_referral_id:{$regex:refcode}}).lean().exec(function(err, result){
 
                         if(err)
                         {
@@ -351,6 +365,7 @@ module.exports.secureRegister = function (req, res) {
                         {
                             refcode=refcode;
                         }
+
 						
 						notify.createUserDefaultNotifyObj(req, function(err, optionID){
 						
@@ -401,6 +416,7 @@ module.exports.secureRegister = function (req, res) {
 							}
 							
 						})
+
 
                     })
 
@@ -474,7 +490,7 @@ module.exports.verifyAccount = function(req, res){
             return;
         }
     
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -531,7 +547,7 @@ module.exports.verifyAccount = function(req, res){
 
                 else
                 {
-                    userSchema.findOneAndUpdate({email:email},{$set:{active:1}}, function(err, result){
+                    userSchema.findOneAndUpdate({email:email},{$set:{active:1}}).lean().exec(function(err, result){
 
                         if(err)
                         {
@@ -550,7 +566,7 @@ module.exports.verifyAccount = function(req, res){
                         else
                         {                            
                             // Update Pool totalActiveUsers
-                            poolSchema.findOneAndUpdate({}, {$inc:{totalActiveUsers:1}}, function(err, retVals){
+                            poolSchema.findOneAndUpdate({}, {$inc:{totalActiveUsers:1}}).lean().exec(function(err, retVals){
 
                                 // Error In Updating Database
                                 if(err)
@@ -593,6 +609,7 @@ exports.secureResendVerification = function(req, res) {
     
     var email       = req.body.email;
     var flag        = req.body.flag;
+    var rootUrl     = req.body.rootUrl;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
 
@@ -660,7 +677,7 @@ exports.secureResendVerification = function(req, res) {
             }
 
             log.info('User Found');
-            sendVerificationEmail(result[0], flag);
+            sendVerificationEmail(result[0], flag, rootUrl);
             master.sendResponse(req, res, 200, -1, "Success");
             
         })
@@ -737,7 +754,7 @@ module.exports.secureLogin = function(req, res){
 		
 		email = email.toLowerCase();
     
-        userSchema.find({email:email},function(err, results){
+        userSchema.find({email:email}).lean().exec(function(err, results){
 
             if(err)
             {
@@ -777,12 +794,13 @@ module.exports.secureLogin = function(req, res){
 
                       log.info("initializing default user preferences");
                       log.info("optionID ->", optionID);
+                    userSchema.findOneAndUpdate({email:email},{$set:{lastLogin:currentTIme ,notify_options_fk_key: optionID}, $inc:{noOfLogins:1}},{new: true}).lean().exec(function(err, result){
 
-                      userSchema.findOneAndUpdate({email:email},
-                                                  {$set:{lastLogin: currentTIme, notify_options_fk_key: optionID},
-                                                   $inc:{noOfLogins:1}},
-                                                  {new: true},
-                                                  function(err, result){
+                      // userSchema.findOneAndUpdate({email:email},
+                      //                             {$set:{lastLogin: currentTIme, notify_options_fk_key: optionID},
+                      //                              $inc:{noOfLogins:1}},
+                      //                             {new: true},
+                      //                             function(err, result){
                         if(err)
                         {
                             log.error(err);
@@ -904,7 +922,7 @@ module.exports.getDetails = function(req, res) {
             return;
         }
     
-        userSchema.find({email:email}).lean().exec(function(err, userdata){
+        userSchema.find({email:email},{"recent_searches":0}).lean().exec(function(err, userdata){
 
             if(err)
             {
@@ -920,26 +938,28 @@ module.exports.getDetails = function(req, res) {
                 return;
             }
             
-            transactionSchema.find({$or:[{sender:email},{receiver:email}]},{_id:0}, function(err, retVal){
+			master.sendResponse(req, res, 200, -1, userdata[0]);
+			
+            // transactionSchema.find({$or:[{sender:email},{receiver:email}]},{_id:0}, function(err, retVal){
                 
-                if(err)
-                {
-                    log.error(err);
-                    master.sendResponse(req, res, 200, 5, "Database Error");
-                    return;
-                }
+                // if(err)
+                // {
+                    // log.error(err);
+                    // master.sendResponse(req, res, 200, 5, "Database Error");
+                    // return;
+                // }
                 
-                if(retVal == null || retVal == undefined || retVal == "")
-                {
-                    log.info('No Transactions Of This User');
-                    master.sendResponse(req, res, 200, -1, userdata[0]);
-                    return;
-                }
+                // if(retVal == null || retVal == undefined || retVal == "")
+                // {
+                    // log.info('No Transactions Of This User');
+                    // master.sendResponse(req, res, 200, -1, userdata[0]);
+                    // return;
+                // }
                 
-                userdata[0].transactions = retVal;
-                master.sendResponse(req, res, 200, -1, userdata[0]);
+                // userdata[0].transactions = retVal;
+                // master.sendResponse(req, res, 200, -1, userdata[0]);
                 
-            }).sort({time:-1}).limit(50);
+            // }).sort({time:-1}).limit(50);
 
         })
         
@@ -1054,7 +1074,7 @@ module.exports.setUserDetails = function(req, res){
         }
 
         // Find and Update User
-        userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+        userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1085,8 +1105,6 @@ module.exports.setUserDetails = function(req, res){
 /*============================= Currency Preference =============================*/
 
 module.exports.currencyPrefrence = function(req, res) {
-    
-    console.log(req.body.currency_code);
     
     log.info('Page Name : user.js');
 	log.info('API Name : currencyPrefrence');
@@ -1154,7 +1172,7 @@ module.exports.currencyPrefrence = function(req, res) {
         }
 
         // Find and Update User's Currency Preference
-        userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+        userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, result){
 
             if (err)
             {
@@ -1193,6 +1211,7 @@ exports.secureForgotPassword = function(req, res) {
 	
 	var email          = req.body.email;
 	var flag           = req.body.flag;
+	var rootUrl        = req.body.rootUrl;
     var publicKey      = req.body.publicKey;
     var signature      = req.body.signature;
     
@@ -1243,7 +1262,7 @@ exports.secureForgotPassword = function(req, res) {
 		
 		email = email.toLowerCase();
     
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1263,7 +1282,7 @@ exports.secureForgotPassword = function(req, res) {
             {
                 if(result[0].active)
                 {   
-                    sendRestEmail(result[0], flag); // Send Reset Password Link 
+                    sendRestEmail(result[0], flag, rootUrl); // Send Reset Password Link 
                     master.sendResponse(req, res, 200, -1, "Success");
                     return;
                 }
@@ -1378,7 +1397,7 @@ module.exports.resetpassword = function(req, res) {
             return;
         }
     
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1448,7 +1467,7 @@ module.exports.resetpassword = function(req, res) {
                 };
                 
                 // Find and Update User's Currency Preference
-                userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, results){
+                userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, results){
 
                     if (err)
                     {
@@ -1553,7 +1572,7 @@ module.exports.changePassword = function (req, res) {
         }
         
         // Find Existance of User
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1626,7 +1645,7 @@ module.exports.changePassword = function (req, res) {
             };
 
             // Find and Update User's Currency Preference
-            userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, results){
+            userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, results){
 
                 if (err)
                 {
@@ -1735,7 +1754,7 @@ module.exports.setAppId = function (req, res) {
         };
 
         // Find and Update User's App Id
-        userSchema.findOneAndUpdate({email:email},updatedInfo,function(err, result){
+        userSchema.findOneAndUpdate({email:email},updatedInfo).lean().exec(function(err, result){
 
             if (err)
             {
@@ -1820,7 +1839,7 @@ module.exports.getAppId = function (req, res) {
             return;
         }
     
-        userSchema.find({email:email},{default_search_appId:1},function(err, result){
+        userSchema.find({email:email},{default_search_appId:1}).lean().exec(function(err, result){
 
             if(err)
             {
@@ -1840,6 +1859,93 @@ module.exports.getAppId = function (req, res) {
             {
                 log.info('App Id : '+result[0].default_search_appId);
                 master.sendResponse(req, res, 200, -1, result[0].default_search_appId);
+            }
+
+        })
+        
+    })
+    
+}
+
+/*============================= Set Favourite App Id's =============================*/
+
+module.exports.setFavouriteAppIds = function (req, res) {
+    
+    log.info('Page Name : user.js');
+	log.info('API Name : setFavouriteAppIds');
+	log.info('Set Favourite App API Hitted');
+	log.info('Parameters Receiving..');
+    
+    var email       	= req.body.email;
+    var favouriteApps   = req.body.favouriteApps;
+    var publicKey   	= req.body.publicKey;
+    var signature   	= req.body.signature;
+    
+    log.info('Email : ' + email);
+    log.info('Favourite Apps : ' + favouriteApps);
+    log.info('Public Key : ' + publicKey);
+    log.info('Signature : ' + signature);
+
+    // Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if(!(master.validateParameter(email, 'Email')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+
+	if(!(validateEmail(email))) 
+	{
+		log.info('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
+    }
+
+    var query = {publicKey:publicKey};
+    //var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
+    var text  = 'email='+email+'&favouriteApps='+favouriteApps+'&publicKey='+publicKey;
+   
+    master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+    
+        userSchema.findOneAndUpdate({email:email},{favourite_app_ids:favouriteApps}).lean().exec(function(err, result){
+
+            if(err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
+
+            if (result==null || result=="") // Email Not Found
+            {
+                log.info(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
+
+            else
+            {
+                log.info('Favourite App Ids : '+favouriteApps+' Set To '+email);
+                master.sendResponse(req, res, 200, -1, "Success");
             }
 
         })
@@ -2046,8 +2152,8 @@ module.exports.editProfilePic = function(req, res){
                 srcPath: path+fileName,
                 dstPath: thumbPath+fileName,
                 width:   80
-            }, function(err, stdout, stderr){
-              if (err) throw err;
+            }, 	function(err, stdout, stderr){
+				if (err) throw err;
               log.info('resized profile pic to fit within 64px');
             });
 
@@ -2097,9 +2203,10 @@ module.exports.creditUserAmount = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Deposit
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2142,9 +2249,10 @@ module.exports.deductUserAmount = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Deposit
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{deposit:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2187,9 +2295,10 @@ module.exports.addPurchases = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Purchases
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2232,9 +2341,10 @@ module.exports.deductPurchases = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Purchases
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{purchases:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2277,9 +2387,10 @@ module.exports.addCashback = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Cashback
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2322,9 +2433,10 @@ module.exports.deductCashback = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Cashback
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{cashback:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2367,9 +2479,10 @@ module.exports.addAffEarning = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Affiliate Earning
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2412,9 +2525,10 @@ module.exports.deductAffEarning = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Affiliate Earning
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{affiliate_earning:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2457,9 +2571,10 @@ module.exports.addSales = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Sales
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2502,9 +2617,10 @@ module.exports.deductSales = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Sales
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{sales:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2547,9 +2663,10 @@ module.exports.addTrade = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Trade
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2592,9 +2709,10 @@ module.exports.deductTrade = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Trade
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{trade_fees:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2637,9 +2755,10 @@ module.exports.addTotalKeywordIncome = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total Keyword Income
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2682,9 +2801,10 @@ module.exports.deductTotalKeywordIncome = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+		// var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total Keyword Income
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_kwd_income:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2727,9 +2847,10 @@ module.exports.addBlockedPendingWithdrawals = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked Pending Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2772,9 +2893,10 @@ module.exports.deductBlockedPendingWithdrawals = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked Pending Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_pending_withdrawals:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2817,9 +2939,10 @@ module.exports.addApprovedWithdrawals = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2862,9 +2985,10 @@ module.exports.deductApprovedWithdrawals = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{approved_withdrawals:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2907,9 +3031,10 @@ module.exports.addRenewalFees = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+		// var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2952,9 +3077,10 @@ module.exports.deductRenewalFees = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Approved Withdrawals
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{renewal_fees:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -2997,9 +3123,10 @@ module.exports.addTotalAppIncome = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Total App Income
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_app_income:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{total_app_income:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -3042,9 +3169,10 @@ module.exports.addSearchAffEarning = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Search Affiliate Earnings
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_affiliate_earnings:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_affiliate_earnings:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -3064,7 +3192,7 @@ module.exports.addSearchAffEarning = function(req, res){
             {
                 if(retVal[0].email!="searchUser@searchtrade.com")
                 {
-                    poolSchema.findOneAndUpdate({},{$inc:{total_search_payout:amount}},function(err, results){
+                    poolSchema.findOneAndUpdate({},{$inc:{total_search_payout:amount}}).lean().exec(function(err, results){
                     
                         if (err)
                         {
@@ -3107,7 +3235,7 @@ module.exports.firstBuy = function(req, res){
         var amount = parseFloat(retVal[0].amount);
         
         // Find and Update User's First Buy Status
-        userSchema.findOneAndUpdate({email:retVal[0].email}, {first_buy_status:amount}, function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email}, {first_buy_status:amount}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -3150,9 +3278,10 @@ module.exports.addBlockedForBids = function(req, res){
         }
         
         var amount = parseFloat(retVal[0].amount);
+        // var amount = parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked For Bids
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{"blocked_for_bids":amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -3195,9 +3324,10 @@ module.exports.deductBlockedForBids = function(req, res){
         }
         
         var amount = -parseFloat(retVal[0].amount);
+        // var amount = -parseFloat(retVal[0].amount).toFixed(8);
         
         // Find and Update User's Blocked For Bids
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{blocked_for_bids:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -3225,53 +3355,60 @@ module.exports.deductBlockedForBids = function(req, res){
 /*============================= Reject Blocked Bids =============================*/
 
 module.exports.rejectBlockedBids = function(req, res){
+    
+    log.info('Page Name : user.js');
+    log.info('API Name : rejectBlockedBids')
+    log.info('Reject Blocked Bids API Hitted');
+    log.info('Parameter Receiving..');
+    
+    // Require Modules
+    var http = require('http');
+    var https = require('https');
+    var async = require('async');
+    
+    // Storing Parameters
+    var reject_bids_json 	= req.body.reject_bids_json;  
+    var publicKey 			= req.body.publicKey;
+    var signature 			= req.body.signature;
+    var rootUrl            	= req.body.rootUrl;
 	
-	log.info('Page Name : user.js');
-	log.info('API Name : rejectBlockedBids')
-	log.info('Reject Blocked Bids API Hitted');
-	log.info('Parameter Receiving..');
-	
-	// Require Modules
-	var http = require('http');
-	var https = require('https');
-	var async = require('async');
-	
-	// Storing Parameters
-	var reject_bids_json = req.body.reject_bids_json;  
-	var publicKey = req.body.publicKey;
-	var signature = req.body.signature;
-	var json = '';
-	var length = '';
-	var value = '';
-	var emailValue = '';
+	var filterUrl = rootUrl.replace(/^https?\:\/\//i, "");
+	var hostUrl	= filterUrl.split('/');
+	var pathUrl = filterUrl.replace(hostUrl[0], "");
+	var bidJsonPath = pathUrl+'keywords/active_bids/'+reject_bids_json+'.json';
+ 
+    var json = '';
+    var length = '';
+    var value = '';
+    var emailValue = '';
 
-	log.info('Json File : '+reject_bids_json);
-	
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
+    log.info('Json File : '+reject_bids_json);
+    
+    // Validate Public Key
+    if(!(master.validateParameter(publicKey, 'Public Key')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
 
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-	
-	if(reject_bids_json == "" && reject_bids_json == null)
-	{
-		log.info('Reject Bids Json Missing');
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-	
-	var options = {
-		host: 'scoinz.com',
-		path: '/keywords/active_bids/'+reject_bids_json+'.json'
-	};  	
+    // Validate Signature
+    if(!(master.validateParameter(signature, 'Signature')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+    
+    if(reject_bids_json == "" && reject_bids_json == null)
+    {
+        log.info('Reject Bids Json Missing');
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+    
+    var options = {
+        host: hostUrl[0],
+        path: bidJsonPath
+    };   
 	
     var query = {publicKey:publicKey};
     //var text = 'reject_bids_json='+encodeURIComponent(reject_bids_json)+'&publicKey='+encodeURIComponent(publicKey);
@@ -3284,7 +3421,7 @@ module.exports.rejectBlockedBids = function(req, res){
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
         }
-
+	
         async.series([
 
             // Function For Phase 1
@@ -3292,18 +3429,18 @@ module.exports.rejectBlockedBids = function(req, res){
             {
                 //Collecting Data From Json File;
                 https.get(options, function(res){
-
+				
                     // Receiving Data In Chunk
                     res.on('data', function(chunk){
 
                         log.info('Chunk Started');
 
                         json = chunk.toString();
-						json = json.replace(/\[/g,"");
-						json = json.replace(/\]/g,"");
-						json = json.replace(/\\/g,"");
-						json = json.split(",");
-						
+                        json = json.replace(/\[/g,"");
+                        json = json.replace(/\]/g,"");
+                        json = json.replace(/\\/g,"");
+                        json = json.split(",");
+                        
                     });
 
                     // After Receiving All Data Calling callback Function
@@ -3320,43 +3457,42 @@ module.exports.rejectBlockedBids = function(req, res){
             // Function For Phase 2
             // Holding Return Bid Functionality 
             function (callback)
-            {
-				console.log('Json : '+json);
-			
-				if(json == "" || json == null || json == undefined)
-				{
-					value = "Success";
+            {           
+                if(json == "" || json == null || json == undefined)
+                {
+                    value = "Success";
                     callback();
-				}
-				
+                }
+                
                 else
                 {
-					length = json.length; 
-				
+                    length = json.length; 
+                
                     // Loop To Fetch Records From Received Json File Data
                     for(var i=0; i<length; i++)
                     {
-                        var singleJson = json[i].split("/"); 	
+                        var singleJson = json[i].split("/");    
 
-                        var bidRetEmail = singleJson[1];		// Storing Email 
+                        var bidRetEmail = singleJson[1];        // Storing Email 
 
-                        var bidRetAmount = singleJson[3];		// Storing Amount
+                        var bidRetAmount = singleJson[3];       // Storing Amount
 
-                        var commission = singleJson[4];			// Storing Comision
+                        var commission = singleJson[4];         // Storing Comision
 
-                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
-						
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        // var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
+                        
                         var query = {"email": bidRetEmail};
 
                         // Updating Blocked Bid Amount
                         userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:-totalAmount}},function(err, val){
-						
-							if (err)
-							{
-								log.error(err);
-								master.sendResponse(req, res, 200, 5, "Database Error");
-								return;
-							}
+                        
+                            if (err)
+                            {
+                                log.error(err);
+                                master.sendResponse(req, res, 200, 5, "Database Error");
+                                return;
+                            }
 
                             // Error In Updating Blocked Bids
                             if(!val)
@@ -3391,7 +3527,7 @@ module.exports.rejectBlockedBids = function(req, res){
                 if(value == "Success")
                 {
                     master.sendResponse(req, res, 200, -1, "Success");
-					return;
+                    return;
                 }
 
                 // Error Returning Bid Functionality of Phase 2 
@@ -3401,28 +3537,29 @@ module.exports.rejectBlockedBids = function(req, res){
 
                     for(var j=0; j<value; j++)
                     {
-                        var singleJson = json[j].split("/"); 	
+                        var singleJson = json[j].split("/");    
 
-                        var bidRetEmail = singleJson[1];		// Storing Email 
+                        var bidRetEmail = singleJson[1];        // Storing Email 
 
-                        var bidRetAmount = singleJson[3];		// Storing Amount
+                        var bidRetAmount = singleJson[3];       // Storing Amount
 
-                        var commission = singleJson[4];			// Storing Comision
+                        var commission = singleJson[4];         // Storing Comision
 
-                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);	// Calculating Total Amount
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        // var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
 
                         var query = {"email": bidRetEmail};
 
                         // Updating Blocked Bid Amount
                         userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:totalAmount}},function(err, val){
 
-							if (err)
-							{
-								log.error(err);
-								master.sendResponse(req, res, 200, 5, "Database Error");
-								return;
-							}
-						
+                            if (err)
+                            {
+                                log.error(err);
+                                master.sendResponse(req, res, 200, 5, "Database Error");
+                                return;
+                            }
+                        
                             // Error In Updating Blocked Bids
                             if(!val)
                             {
@@ -3470,88 +3607,86 @@ module.exports.rejectBlockedBids = function(req, res){
     })
 }
 
-/*============================= Update Notification Status =============================*/
 
-module.exports.updateNotificationStatus = function(req, res){
-    
-    log.info('Page Name : user.js');
-	log.info('API Name : updateNotificationStatus')
-	log.info('Update Notification Status API Hitted');
-	log.info('Parameter Receiving..');
-    
-    master.validation(req, function(retVal){
-        
-        if(retVal[0].error == true || retVal[0].error == 'true')
-        {
-            master.sendResponse(req, res, 200, retVal[0].errCode, retVal[0].message);
-            return;
-        }
-        
-        var amount = parseFloat(retVal[0].amount);
-        
-        var notificationStatus = false;
-        
-        if(amount == 1)
-        {
-            notificationStatus == true;
-        }
-        
-        // Find and Update User's Blocked For Bids
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$set:{notification_status:notificationStatus}},function(err, result){
-            
-            if (err)
-            {
-                log.error(err);
-                master.sendResponse(req, res, 200, 5, "Database Error");
-                return;
-            }
 
-            if (result==null || result=="") // Email Not Found
-            {
-                log.info(retVal[0].email+" Not Registered");
-                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
-                return;
-            }
-            
-            log.info('Notification Status '+notificationStatus+' Successfully Updated To '+retVal[0].email);
-            master.sendResponse(req, res, 200, -1, 'Success');
-            
-        })
-    })
-}
+module.exports.refCode = function(req, res){
 
-/*============================= Get Notification Status =============================*/
+	var async = require('async');
 
-module.exports.getNotificationStatus = function(req, res){
-    
-    log.info('Page Name : user.js');
-	log.info('API Name : getNotificationStatus')
-	log.info('Get Notification Status API Hitted');
-	log.info('Parameter Receiving..');
-    
-    var email = req.body.email;
-
-    // Find and Update User's Blocked For Bids
-    userSchema.find({email:email},{notification_status:1,_id:1},function(err, result){
-
-        if (err)
+	userSchema.find({my_referral_id:""},{email:1, first_name:1, last_name:1},function(err, result){
+		
+		if (err)
         {
             log.error(err);
             master.sendResponse(req, res, 200, 5, "Database Error");
             return;
         }
+	
+		var length = result.length;
+		
+		console.log(typeof(result));
+		
+		async.forEach(result, function (item, callback2) {
+		
+			var first_name = item.first_name;
+			var last_name = item.last_name;
+			var refCode;
+		
+			//Checking length of fname (If first Name is of less than 4 letters)
+			if(first_name.length<4)				
+			{
+				var charlist = 'abcdefghijklmnopqrstuvwxyz';	// Character String Value need to generate Random Characters
+				var diff = 4-first_name.length;	
+				var randchar = "";
+				for (var i=0; i<diff; i++)
+				{
+					randchar = randchar+charlist.charAt(Math.floor(Math.random() * charlist.length));	// Random Character function
+				}
 
-        if (result==null || result=="") // Email Not Found
-        {
-            log.info(email+" Not Registered");
-            master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
-            return;
-        }
-
-        log.info('Notification Status is '+result[0].notification_status+' For '+email);
-        master.sendResponse(req, res, 200, -1, {notification_status:result[0].notification_status, user_id:result[0]._id});
-
-    })
+				refCode=first_name+randchar+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having less than 4 characters 	
+			}
+			
+			//If length is Greter Or equal to 4
+			else 
+			{
+				refCode=first_name.substr(0,4)+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having greater than or equal to 4 characters 
+			}
+		
+			refCode = refCode.toLowerCase();
+			
+			userSchema.find({my_referral_id:{$regex:refCode}},{email:1, my_referral_id:1},function(err, results){
+			
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+				
+				if(results.length>0)
+				{
+					refCode = refCode+results.length;
+				}
+			
+				userSchema.findOneAndUpdate({email:item.email},{$set:{my_referral_id:refCode}},function(err, resultData){
+				
+					if (err)
+					{
+						log.error(err);
+						master.sendResponse(req, res, 200, 5, "Database Error");
+						return;
+					}
+					
+					console.log(item);
+					callback2();
+				
+				})
+			
+			})
+		
+		})
+			
+	})
 
 }
 

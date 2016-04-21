@@ -14,7 +14,8 @@ var deviceSchema    = require('../models/deviceInfoSchema.js'),  // DeviceInfo S
 module.exports.sendResponse = function(req, res, status, errCode, errMsg) {
 
     var d = Date();
-    log.info(status +" "+ errCode +" "+ errMsg + " " + d);
+    //log.info(status +" "+ errCode +" "+ errMsg + " " + d);
+    log.info(status +" "+ errCode +" "+ d);
     res.status(status).send({
         errCode: errCode, 
         errMsg: errMsg,

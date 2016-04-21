@@ -32,7 +32,7 @@ module.exports.addSearchEarning = function(req, res){
         var amount = parseFloat(retVal[0].amount);
 
         // Find and Update User's Search Earning
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_earning:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_earning:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -52,7 +52,7 @@ module.exports.addSearchEarning = function(req, res){
             {
 				if(retVal[0].email!="searchUser@searchtrade.com")
 				{
-					poolSchema.findOneAndUpdate({},{$inc:{total_search_payout:amount}},function(err, result){
+					poolSchema.findOneAndUpdate({},{$inc:{total_search_payout:amount}}).lean().exec(function(err, result){
 					
 						if (err)
 						{
@@ -94,7 +94,7 @@ module.exports.deductSearchEarning = function(req, res){
         var amount = -parseFloat(retVal[0].amount);
         
         // Find and Update User's Search Earning
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_earning:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{search_earning:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -144,7 +144,7 @@ module.exports.deductQualifiedSearches = function(req, res){
         var query = {$inc:{no_of_qualified_searches_pending:-amount, total_qualified_searches:amount, total_no_of_searches_in_last_hour:amount}};
         
         // Find and Update User's Qualified Searches
-        userSchema.findOneAndUpdate({email:retVal[0].email},query,function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},query).lean().exec(function(err, result){
 
             if (err)
             {
@@ -192,7 +192,7 @@ module.exports.addunQualifiedSearches = function(req, res){
         var amount = parseFloat(retVal[0].amount);
         
         // Find and Update User's UnQualified Searches
-        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{no_of_unQualified_searches:amount}},function(err, result){
+        userSchema.findOneAndUpdate({email:retVal[0].email},{$inc:{no_of_unQualified_searches:amount}}).lean().exec(function(err, result){
 
             if (err)
             {
@@ -283,7 +283,7 @@ module.exports.updateLastHourValue = function(req, res){
         var query = {$set:{last_hour_search_time:time, total_no_of_searches_in_last_hour:0}}
         
         // Find and Update User's Last Hour Search Time
-        userSchema.findOneAndUpdate({email:email},query,function(err, result){
+        userSchema.findOneAndUpdate({email:email},query).lean().exec(function(err, result){
             
             if(err)
             {
@@ -370,7 +370,7 @@ module.exports.recentSearches = function(req, res){
         }
       
         // Get Data From User
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
             
             if(err)
             {
@@ -411,7 +411,7 @@ module.exports.recentSearches = function(req, res){
             }	
             
             // Find and Update User's Recent Searches
-            userSchema.findOneAndUpdate({email:email},{$set:{recent_searches:finalResults}},function(err, result){
+            userSchema.findOneAndUpdate({email:email},{$set:{recent_searches:finalResults}}).lean().exec(function(err, result){
             
                 if(err)
                 {
@@ -500,7 +500,7 @@ module.exports.checkExistanceEmail = function(req, res){
 		email = email.toLowerCase();
 	  
         // Get Data From User
-        userSchema.find({email:email},function(err, result){
+        userSchema.find({email:email}).lean().exec(function(err, result){
             
             if(err)
             {

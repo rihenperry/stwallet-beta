@@ -4,12 +4,11 @@
 
 //Pages
 // var poolSchema	  	= require('../models/poolSchema.js');
-var deviceSchema 	= require('../models/deviceInfoSchema.js');
-var transSchema 	= require('../models/transaction_Schema.js');
-var userSchema	 	= require('../models/userSchema.js');
-var crypt 			= require("../config/crypt");				 // Crypt Connectivity.
-var master          = require('../config/masterfunc.js'),        // Master Functions
-
+var deviceSchema 	= require('../models/deviceInfoSchema.js'),			// Device Schema
+	transSchema 	= require('../models/transaction_Schema.js'),		// Transaction Schema
+	userSchema	 	= require('../models/userSchema.js'),				// User Schema
+	crypt 			= require("../config/crypt"),				 		// Crypt Connectivity.
+	master          = require('../config/masterfunc.js'),        		// Master Functions
     logger          = require('../config/w_config.js'),
     log             = logger();
 
@@ -23,7 +22,7 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 	log.info('Add Qualified Search Pending API Hitted');
 	log.info('Parameters Receiving..');
 
-	//validation
+	//Validation
 	master.validation(req, function(retVal){
 		        
         if(retVal[0].error == true || retVal[0].error == 'true')
@@ -34,7 +33,7 @@ module.exports.addQualifiedSearchesPending = function(req, res){
 
         var query = {"email": retVal[0].email};
 
-        //find user
+        //Find User
         userSchema.find(query, function(err, result){
 
             if (err)
@@ -142,9 +141,10 @@ module.exports.resetTotalNumberOfQualifiedSearches = function (req, res){
 	// Get Pool Results Function
 	var query = {$set: {"no_of_qualified_searches_pending": 40, "last_hour_search_time":0, "total_no_of_searches_in_last_hour":0}};
 	
-	userSchema.update({'active':1}, query, {multi:true}, function(err, retVal){
+	userSchema.update({'active':1}, query, {multi:true}).exec(function(err, retVal){
 
 		if (err) {throw err;}
+		
 		// Successfully Updated
 		if(retVal)
 		{
@@ -176,6 +176,7 @@ module.exports.userManage = function (req, res){
 	var skip       = req.body.skip;
 	var order      = req.body.order;
 	var column     = req.body.column;
+	var flag	   = req.body.flag;
     var publicKey  = req.body.publicKey;
     var signature  = req.body.signature;
 
@@ -186,7 +187,8 @@ module.exports.userManage = function (req, res){
 	log.info('Last Name : '+last_name);
 	log.info('Skip : '+skip);
 	log.info('Order : '+order);
-	log.info('column : '+column);
+	log.info('Column : '+column);
+	log.info('Flag : '+flag);
 
 	if(!(master.validateParameter(publicKey, 'Public Key')))
 	{
@@ -211,7 +213,7 @@ module.exports.userManage = function (req, res){
         {
             master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
             return;
-        }
+        }        
 
         if(email == '' || email == undefined || email == null)
 		{
@@ -224,26 +226,32 @@ module.exports.userManage = function (req, res){
 				
 				else
 				{
-					query = {"last_name":{ $regex: last_name }};
+                    var ucfirst_last_name  = last_name.charAt(0).toUpperCase()+last_name.substr(1).toLowerCase();
+					query = {$or:[{"last_name":{ $regex: last_name.toLowerCase() }},{"last_name":{ $regex: ucfirst_last_name }}]};
 				}
 			}
 			
 			else
 			{
+                var ucfirst_first_name = first_name.charAt(0).toUpperCase()+first_name.substr(1).toLowerCase();
+                
 				if(last_name == "" || last_name == undefined || last_name == null)
 				{
-					query = {"first_name":{ $regex: first_name }};
+					query = {$or:[{"first_name":{ $regex: first_name.toLowerCase() }},{"first_name":{ $regex: ucfirst_first_name }}]};
 				}
 				
 				else
 				{
-					query = {$or:[{"last_name":{ $regex: last_name }},{"first_name":{ $regex: first_name }}]};
+                    var ucfirst_last_name  = last_name.charAt(0).toUpperCase()+last_name.substr(1).toLowerCase();
+					query = {$or:[{"last_name":{$regex:last_name.toLowerCase()}},{"last_name":{ $regex:ucfirst_last_name}},{"first_name":{ $regex: first_name.toLowerCase() }},{"first_name":{ $regex:ucfirst_first_name}}]};
 				}
 			}
 		}	
 		
 		else
-		{			
+		{	
+            email = email.toLowerCase();
+            
 			if(first_name == "" || first_name == undefined || first_name == null)
 			{
 				if(last_name == "" || last_name == undefined || last_name == null)
@@ -253,20 +261,24 @@ module.exports.userManage = function (req, res){
 				
 				else
 				{
-					query = {$or:[{"last_name":{ $regex: last_name }},{"email":{ $regex: email }}]};
+                    var ucfirst_last_name  = last_name.charAt(0).toUpperCase()+last_name.substr(1).toLowerCase();
+					query = {$or:[{"last_name":{ $regex: last_name.toLowerCase() }},{"last_name":{ $regex: ucfirst_last_name }},{"email":{ $regex: email }}]};
 				}
 			}
 			
 			else
 			{
+                var ucfirst_first_name = first_name.charAt(0).toUpperCase()+first_name.substr(1).toLowerCase();
+                
 				if(last_name == "" || last_name == undefined || last_name == null)
 				{
-					query = {$or:[{"email":{ $regex: email }},{"first_name":{ $regex: first_name }}]};
+					query = {$or:[{"email":{ $regex: email }},{"first_name":{ $regex: first_name.toLowerCase() }},{"first_name":{ $regex: ucfirst_first_name }}]};
 				}
 				
 				else
 				{
-					query = {$or:[{"last_name":{ $regex: last_name }},{"first_name":{ $regex: first_name }},{"email":{ $regex: email }}]};
+                    var ucfirst_last_name  = last_name.charAt(0).toUpperCase()+last_name.substr(1).toLowerCase();
+					query = {$or:[{"last_name":{$regex:last_name.toLowerCase()}},{"last_name":{ $regex:ucfirst_last_name}},{"first_name":{ $regex: first_name.toLowerCase() }},{"first_name":{ $regex:ucfirst_first_name}},{"email":{ $regex: email }}]};
 				}
 			}
 		}
@@ -303,38 +315,56 @@ module.exports.userManage = function (req, res){
 
         var selectQuery = {"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1};
 
-        userSchema.find(query, selectQuery, function(err, results){
+		userSchema.count(query).lean().exec(function(err, result){
+			
+			if (err)
+			{
+				log.error(err);
+				master.sendResponse(req, res, 200, 5, "Database Error");
+				return;
+			}
+			
+			// Successfully Fetched
+			if(result=="" || result==undefined || result==0)
+			{
+				log.info('No Results Found');
+				master.sendResponse(req, res, 200, -1, "No Results");
+				return;
+			}	
 				
-            if (err)
-            {
-                console.log(err);
-                master.sendResponse(req, res, 200, 5, "Database Error");
-                return;
-            }
+			if(flag == '1' || flag == 1)
+			{
+				log.info(result+' Results Found');
+				master.sendResponse(req, res, 200, -1, result);
+				return;
+			}
+			
+			else
+			{
+				userSchema.find(query).select(selectQuery).sort(sort).skip(skip).limit(10).lean().exec(function(err, results){
+					
+					if (err)
+					{
+						log.error(err);
+						master.sendResponse(req, res, 200, 5, "Database Error");
+						return;
+					}
 
-            // Successfully Fetched
-            if(results=="" || results==undefined || results.length==0)
-            {
-                log.info('No Results Found');
-                master.sendResponse(req, res, 200, -1, "No Results");
-                return;
-            }
-            
-            userSchema.find(query, selectQuery, function(err, result){
-                
-                if (err)
-                {
-                    console.log(err);
-                    master.sendResponse(req, res, 200, 5, "Database Error");
-                    return;
-                }
-                
-                log.info('Transactions Found Successfully');
-                master.sendResponse(req, res, 200, -1, {result:results,count:result.length});
-                
-            })
-
-        }).sort(sort).skip(skip).limit(10);
+					// Successfully Fetched
+					if(results=="" || results==undefined || results.length==0)
+					{
+						log.info('No Results Found');
+						master.sendResponse(req, res, 200, -1, "No Results");
+						return;
+					}	
+					
+					log.info('Transactions Found Successfully');
+					master.sendResponse(req, res, 200, -1, {result:results,count:result});
+					
+				})
+			}
+			
+        })
         
     });
 
@@ -451,7 +481,6 @@ module.exports.getExpenceTransactions = function(req, res) {
 	var query = {'publicKey': publicKey};
     
     //var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&type="+encodeURIComponent(type)+"&publicKey="+encodeURIComponent(publicKey);
-    
     var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&number="+n+"&type="+type+"&publicKey="+publicKey;
 
 	// Validate Signature
@@ -463,77 +492,92 @@ module.exports.getExpenceTransactions = function(req, res) {
             return;
         }
 
-			log.info('Milisec Value of From Date :'+from);
-
-			log.info('Milisec Value of To Date :'+to); 
-			
-			if(type == "" || type == undefined || type == 'All')
+		log.info('Milisec Value of From Date :'+from);
+		log.info('Milisec Value of To Date :'+to); 
+		
+		if(type == "" || type == undefined || type == 'All')
+		{
+			if(email=="" || email==undefined || email==null)
 			{
-				if(email=="" || email==undefined || email==null)
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}},{$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]}]};
-				}
-				
-				else
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]};
-				}
-
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}},{$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]}]};
 			}
 			
 			else
-			{	
-				if(email=="" || email==undefined || email==null)
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"type":type}]};
-				}
-				
-				else
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"type":type}]};
-				}
-				
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"}]}]};
 			}
 
-			if(n==0){
-
-				// Get Transaction
-				transSchema.find(query, function(err, retTrans){
-									
-					// No Transaction
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
-					return;
-					
-				});
-
-			}else{
-				// Get Transaction
-				transSchema.find(query, function(err, retTrans){
-				
-					// No Transaction
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
-					return;
-				
-				}).limit(n);
+		}
+		
+		else
+		{	
+			if(email=="" || email==undefined || email==null)
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"type":type}]};
 			}
+			
+			else
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"type":type}]};
+			}
+			
+		}
+
+		if(n==0)
+		{
+			// Get Transaction
+			transSchema.find(query).lean().exec(function(err, retTrans){
+								
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+								
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
+					return;
+				}
+				
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
+				
+			});
+
+		}
+		else
+		{
+			// Get Transaction
+			transSchema.find(query).limit(n).lean().exec(function(err, retTrans){
+			
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+				
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
+					return;
+				}
+				
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
+			
+			})
+		}
     		
 	});
 
@@ -588,7 +632,7 @@ module.exports.getActiveEmails = function(req, res){
     	// For Active Users Only
         if(flag == 1 || flag == '1')
         {
-            userSchema.find({active:1},{"email":1, "first_name":1, "last_name":1}, function(err, result){
+            userSchema.find({active:1}).select({"email":1, "first_name":1, "last_name":1}).lean().exec(function(err, result){
             
                 if(err)
                 {
@@ -603,18 +647,18 @@ module.exports.getActiveEmails = function(req, res){
                     master.sendResponse(req, res, 200, 9, "No Result");
                     return;                
                 }
-                
-                log.info(result.length+' Active Emails Found');
-                master.sendResponse(req, res, 200, -1, result);
-                return; 
-            
+
+				log.info(result.length+' Active Emails Found');
+				master.sendResponse(req, res, 200, -1, result);
+				return;
+				
             });
         }
         
         // For Other.. Data Only
-        if(flag == 2 || flag == '2' || flag=='3' || flag==3)
+        if(flag == 2 || flag == '2')
         {
-            userSchema.find({},{"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1}, function(err, result){
+            userSchema.find({}).select({"email":1, "first_name":1, "last_name":1, "deposit":1, "active":1}).lean().exec(function(err, result){
             
                 if(err)
                 {
@@ -622,33 +666,18 @@ module.exports.getActiveEmails = function(req, res){
                     master.sendResponce(req, res, 200, 5, "Datbase Error");
                     return;
                 }
+
+				if(result == "" || result == undefined || result.length<=0)
+				{
+					log.info('No Active Emails Found');
+					sendResponse(req, res, 200, 9, "No Result");
+					return;
+				}
+		
+				log.info(result.length+' Results Found');
+				master.sendResponse(req, res, 200, -1, result);
+				return;
                 
-                if(flag == 3 || flag == '3')
-                {
-                    if(result == null || result == undefined || result == "")
-                    {
-                        log.info('No User Found');
-                        master.sendResponse(req, res, 200, 9, 0);
-                        return;                
-                    }
-                    
-                    console.log('Total '+result.length+' Users Found');
-			        master.sendResponse(req, res, 200, -1, result.length);
-                }
-                
-                else
-                {
-                    if(result == "" || result == undefined || result.length<=0)
-                    {
-                        console.log('No Active Emails Found');
-                        sendResponse(req, res, 200, 9, "No Result");
-                        return;
-                    }
-			
-                    log.info(result.length+' Results Found');
-                    master.sendResponse(req, res, 200, -1, result);
-                    return;
-                }
                 
             });
         }
@@ -659,7 +688,7 @@ module.exports.getActiveEmails = function(req, res){
         	var email = req.body.email;
         	var query = {"email":{ $regex: email }};
 
-        	userSchema.find(query, function(err, result){
+        	userSchema.count(query).exec(function(err, result){
 
         		if(err)
                 {
@@ -668,15 +697,51 @@ module.exports.getActiveEmails = function(req, res){
                     return;
                 }
 
-                if(result == "" || result == undefined || result.length<=0)
+                if(result == "" || result == undefined || result<=0)
                 {
-                    console.log('No Emails Found');
+                    log.info('No Emails Found');
                     master.sendResponse(req, res, 200, 9, "No Result");
                     return;
                 }
 
-             	log.info(result.length+' Results Found');
-                master.sendResponse(req, res, 200, -1, result.length);
+             	log.info(result+' Results Found');
+                master.sendResponse(req, res, 200, -1, result);
+        	})
+        }
+		
+		// Active Users Count
+		if(flag == 5 || flag == '5' || flag == 3 || flag == '3')
+        {
+			var query;
+			
+			if(flag == 3 || flag == '3')
+			{
+				query = {}
+			}
+			
+			if(flag == 5 || flag == '5')
+			{
+				query = {active:1}
+			}
+		
+        	userSchema.count(query).exec(function(err, result){
+
+        		if(err)
+                {
+                    log.error(err);
+                    master.sendResponce(req, res, 200, 5, "Datbase Error");
+                    return;
+                }
+
+                if(result == "" || result == undefined || result<=0)
+                {
+                    log.info('No Emails Found');
+                    master.sendResponse(req, res, 200, 9, "No Result");
+                    return;
+                }
+
+             	log.info(result+' Results Found');
+                master.sendResponse(req, res, 200, -1, result);
         	})
         }
 
@@ -795,7 +860,6 @@ module.exports.getIncomeTransactions = function(req, res) {
 	var query = {'publicKey': publicKey};
 
 	//var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&payment_mode="+encodeURIComponent(payment_mode)+"&publicKey="+encodeURIComponent(publicKey);
-    
     var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&number="+n+"&payment_mode="+payment_mode+"&publicKey="+publicKey;
 
 	//Validate signature
@@ -810,95 +874,111 @@ module.exports.getIncomeTransactions = function(req, res) {
 		log.info('Milisec Value of From Date :'+from);
 		log.info('Milisec Value of To Date :'+to); 
 			
-			if(payment_mode == "" || payment_mode == undefined || payment_mode == 'All')
+		if(payment_mode == "" || payment_mode == undefined || payment_mode == 'All')
+		{
+			if(email=="" || email==undefined || email==null)
 			{
-				if(email=="" || email==undefined || email==null)
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]},{"type":"keyword_purchase"}]};
-				}
-				
-				else
-				{
-					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"type":"keyword_purchase"}]};
-				}
-
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]},{"type":"keyword_purchase"}]};
 			}
-			//payment mode is not defind
+			
 			else
-			{	
-				if(email=="" || email==undefined || email==null)
-				{
-					if(payment_mode=="bitcoin")
-					{
-						query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"payment_mode":{$ne:"paypal"}}, {"type":"keyword_purchase"}]};
-					}
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"type":"keyword_purchase"}]};
+			}
 
-					else
-					{	
-						query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"payment_mode":payment_mode}, {"type":"keyword_purchase"}]};
-					}
-					
+		}
+			
+		//Payment Mode is not defind
+		else
+		{	
+			if(email=="" || email==undefined || email==null)
+			{
+				if(payment_mode=="bitcoin")
+				{
+					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"payment_mode":{$ne:"paypal"}}, {"type":"keyword_purchase"}]};
+				}
+
+				else
+				{	
+					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"payment_mode":payment_mode}, {"type":"keyword_purchase"}]};
 				}
 				
+			}
+			
+			else
+			{
+				if(payment_mode=="bitcoin")
+				{
+					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"payment_mode":{$ne:"paypal"}}, {"type":"keyword_purchase"}]};
+				}
 				else
 				{
-					if(payment_mode=="bitcoin")
-					{
-						query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"payment_mode":{$ne:"paypal"}}, {"type":"keyword_purchase"}]};
-					}
-					else
-					{
-						query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"payment_mode":payment_mode}, {"type":"keyword_purchase"}]};
-					}
-					
+					query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"payment_mode":payment_mode}, {"type":"keyword_purchase"}]};
 				}
 				
 			}
+			
+		}
     	
-			// Get Transaction
-			if (n == 0) {
-
-				transSchema.find(query, function(err, retTrans){
-							
-					// No Transaction
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
+		// Get Transaction
+		if (n == 0) 
+		{
+			transSchema.find(query).lean().exec(function(err, retTrans){
+			
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
 					return;
-				
-				});
-
-			}
-			else{
-
-				transSchema.find(query, function(err, retTrans){
-							
-					// No Transaction
-					if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
-					{	
-						log.info('No Transactions');
-						master.sendResponse(req, res, 200, -1, 'No Transactions');
-						return;
-					}
-					
-					// Transactions Found
-					log.info('Transaction Found Successfully');
-					master.sendResponse(req, res, 200, -1, retTrans);
+				}
+						
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
 					return;
+				}
 				
-				}).limit(n);
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
 			
-			}
+			});
+
+		}
+			
+		else
+		{
+			transSchema.find(query).limit(n).lean().exec(function(err, retTrans){
+					
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+						
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
+					return;
+				}
+				
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
+			
+			});
+		
+		}
 			
 			
-		});
+	});
 		
 }
 
@@ -946,7 +1026,7 @@ module.exports.paymentModeCount = function(req, res) {
     
         var query = {$and:[{"type":"keyword_purchase"},{"payment_mode":mode}]}
         
-        transSchema.find(query, function(err, retTrans){
+        transSchema.count(query).exec(function(err, retTrans){
             
             if(err)
             {
@@ -955,15 +1035,15 @@ module.exports.paymentModeCount = function(req, res) {
                 return;
             }
             
-            if(retTrans==null || retTrans==undefined || retTrans=="")
+            if(retTrans==null || retTrans==undefined || retTrans==0)
             {
                 log.info('No Transactions');
                 master.sendResponse(req, res, 200, 5, 0);
                 return;
             }
             
-            log.info(retTrans.length+' Transactions Found');
-            master.sendResponse(req, res, 200, 5, retTrans.length);
+            log.info(retTrans+' Transactions Found');
+            master.sendResponse(req, res, 200, 5, retTrans);
             
         })
         
@@ -974,10 +1054,10 @@ module.exports.paymentModeCount = function(req, res) {
 /* Set User Balance */
 module.exports.setUserBalance = function(req, res){
 
-	console.log('Page Name: admin.js.');
-	console.log('API Name : setUserBalance');
-	console.log('Set User Balance API Hitted');
-	console.log('Parameters Receiving...');
+	log.info('Page Name: admin.js.');
+	log.info('API Name : setUserBalance');
+	log.info('Set User Balance API Hitted');
+	log.info('Parameters Receiving...');
 	
 	var email = req.body.email;
 	var deposit = req.body.deposit;
@@ -986,12 +1066,12 @@ module.exports.setUserBalance = function(req, res){
 	var publicKey = req.body.publicKey;
 	var signature = req.body.signature;
 	
-	console.log('Email : '+email);
-	console.log('Deposit : '+deposit);
-	console.log('Pending Withdrawals : '+pending_withdrawal);
-	console.log('Approved Withdrawal : '+approved_withdrawal);
-	console.log('Public Key : '+publicKey);
-	console.log('Signature : '+signature);
+	log.info('Email : '+email);
+	log.info('Deposit : '+deposit);
+	log.info('Pending Withdrawals : '+pending_withdrawal);
+	log.info('Approved Withdrawal : '+approved_withdrawal);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
 	
 	// Validate Public Key
 	if(!(master.validateParameter(publicKey, 'Public Key')))
@@ -1016,7 +1096,7 @@ module.exports.setUserBalance = function(req, res){
 
 	if(!(master.validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1063,25 +1143,32 @@ module.exports.setUserBalance = function(req, res){
 		
 		var updatedFeilds = {
 				
-				deposit : deposit,
-				blocked_for_pending_withdrawals : pending_withdrawal,
-				approved_withdrawals : approved_withdrawal
-			
-			};
+			deposit : deposit,
+			blocked_for_pending_withdrawals : pending_withdrawal,
+			approved_withdrawals : approved_withdrawal
+		
+		};
 
 		// Find User From Its Email From User Table
-		userSchema.findOneAndUpdate(query, updatedFeilds, function(err, result){
+		userSchema.findOneAndUpdate(query, updatedFeilds).lean().exec(function(err, result){
+				
+			if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }	
 				
 			//Unable To Get User With This Emnail (No Such Email Is Registered)
 			if (typeof result === 'undefined' || result == null || result.length <= 0)
 			{
-				console.log(email+' Is Not Registered');
+				log.info(email+' Is Not Registered');
 				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address');
 				return;
 			}
 
  			// Balance Updated Successfully
-			console.log('User Balance Successfully Upadted');
+			log.info('User Balance Successfully Upadted');
 			master.sendResponse(req, res, 200, -1, "Success");
 		
 		})
@@ -1133,7 +1220,7 @@ module.exports.getEmailTypeTransactions = function(req, res){
 
 	if(!(master.validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1168,22 +1255,29 @@ module.exports.getEmailTypeTransactions = function(req, res){
 			
         skip = parseInt(skip);
 			
-        transSchema.find(query, function(err, retVal){
+        transSchema.find(query).sort({"time":-1}).skip(skip).limit(10).lean().exec(function(err, retVal){
+		
+			if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
 			
             if(retVal == "" || retVal == undefined || retVal.length <= 0)
             {
-                console.log('No Transactions');
+                log.info('No Transactions');
                 master.sendResponse(req, res, 200, 9, "No Result");
                 return;
             }				
 
             else
             {
-                console.log(retVal.length+' Transactions Found');
+                log.info(retVal.length+' Transactions Found');
                 master.sendResponse(req, res, 200, -1, retVal);
             }
 				
-        }).sort({"time":-1}).skip(skip).limit(10);
+        });
 			
     })
 		
@@ -1251,18 +1345,25 @@ module.exports.updateUserStatus = function(req, res){
         var userStatus = {active : status}
         
         // Find User From Its Email From User Table
-		userSchema.findOneAndUpdate({email:email}, userStatus, function(err, result){
+		userSchema.findOneAndUpdate({email:email}, userStatus).lean().exec(function(err, result){
 				
+			if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }	
+			
 			//Unable To Get User With This Emnail (No Such Email Is Registered)
 			if (typeof result === 'undefined' || result == null || result.length <= 0)
 			{
-				console.log(email+' Is Not Registered');
+				log.info(email+' Is Not Registered');
 				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address');
 				return;
 			}
 
  			// Status Updated Successfully
-			console.log('User Status Successfully Upadted');
+			log.info('User Status Successfully Upadted');
 			master.sendResponse(req, res, 200, -1, "Success");
 		
 		})
@@ -1300,7 +1401,7 @@ module.exports.latestDeposit = function(req, res){
 	//var text = "publicKey="+encodeURIComponent(publicKey);
     var text = "publicKey="+publicKey;
     
-     master.secureAuth(query, text, signature, function (result){
+    master.secureAuth(query, text, signature, function (result){
 		
         if(result[0].error == true || result[0].error == 'true')
         {
@@ -1308,22 +1409,29 @@ module.exports.latestDeposit = function(req, res){
             return;
         }
     
-        transSchema.find({type:"fund"}, function(err, retVal){
+        transSchema.find({type:"fund"}).sort({"time":-1}).limit(1000).lean().exec(function(err, retVal){
+			
+			if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
 			
             if(retVal == "" || retVal == undefined || retVal.length <= 0)
             {
-                console.log('No Transactions');
+                log.info('No Transactions');
                 master.sendResponse(req, res, 200, 9, "No Result");
                 return;
             }				
 
             else
             {
-                console.log(retVal.length+' Transactions Found');
+                log.info(retVal.length+' Transactions Found');
                 master.sendResponse(req, res, 200, -1, retVal);
             }
 				
-        }).sort({"time":-1}).limit(1000);
+        })
          
     })
 }
@@ -1405,60 +1513,103 @@ module.exports.totalCount = function(req, res){
                             master.sendResponse(req, res, 200, 5, "Database Error");
                             return;
                         }
+						
+						transSchema.aggregate([{ $match:{"type":"credit_from_admin"}},{$group:{ _id:null, result:{$sum:"$amount"}}}], function(err, creditAdminResult){
                         
-                        var deposit, coinbase, paypal, wallet;
+							if(err)
+							{
+								log.error(err);
+								master.sendResponse(req, res, 200, 5, "Database Error");
+								return;
+							}
+							
+							transSchema.aggregate([{ $match:{"type":"debit_from_admin"}},{$group:{ _id:null, result:{$sum:"$amount"}}}], function(err, debitAdminResult){
                         
-                        if(fundResult.length==0)
-                        {
-                            deposit = 0;
-                        }
-                        
-                        else
-                        {
-                            deposit = fundResult[0].result;
-                        }
-                        
-                        if(conibaseResult.length==0)
-                        {
-                            coinbase = 0;
-                        }
-                        
-                        else
-                        {
-                            coinbase = conibaseResult[0].result;
-                        }
-                        
-                        if(paypalResult.length==0)
-                        {
-                            paypal = 0;
-                        }
-                        
-                        else
-                        {
-                            paypal = paypalResult[0].result;
-                        }
-                        
-                        if(walletResult.length==0)
-                        {
-                            wallet = 0;
-                        }
-                        
-                        else
-                        {
-                            wallet = walletResult[0].result;
-                        }
-                        
-                        var jsonResult = {
-                            
-                            deposit : deposit,
-                            coinbase : coinbase,
-                            paypal : paypal,
-                            wallet : wallet
-                            
-                        }
-                        
-                        log.info('Successfully Got Result');
-                        master.sendResponse(req, res, 200, -1, jsonResult);
+								if(err)
+								{
+									log.error(err);
+									master.sendResponse(req, res, 200, 5, "Database Error");
+									return;
+								}
+							
+								var deposit, coinbase, paypal, wallet, credit_from_admin, debit_from_admin;
+								
+								if(fundResult.length==0)
+								{
+									deposit = 0;
+								}
+								
+								else
+								{
+									deposit = fundResult[0].result;
+								}
+								
+								if(conibaseResult.length==0)
+								{
+									coinbase = 0;
+								}
+								
+								else
+								{
+									coinbase = conibaseResult[0].result;
+								}
+								
+								if(paypalResult.length==0)
+								{
+									paypal = 0;
+								}
+								
+								else
+								{
+									paypal = paypalResult[0].result;
+								}
+								
+								if(walletResult.length==0)
+								{
+									wallet = 0;
+								}
+								
+								else
+								{
+									wallet = walletResult[0].result;
+								}
+								
+								if(creditAdminResult.length==0)
+								{
+									credit_from_admin = 0;
+								}
+								
+								else
+								{
+									credit_from_admin = creditAdminResult[0].result;
+								}
+								
+								if(debitAdminResult.length==0)
+								{
+									debit_from_admin = 0;
+								}
+								
+								else
+								{
+									debit_from_admin = debitAdminResult[0].result;
+								}
+								
+								var jsonResult = {
+									
+									deposit : deposit,
+									coinbase : coinbase,
+									paypal : paypal,
+									wallet : wallet,
+									credit_from_admin : credit_from_admin,
+									debit_from_admin : debit_from_admin
+								}
+								
+								log.info('Successfully Got Result');
+								master.sendResponse(req, res, 200, -1, jsonResult);
+							
+							})
+							
+						})
                         
                     })
                     
@@ -1511,7 +1662,7 @@ module.exports.userBalanceCalc = function(req, res){
 
 	if(!(master.validateEmail(email))) 
 	{
-		console.log('Incorrect Email Format');
+		log.info('Incorrect Email Format');
 		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
 		return;
     }
@@ -1533,7 +1684,7 @@ module.exports.userBalanceCalc = function(req, res){
         query = {"email": email};
         
         // Find User From Its Email From User Table
-		userSchema.find(query, {deposit:1,sales:1,cashback:1,affiliate_earning:1,total_kwd_income:1,search_earning:1,search_affiliate_earnings:1,total_app_income:1,blocked_for_pending_withdrawals:1,blocked_for_bids:1,approved_withdrawals:1,trade_fees:1,purchases:1}, function(err, result){
+		userSchema.find(query).select({deposit:1,sales:1,cashback:1,affiliate_earning:1,total_kwd_income:1,search_earning:1,search_affiliate_earnings:1,total_app_income:1,blocked_for_pending_withdrawals:1,blocked_for_bids:1,approved_withdrawals:1,trade_fees:1,purchases:1}).lean().exec(function(err, result){
             
             if(err)
             {
@@ -1545,7 +1696,7 @@ module.exports.userBalanceCalc = function(req, res){
             //Unable To Get User With This Emnail (No Such Email Is Registered)
 			if (typeof result === 'undefined' || result == null || result.length <= 0)
 			{
-				console.log(email+' Is Not Registered');
+				log.info(email+' Is Not Registered');
 				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address');
 				return;
 			}
@@ -1569,7 +1720,7 @@ module.exports.userBalanceCalc = function(req, res){
             //var calculation1 = deposit + sales + cashback + affiliate_earning + total_kwd_income + search_earning + search_affiliate_earnings + total_app_income; // Add
             //var calculation2 =blocked_for_pending_withdrawals + blocked_for_bids + approved_withdrawals + trade_fees + purchases; // Subtract
             
-            console.log('Calculation : '+calculation);
+            log.info('Calculation : '+calculation);
             master.sendResponse(req, res, 200, -1, calculation);
             
         })
@@ -1634,8 +1785,8 @@ module.exports.allUsersBalance = function(req, res){
                                        blocked_for_bids:{$sum:"$blocked_for_bids"},
                                        approved_withdrawals:{$sum:"$approved_withdrawals"},
                                        trade_fees:{$sum:"$trade_fees"},
-                                       purchases:{$sum:"$purchases"}}}],
-            function(err, result){
+                                       purchases:{$sum:"$purchases"}}}])
+            .exec(function(err, result){
             
                 if(err){
                     log.error(err);
@@ -1663,9 +1814,8 @@ module.exports.allUsersBalance = function(req, res){
                 //var calculation1 = deposit + sales + cashback + affiliate_earning + total_kwd_income + search_earning + search_affiliate_earnings + total_app_income; // Add
                 //var calculation2 =blocked_for_pending_withdrawals + blocked_for_bids + approved_withdrawals + trade_fees + purchases; // Subtract
 
-                console.log('Calculation : '+calculation);
+                log.info('Calculation : '+calculation);
                 master.sendResponse(req, res, 200, -1, calculation);
-
             
         })
         

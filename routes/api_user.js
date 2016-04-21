@@ -45,8 +45,10 @@ router.post('/secure/firstBuy', user.firstBuy);					// FirstBuy API
 router.post('/secure/addBlockedForBids', user.addBlockedForBids);		// Add Blocked For Bids API
 router.post('/secure/deductBlockedForBids', user.deductBlockedForBids);			// Deduct Blocked Bids API
 router.post('/secure/rejectBlockedBids', user.rejectBlockedBids);            // Reject Blocked Bids API (In cases of Accept bid and Buy now)
-router.post('/secure/updateNotificationStatus', user.updateNotificationStatus);  // Update User's Notification Status API
-router.post('/secure/getNotificationStatus', user.getNotificationStatus);       // Get Notification Status
+// router.post('/secure/updateNotificationStatus', user.updateNotificationStatus);  // Update User's Notification Status API
+// router.post('/secure/getNotificationStatus', user.getNotificationStatus);       // Get Notification Status
+router.post('/secure/setFavouriteAppIds', user.setFavouriteAppIds);                                // Set User's Favourite App Id
 
+router.post('/refCode',user.refCode);
 
 module.exports = router;

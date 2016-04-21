@@ -2,17 +2,18 @@
 /*jslint node: true */
 "use strict";
 
+
 // Framwork
-var  express     	   = require('express'),
+var  express         = require('express'),
      helmet          = require('helmet'),
      nunjucks        = require('nunjucks'),
      path            = require('path'),
      favicon         = require('favicon'),
      logger          = require('morgan'),
      cookieParser    = require('cookie-parser'),
-	   nconf 	    	   = require('nconf'),
-	   fs         	   = require('fs'),
-	   request 		     = require('request'),
+     nconf           = require('nconf'),
+     fs              = require('fs'),
+     request         = require('request'),
      jsonfile        = require('jsonfile'),
      bodyParser      = require('body-parser'),
      debug           = require('debug')('Express4'),
@@ -24,13 +25,13 @@ var  express     	   = require('express'),
 // Pages
 require('./models/db');// keep the connection open to db when app boots/reboots
 
-var	 routesUserApi   = require('./routes/api_user'),                 // User API
-	   routesDeviceApi = require('./routes/api_device'),               // Device API
-	   routesSearchApi = require('./routes/api_search'),               // Search API
-	   routesPoolApi   = require('./routes/api_pool'),                    // Get Pool API
+var  routesUserApi   = require('./routes/api_user'),                 // User API
+     routesDeviceApi = require('./routes/api_device'),               // Device API
+     routesSearchApi = require('./routes/api_search'),               // Search API
+     routesPoolApi   = require('./routes/api_pool'),                    // Get Pool API
      routesWtransactionApi = require('./routes/api_transaction'),
      routesAdminApi = require('./routes/api_admin'),
-     cron_api    	   = require("./api/cron_api.js");    	     // Get Admin API
+     cron_api        = require("./api/cron_api.js");           // Get Admin API
 
 var routesNotificationApi = require('./routes/api_notification');
 var routesMailApi       = require('./routes/api_mail');
@@ -55,6 +56,8 @@ nunjucks.configure('views', {
 
 // code to set ENV for node app
 var loadconfig = require('./config/w_config.js')
+app.use(helmet())
+
 
 var defaultOptions = loadconfig.DEFAULTS
 log.info("Configuration read from the JSON file using nconf is :")
@@ -78,7 +81,11 @@ app.use('/api', routesUserPrefApi); // add prefex 'api' to access the api like h
 /*============================== Device Related API ==================================*/
 app.use('/api', routesDeviceApi);
 /*============================== User Related API ==================================*/
+
 app.use('/', routesUserApi);
+                                // Reject Blocked Bids API (In cases of Accept bid and Buy now)
+
+
 /*============================== Pool Related API ==================================*/
 app.use('/secure', routesPoolApi);
 /*============================== Transactions Related API ==================================*/
