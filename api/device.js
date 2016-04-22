@@ -77,7 +77,6 @@ module.exports.deviceRegister = function (req, res) {
       return
     }
 
-
     if (deviceInfo.Device_Type) {
       type = deviceInfo.Device_Type
       log.info('Device Is ' + type)

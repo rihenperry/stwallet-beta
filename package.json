@@ -46,6 +46,6 @@
     "scripts": {
         "start": "pm2 start app.js -i 0 --name \"wallet-api\"",
         "start-dev": "nodemon app.js",
-        "auto-lint": "standard-format -w api/*.js"
+        "auto-lint": "standard-format -w api/*.js app.js helpers/*.js models/*.js controllers/*.js routes/*.js config/*.js"
   }
 }

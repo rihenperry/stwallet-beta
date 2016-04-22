@@ -16,12 +16,12 @@ var express = require('express'),
   jsonfile = require('jsonfile'),
   bodyParser = require('body-parser'),
   debug = require('debug')('Express4'),
-  util            = require('util'),
+  util = require('util'),
   bformat = require('bunyan-format')
 
-var log = require('./config/w_config')() //bunyan logger to organize logging
+var log = require('./config/w_config')() // bunyan logger to organize logging
 
-require('dotenv').config() //loads project specific process.env settings from .env
+require('dotenv').config() // loads project specific process.env settings from .env
 require('./models/db') // keep the connection open to db when app boots/reboots
 
 var routesUserApi = require('./routes/api_user'), // User API
@@ -124,7 +124,7 @@ app.use(function (req, res, next) {
 
 app.set('port', process.env.NODE_SERVER_PORT || 5020)
 
-var notifyServer = app.listen(app.get('port'), process.env.NODE_SERVER_IP || "127.0.0.1", function () {
+var notifyServer = app.listen(app.get('port'), process.env.NODE_SERVER_IP || '127.0.0.1', function () {
   log.info('server listening on address ' + notifyServer.address().address + ':' + notifyServer.address().port)
   debug('server listening on port ' + notifyServer.address().port)
 })
