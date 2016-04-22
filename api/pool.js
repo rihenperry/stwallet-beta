@@ -697,7 +697,6 @@ module.exports.addUnsoldKwdRefund = function (req, res) {
       return
     }
 
-
     log.info('Credit Unsold Keyword Refund Amount : ' + retVal[0].amount)
 
     var query = {$inc: {'total_unsold_kwd_refund': parseFloat(retVal[0].amount)}}

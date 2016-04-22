@@ -1,38 +1,38 @@
 var bunyan = require('bunyan'),
-    bformat = require('bunyan-format'),
-    formatOut = bformat({ color: 'true' }),
-    defaults = {},
-    logger
+  bformat = require('bunyan-format'),
+  formatOut = bformat({ color: 'true' }),
+  defaults = {},
+  logger
 
 var bunyanOpts = {
-    name: 'ST-Wallet',
-    streams: [
+  name: 'ST-Wallet',
+  streams: [
     {
-        level: 'debug',
-        stream: formatOut ,       // log INFO and above to stdout
+      level: 'debug',
+      stream: formatOut, // log INFO and above to stdout
     },
     {
-        type: 'rotating-file',
-        level: 'info',
-        period: '1d',
-      path: '../wallet_rev.json',  // log ERROR and above to a file
-         count : 30
+      type: 'rotating-file',
+      level: 'info',
+      period: '1d',
+      path: '../wallet_rev.json', // log ERROR and above to a file
+      count: 30
     }
   ]
 }
 
-var createLogger = function createLogger() {
+var createLogger = function createLogger () {
   if (logger) {
-    return logger;
+    return logger
   }
 
-  logger = bunyan.createLogger(bunyanOpts);
-  return logger;
-};
+  logger = bunyan.createLogger(bunyanOpts)
+  return logger
+}
 
-module.exports = createLogger;
+module.exports = createLogger
 
-//var bunyanOpts = {
+// var bunyanOpts = {
 //    name: 'myapp',
 //    streams: [
 //    {
@@ -45,18 +45,18 @@ module.exports = createLogger;
 //        // path: 'st-wallet-log-bunyan.json'  // log ERROR and above to a file
 //    }
 //  ]
-//};
+// }
 //
-//exports.log = bunyan.createLogger(bunyanOpts);
+// exports.log = bunyan.createLogger(bunyanOpts)
 
-//var bunyan      = require('bunyan');
+// var bunyan      = require('bunyan')
 
-//var nconf = require('nconf');
+// var nconf = require('nconf')
 //
-//function getOptionsFromConfigFile () {
+// function getOptionsFromConfigFile () {
 //
 //  nconf.env(['USER'])
-//       .file('options','./config/config.json');
+//       .file('options','./config/config.json')
 //  var options = {}
 //  
 //  var user = nconf.get('USER')
@@ -65,5 +65,4 @@ module.exports = createLogger;
 //  options.host = nconf.get('host')
 //  options.port = nconf.get('port')
 //  return options
-//}
-
+// }

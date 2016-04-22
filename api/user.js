@@ -325,7 +325,6 @@ module.exports.secureRegister = function (req, res) {
               refcode = refcode
             }
 
-
             notify.createUserDefaultNotifyObj(req, function (err, optionID) {
               if (err) {
                 log.error(err)
@@ -3132,8 +3131,6 @@ module.exports.sendPHPmail = function (req, res) {
     // }
 
     // Method Part will be added here
-
-
 
     // log.info('Notification Status is '+result[0].notification_status+' For '+email)
     // master.sendResponse(req, res, 200, -1, {notification_status:result[0].notification_status, user_id:result[0]._id})

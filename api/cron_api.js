@@ -1089,7 +1089,6 @@ module.exports.cron = function (req, res) {
       'IP': null,
     'DOMAIN': ''}
 
-
   }
   request.post({url: 'http://localhost:5000/api/register',
     body: requestData_register,
