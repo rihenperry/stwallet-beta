@@ -498,7 +498,7 @@ module.exports.getExpenceTransactions = function(req, res) {
 		
 		if(type == "" || type == undefined || type == 'All')
 		{
-			var subQuery = {$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"},{"type":"search_earnings"},{"type":"App Earning"},{"type":"keyword_ownership_earning"}]}
+			var subQuery = {$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"},{"type":"search_referral_earnings"},{"type":"search_earnings"},{"type":"App Earning"},{"type":"keyword_ownership_earning"}]}
 		
 			if(email=="" || email==undefined || email==null)
 			{
@@ -1258,7 +1258,7 @@ module.exports.getEmailTypeTransactions = function(req, res){
 			
         skip = parseInt(skip);
 			
-        transSchema.find(query).sort({"time":-1}).skip(skip).limit(10).lean().exec(function(err, retVal){
+        transSchema.find(query).sort({"time":1}).skip(skip).limit(10).lean().exec(function(err, retVal){
 		
 			if (err)
             {

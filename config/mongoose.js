@@ -4,8 +4,8 @@ var mongoose = require( 'mongoose' );
 // var dbURI = 'mongodb://localhost/wallet'; 
 // var dbURI = 'mongodb://localhost/mytest'; 
 // var dbURI = 'mongodb://localhost/crondb'; 
-var dbURI = 'mongodb://localhost/my-test-live'; 
-//var dbURI = 'mongodb://localhost/bk-live-mytest'; 
+// var dbURI = 'mongodb://localhost/my-test-live'; 
+var dbURI = 'mongodb://localhost/bk-live-mytest'; 
 
 // Create the database connection 
 mongoose.connect(dbURI); 
