@@ -407,11 +407,32 @@ module.exports.checkExistanceEmail = function (req, res) {
       master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
       return
     }
+    
+    var query = {publicKey:publicKey};
+    //var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
+    var text  = "email="+email+"&publicKey="+publicKey;
+    
+    // Authentication
+    master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+      
+		if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com")
+		{
+			email = email;
+		}
+		else
+		{
+			email = email.toLowerCase();
+		}
+	  
+        // Get Data From User
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
-    email = email.toLowerCase()
-
-    // Get Data From User
-    userSchema.find({email: email}).lean().exec(function (err, result) {
       if (err) {
         log.error(err)
         master.sendResponse(req, res, 200, 5, 'Database Error')

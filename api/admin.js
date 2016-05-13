@@ -294,157 +294,204 @@ module.exports.userManage = function (req, res) {
 }
 
 /* Get Expence Transactions */
-module.exports.getExpenceTransactions = function (req, res) {
-  log.info('Page Name: admin.js')
-  log.info('API Name : getExpenceTransactions')
-  log.info('Get Expence Transaction Accessed')
-  log.info('Parameters Receiving..')
+module.exports.getExpenceTransactions = function(req, res) {
 
-  var vars = req.body
-  var email = req.body.email
-  var from = req.body.from
-  var to = req.body.to
-  var n = req.body.number
-  var publicKey = req.body.publicKey
-  var signature = req.body.signature
-  var type = vars.type
+	log.info('Page Name: admin.js');
+	log.info('API Name : getExpenceTransactions');
+	log.info('Get Expence Transaction Accessed');
+	log.info('Parameters Receiving..');
 
-  log.info('Email : ' + email)
-  log.info('From Date : ' + from)
-  log.info('To Date: ' + to)
-  log.info('N (Number Of Tansactions) :' + n)
-  log.info('Public Key :' + publicKey)
-  log.info('Signature :' + signature)
+	var vars = req.body;
+	var email = req.body.email;
+	var from = req.body.from;
+	var to = req.body.to;
+	var n = req.body.number;
+	var publicKey = req.body.publicKey;
+	var signature = req.body.signature;
+	var type = vars.type;
+	
+	log.info('Email : '+email);
+	log.info('From Date : '+from);
+	log.info('To Date: '+to);
+	log.info('N (Number Of Tansactions) :'+n);
+	log.info('Type :'+type);
+	log.info('Public Key :'+publicKey);
+	log.info('Signature :'+signature);
+	
+	// Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
 
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
+	// Checking Transaction Numbers	
+	if(n=="" || n==undefined)
+	{
+		n = 0;
+	}
 
-  // Checking Transaction Numbers	
-  if (n == '' || n == undefined) {
-    n = 0
-  }
+	// Number of Transactions
+	else if(isNaN(n))
+	{
+		log.info('Number is Wrong Number');
+		master.sendResponse(req, res, 200, 12, "Wrong Input");
+		return;
+	}
 
-  // Number of Transactions
-  else if (isNaN(n)) {
-    log.info('Number is Wrong Number')
-    master.sendResponse(req, res, 200, 12, 'Wrong Input')
-    return
-  }
+	// Sorting and Getting Today's Date, Month, Year
+	var dateForm = new Date(); 
+	var tdate 	 = dateForm.getDate(); 
+	tdate 		 = parseInt(tdate);
+	var tmonth   = dateForm.getMonth(); 
+	tmonth 		 = parseInt(tmonth);
+	tmonth++;
+	var tyear 	 = dateForm.getFullYear(); 
+	tyear 		 = parseInt(tyear);	
+	var todaysDate = tdate+'/'+tmonth+'/'+tyear;
+	var checkTodaysDate = new Date(''+tmonth+'/'+tdate+'/'+tyear+'');
+	checkTodaysDate = checkTodaysDate.getTime();
+	
+	// Validate From Date
+	if(from == "" || from == undefined)
+	{
+		from = 0;
+	}
+	else
+	{
+		var month = from.substring(0, 2); 
+		var day   = from.substring(3, 5); 
+		var year  = from.substring(6, 10); 
+		
+		var d = new Date(''+month+'/'+day+'/'+year+' 00:00:00');
+		var milisec = d.getTime();
+		from = milisec;
+	}
+	
+	// Validate last Limit
+	if(to === undefined || to.length<=0 || to == null )
+	{
+		to = new Date().getTime();
+	}
+	else
+	{
+		var month = to.substring(0, 2); 
+		var day = to.substring(3, 5); 
+		var year = to.substring(6, 10); 
+		
+		var enteredToDate = day+'/'+month+'/'+year;
+		
+		if(enteredToDate == todaysDate)
+		{
+			to = new Date().getTime();
+		}
+		else
+		{
+			var d = new Date(''+month+'/'+day+'/'+year+' 23:59:59');
+			var milisec = d.getTime();
+			to = milisec;
+		}	
+	}
+	
+	n = parseInt(n);
 
-  // Sorting and Getting Today's Date, Month, Year
-  var dateForm = new Date()
-  var tdate = dateForm.getDate()
-  tdate = parseInt(tdate)
-  var tmonth = dateForm.getMonth()
-  tmonth = parseInt(tmonth)
-  tmonth++
-  var tyear = dateForm.getFullYear()
-  tyear = parseInt(tyear)
-  var todaysDate = tdate + '/' + tmonth + '/' + tyear
-  var checkTodaysDate = new Date('' + tmonth + '/' + tdate + '/' + tyear + '')
-  checkTodaysDate = checkTodaysDate.getTime()
+	var query = {'publicKey': publicKey};
+    
+    //var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&type="+encodeURIComponent(type)+"&publicKey="+encodeURIComponent(publicKey);
+    var text = "email="+email+"&from="+vars.from+"&to="+vars.to+"&number="+n+"&type="+type+"&publicKey="+publicKey;
 
-  // Validate From Date
-  if (from == '' || from == undefined) {
-    from = 0
-  } else {
-    var month = from.substring(0, 2)
-    var day = from.substring(3, 5)
-    var year = from.substring(6, 10)
+	// Validate Signature
+	master.secureAuth(query, text, signature, function (result){
 
-    var d = new Date('' + month + '/' + day + '/' + year + ' 00:00:00')
-    var milisec = d.getTime()
-    from = milisec
-  }
-
-  // Validate last Limit
-  if (to === undefined || to.length <= 0 || to == null) {
-    to = new Date().getTime()
-  } else {
-    var month = to.substring(0, 2)
-    var day = to.substring(3, 5)
-    var year = to.substring(6, 10)
-
-    var enteredToDate = day + '/' + month + '/' + year
-
-    if (enteredToDate == todaysDate) {
-      to = new Date().getTime()
-    } else {
-      var d = new Date('' + month + '/' + day + '/' + year + ' 23:59:59')
-      var milisec = d.getTime()
-      to = milisec
-    }
-  }
-
-  n = parseInt(n)
-
-  var query = {'publicKey': publicKey}
-
-  // var text = "email="+encodeURIComponent(email)+"&from="+encodeURIComponent(vars.from)+"&to="+encodeURIComponent(vars.to)+"&number="+encodeURIComponent(n)+"&type="+encodeURIComponent(type)+"&publicKey="+encodeURIComponent(publicKey)
-  var text = 'email=' + email + '&from=' + vars.from + '&to=' + vars.to + '&number=' + n + '&type=' + type + '&publicKey=' + publicKey
-
-  // Validate Signature
-  master.secureAuth(query, text, signature, function (result) {
-    if (result[0].error == true || result[0].error == 'true') {
-      master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
-      return
-    }
-
-    log.info('Milisec Value of From Date :' + from)
-    log.info('Milisec Value of To Date :' + to)
-
-    if (type == '' || type == undefined || type == 'All') {
-      if (email == '' || email == undefined || email == null) {
-        query = {$and: [{$and: [{'time': {$gte: from}}, {'time': {$lte: to}}, {$or: [{'type': 'affiliate_earnings'}, {'type': 'first_buy_cashback'}]}]}]}
-      } else {
-        query = {$and: [{$and: [{'time': {$gte: from}}, {'time': {$lte: to}}]}, {$or: [{'sender': email}, {'receiver': email}]}, {$or: [{'type': 'affiliate_earnings'}, {'type': 'first_buy_cashback'}]}]}
-      }
-    } else {
-      if (email == '' || email == undefined || email == null) {
-        query = {$and: [{$and: [{'time': {$gte: from}}, {'time': {$lte: to}}]}, {'type': type}]}
-      } else {
-        query = {$and: [{$and: [{'time': {$gte: from}}, {'time': {$lte: to}}]}, {$or: [{'sender': email}, {'receiver': email}]}, {'type': type}]}
-      }
-    }
-
-    if (n == 0) {
-      // Get Transaction
-      transSchema.find(query).lean().exec(function (err, retTrans) {
-        if (err) {
-          log.error(err)
-          master.sendResponse(req, res, 200, 5, 'Database Error')
-          return
+		if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
         }
 
-        // No Transaction
-        if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0) {
-          log.info('No Transactions')
-          master.sendResponse(req, res, 200, -1, 'No Transactions')
-          return
-        }
+		log.info('Milisec Value of From Date :'+from);
+		log.info('Milisec Value of To Date :'+to); 
+		
+		if(type == "" || type == undefined || type == 'All')
+		{
+			var subQuery = {$or:[{"type":"affiliate_earnings"},{"type":"first_buy_cashback"},{"type":"search_referral_earnings"},{"type":"search_earnings"},{"type":"App Earning"},{"type":"keyword_ownership_earning"}]}
+		
+			if(email=="" || email==undefined || email==null)
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}},subQuery]}]};
+			}
+			
+			else
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, subQuery]};
+			}
 
-        // Transactions Found
-        log.info('Transaction Found Successfully')
-        master.sendResponse(req, res, 200, -1, retTrans)
-        return
-      })
-    } else {
-      // Get Transaction
-      transSchema.find(query).limit(n).lean().exec(function (err, retTrans) {
-        if (err) {
-          log.error(err)
-          master.sendResponse(req, res, 200, 5, 'Database Error')
-          return
-        }
+		}
+		
+		else
+		{	
+			if(email=="" || email==undefined || email==null)
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {"type":type}]};
+			}
+			
+			else
+			{
+				query = {$and:[{$and:[{"time":{$gte:from}},{"time":{$lte:to}}]}, {$or:[{"sender":email},{"receiver":email}]}, {"type":type}]};
+			}
+			
+		}
+
+		if(n==0)
+		{
+			// Get Transaction
+			transSchema.find(query).lean().exec(function(err, retTrans){
+								
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+								
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
+					return;
+				}
+				
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
+				
+			});
+
+		}
+		else
+		{
+			// Get Transaction
+			transSchema.find(query).limit(n).lean().exec(function(err, retTrans){
+			
+				if (err)
+				{
+					log.error(err);
+					master.sendResponse(req, res, 200, 5, "Database Error");
+					return;
+				}
+				
+				// No Transaction
+				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
+				{	
 
         // No Transaction
         if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0) {
@@ -1010,23 +1057,41 @@ module.exports.getEmailTypeTransactions = function (req, res) {
       var query = {$and: [{$or: [{'sender': email}, {'receiver': email}]}, {'type': type}]}
     }
 
-    skip = parseInt(skip)
+        if(type == "All")
+        {
+            var query = {$or:[{"sender":email},{"receiver":email}]}
+        }
+        else
+        {
+            var query = {$and:[{$or:[{"sender":email},{"receiver":email}]},{"type":type}]}
+        }
+			
+        skip = parseInt(skip);
+			
+        transSchema.find(query).sort({"time":1}).skip(skip).limit(10).lean().exec(function(err, retVal){
+		
+			if (err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
+			
+            if(retVal == "" || retVal == undefined || retVal.length <= 0)
+            {
+                log.info('No Transactions');
+                master.sendResponse(req, res, 200, 9, "No Result");
+                return;
+            }				
 
-    transSchema.find(query).sort({'time': -1}).skip(skip).limit(10).lean().exec(function (err, retVal) {
-      if (err) {
-        log.error(err)
-        master.sendResponse(req, res, 200, 5, 'Database Error')
-        return
-      }
-
-      if (retVal == '' || retVal == undefined || retVal.length <= 0) {
-        log.info('No Transactions')
-        master.sendResponse(req, res, 200, 9, 'No Result')
-        return
-      } else {
-        log.info(retVal.length + ' Transactions Found')
-        master.sendResponse(req, res, 200, -1, retVal)
-      }
+            else
+            {
+                log.info(retVal.length+' Transactions Found');
+                master.sendResponse(req, res, 200, -1, retVal);
+            }
+				
+        });
+			
     })
   })
 }

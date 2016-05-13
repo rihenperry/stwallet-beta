@@ -10,15 +10,17 @@ var deviceSchema = require('../models/deviceInfoSchema.js'), // DeviceInfo Schem
 
 // ========================= Page Functions ========================= //
 // Response Function
-module.exports.sendResponse = function (req, res, status, errCode, errMsg) {
-  var d = Date()
-  // log.info(status +" "+ errCode +" "+ errMsg + " " + d)
-  log.info(status + ' ' + errCode + ' ' + d)
-  res.status(status).send({
-    errCode: errCode,
-    errMsg: errMsg,
-    dbDate: d
-  })
+module.exports.sendResponse = function(req, res, status, errCode, errMsg) {
+
+    var d = Date();
+    log.info(status +" "+ errCode +" "+ errMsg + " " + d);
+    // log.info(status +" "+ errCode +" "+ d);
+    res.status(status).send({
+        errCode: errCode, 
+        errMsg: errMsg,
+        dbDate: d
+    });
+    
 }
 
 // Parameter Validation Function

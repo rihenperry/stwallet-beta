@@ -63,36 +63,38 @@ function sendVerificationEmail (accountInfo, flag, rootUrl) {
 }
 
 // Send Reset Password Link to User Email Address
-function sendRestEmail (accountInfo, flag, rootUrl) {
-  var vhash = encodeURIComponent(crypt.generate(accountInfo._id))
+function sendRestEmail(accountInfo, flag, rootUrl){
+  
+	var vhash = encodeURIComponent(crypt.generate(accountInfo._id));
+  
+	if(flag == '1') // For Web
+	{
+		//var url= rootUrl+"forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		var url= rootUrl+"index.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag+'#forgotPasswordEmailDialog';
+	}
+  
+	if(flag == '2')	// For Wallet
+	{
+		var url= rootUrl+"presaleWallet/wallet/resetpass.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email);
+	}
+    
+    if(flag == '3') // For Mobile
+	{
+		var url= rootUrl+"mobile/forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+	}
+  
+	var text= '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi '+accountInfo.first_name+' '+accountInfo.last_name+',</p><br><p>You have requested to Change your SearchTrade account password.</p><p>Please click <a href="'+url+'">Here</a> to reset your password.</p><p>OR</p><p>Copy Link Address below in your web browser</p><p>'+url+'</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div>';
 
-  if (flag == '1') // For Web
-  {
-    var url = rootUrl + 'forgetpwd.php?auth=' + vhash + '&email=' + encodeURIComponent(accountInfo.email) + '&flag=' + flag
-  }
-
-  if (flag == '2') // For Wallet
-  {
-    var url = rootUrl + 'presaleWallet/wallet/resetpass.php?auth=' + vhash + '&email=' + encodeURIComponent(accountInfo.email)
-  }
-
-  if (flag == '3') // For Mobile
-  {
-    var url = rootUrl + 'MobileSite/forgetpwd.php?auth=' + vhash + '&email=' + encodeURIComponent(accountInfo.email) + '&flag=' + flag
-  }
-
-  var text = '<div style="border: solid thin black; padding: 10px;"><div style="background: #25a2dc; color: #fff; padding: 5px"><img src="http://searchtrade.com/images/searchtrade_white.png" width="200px"></div><br><br><div style="background: #fff; color: #000; padding: 5px;"><div style="width:75%; margin: auto"><p>Hi ' + accountInfo.first_name + ' ' + accountInfo.last_name + ',</p><br><p>You have requested to Change your SearchTrade account password.</p><p>Please click <a href="' + url + '">Here</a> to reset your password.</p><p>OR</p><p>Copy Link Address below in your web browser</p><p>' + url + '</p><br><p>Regards the from SearchTrade team</p><br><p>Product of Searchtrade.com Pte Ltd, Singapore</p></div></div></div>'
-
-  // Setup E-mail data with unicode symbols
-  var mailOptions = {
-    from: 'Search Trade <donotreply@searchtrade.com>', // Sender address
-    to: accountInfo.email, // List of Receivers
-    subject: 'Search Trade : Reset your password', // Subject line
-    text: text, // Text
-    html: text
-  }
-
-  mailer.sendmail(mailOptions)
+	// Setup E-mail data with unicode symbols
+	var mailOptions= {
+		from: 'Search Trade <donotreply@searchtrade.com>', 	// Sender address
+		to: accountInfo.email, 								// List of Receivers
+		subject: "Search Trade : Reset your password", 		// Subject line
+		text: text,											// Text
+		html: text
+	};
+	
+	mailer.sendmail(mailOptions);
 }
 
 // Send Email as Notification that Password is Changed Successfully
@@ -356,7 +358,121 @@ module.exports.secureRegister = function (req, res) {
                     return
                   }
 
-                  sendVerificationEmail(myInfo, flag) // Send Email to Registered Email Address For Account Verification
+                log.info(email+" Already exists");
+                master.sendResponse(req, res, 200, 2, "Email already in use");
+                return;
+            }
+
+            else // Fresh User
+            {
+                accountID = crypt.hashIt(email);
+                var referred_person_code = referral;
+
+                userSchema.find({my_referral_id:referred_person_code}).lean().exec(function(err, result){
+
+                    if(err)
+                    {
+                        log.error(err);
+                        master.sendResponse(req, res, 200, 5, "Database Error");
+                        return;
+                    }
+					
+					// Blank Referral
+					if(referred_person_code=="" || referred_person_code==null || referred_person_code==undefined)
+					{
+						referred_person_email = "";
+						stat = 0;
+					}
+					
+					else
+					{
+						// If No Referred Email Found
+						if(result.length<=0)
+						{
+							// Wrong Refferal
+							log.info('Wrong Affiliate Ref Code Entered');
+							master.sendResponse(req, res, 200, 18, "Wrong Affiliate Reference");
+							return;
+						}
+
+						// If Referral Is Provided
+						else
+						{
+							referred_person_email = result[0].email;
+							stat = 1;
+						}
+					}
+
+                    // Checking length of fname (If first Name is of less than 4 letters)
+                    if(first_name.length<4)				
+                    {
+                        var charlist = 'abcdefghijklmnopqrstuvwxyz';	// Character String Value need to generate Random Characters
+                        var diff = 4-first_name.length;	
+                        var randchar = "";
+                        for (var i=0; i<diff; i++)
+                        {
+                            randchar = randchar+charlist.charAt(Math.floor(Math.random() * charlist.length));	// Random Character function
+                        }
+
+                        refcode=first_name+randchar+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having less than 4 characters 	
+                    }
+
+                    // If length is Greter Or equal to 4
+                    else 
+                    {
+                        refcode=first_name.substr(0,4)+last_name.substr(0, 1);	// Referral Code Generated Here.... for firstname having greater than or equal to 4 characters 
+                    }
+
+                    refcode = refcode.toLowerCase();	// Convert Referral Code to LOWER CASE
+
+                    userSchema.find({my_referral_id:{$regex:refcode}}).lean().exec(function(err, result){
+
+                        if(err)
+                        {
+                            log.error(err);
+                            master.sendResponse(req, res, 200, 5, "Database Error");
+                            return;
+                        }
+
+                        if(result.length>0) // no of Results with Same Refcode
+                        {
+                            refcode = refcode+result.length;
+                        }
+
+                        else // Fresh Refcode
+                        {
+                            refcode=refcode;
+                        }
+
+                        // Making Object of myInfo
+                        var myInfo = new userSchema({
+                            _id: accountID,
+                            first_name : first_name.trim(),
+                            last_name : last_name.trim(),
+                            email : email.trim(),
+                            password : password,
+                            mobile_number : mobile_number,
+                            ref_email : referred_person_email,
+                            my_referral_id : refcode,
+                            seed : seed,
+                            creationTime : creationTime,
+                            salt : salt,
+                            country : country,
+                            first_buy_status: stat
+                        });
+
+
+                        myInfo.save(function(err){
+                            
+                            if(err)
+                            {
+                                log.error(err);
+                                master.sendResponse(req, res, 200, 5, "Database Error");
+                                return;
+                            }
+							
+                            sendVerificationEmail(myInfo, flag, rootUrl);   // Send Email to Registered Email Address For Account Verification
+                            
 
                   log.info('Saved SuccessFully')
                   master.sendResponse(req, res, 200, -1, 'Success')
@@ -636,8 +752,31 @@ module.exports.secureLogin = function (req, res) {
       master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
       return
     }
+	
+	// Validate Password
+	if(!(master.validateParameter(password, 'Password')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+    
+    var query = {publicKey:publicKey};
+    //var text  = "email="+encodeURIComponent(email)+"&password="+encodeURIComponent(password)+"&publicKey="+encodeURIComponent(publicKey);
+    var text  = "email="+email+"&password="+password+"&publicKey="+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+		
+		if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com")
+		{
+			email = email;
+		}
 
-    email = email.toLowerCase()
 
     userSchema.find({email: email}).lean().exec(function (err, results) {
       if (err) {
@@ -2948,7 +3087,7 @@ module.exports.rejectBlockedBids = function (req, res) {
           for (var j = 0; j < value; j++) {
             var singleJson = json[j].split('/')
 
-            var bidRetEmail = singleJson[1] // Storing Email 
+                        var bidRetEmail = singleJson[1];        // Storing Email 
 
             var bidRetAmount = singleJson[3] // Storing Amount
 
@@ -2967,15 +3106,25 @@ module.exports.rejectBlockedBids = function (req, res) {
                 return
               }
 
-              // Error In Updating Blocked Bids
-              if (!val) {
-                value = i
-                emailValue = bidRetEmail
-                callback()
-              } else {
-                if (value == length - i) {
-                  value = 'Success'
-                  callback()
+                        
+                            // Error In Updating Blocked Bids
+                            if(!val)
+                            {
+                                value = i;
+                                emailValue = bidRetEmail;
+                                callback();
+                            }
+
+                            else
+                            {
+                                if(value == length-i)
+                                {
+                                    value = "Success";
+                                    callback();
+                                }
+                            }
+
+                        });
                 }
               }
             })
@@ -3061,79 +3210,5 @@ module.exports.refCode = function (req, res) {
         })
       })
     })
-  })
-}
-
-/*============================= Send PHP Email =============================*/
-
-module.exports.sendPHPmail = function (req, res) {
-  log.info('Page Name : user.js')
-  log.info('API Name : sendPHPmail')
-  log.info('Send PHP Email API Hitted')
-  log.info('Parameter Receiving..')
-
-  var to = req.body.to
-  var subject = req.body.subject
-  var email_body = req.body.email_body
-
-  var notification_code = req.body.notification_code
-  var notification_body = req.body.notification_body
-
-  var publicKey = req.body.publicKey
-  var signature = req.body.signature
-
-  console.log('To : ' + to)
-  console.log('Subject : ' + subject)
-  console.log('Email Body : ' + email_body)
-  console.log('Notification Code : ' + notification_code)
-  console.log('Notification Body : ' + notification_body)
-
-  var notifyconfigs = [
-    {path: 'notify_options_fk_key.buy_opt_container', model: 'BuyKeywordsOption'},
-    {path: 'notify_options_fk_key.ask_opt_container', model: 'AskKeywordsOption'},
-    {path: 'notify_options_fk_key.bid_opt_container', model: 'BidKeywordsOption'}
-  ]
-
-  // Find and Update User's Blocked For Bids
-  userSchema.find({email: to}).populate('notify_options_fk_key').exec(function (err, result) {
-    if (err) {
-      log.error(err)
-      master.sendResponse(req, res, 200, 5, 'Database Error')
-      return
-    }
-
-    if (result == null || result == '') // Email Not Found
-    {
-      log.info(to + ' Not Registered')
-      master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.')
-      return
-    }
-
-    // var notification = result[0].notify_options_fk_key
-
-    // Notification Code Spliting
-    notification_code = notification_code.split('&')
-    var notification_token = notification_code[1]
-    var notification_message = notification_code[0]
-    console.log('Notification Token : ' + notification_token)
-    console.log('Notification Message : ' + notification_message)
-
-    var notification = result[0].notify_options_fk_key
-    console.log(notification)
-
-    if (notification.notification_message == [] || notification.notification_message) {
-    }
-
-    // if(notification_id == "" || notification_id == undefined || notification_id == null)
-    // {
-    // log.info('Notifications are Stopped From User')
-    // master.sendResponse(req, res, 200, -1, "Success")
-    // }
-
-    // Method Part will be added here
-
-    // log.info('Notification Status is '+result[0].notification_status+' For '+email)
-    // master.sendResponse(req, res, 200, -1, {notification_status:result[0].notification_status, user_id:result[0]._id})
-
   })
 }
