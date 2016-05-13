@@ -64,7 +64,8 @@ function sendRestEmail(accountInfo, flag, rootUrl){
   
 	if(flag == '1') // For Web
 	{
-		var url= rootUrl+"forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		//var url= rootUrl+"forgetpwd.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag;
+		var url= rootUrl+"index.php?auth="+vhash+"&email="+encodeURIComponent(accountInfo.email)+"&flag="+flag+'#forgotPasswordEmailDialog';
 	}
   
 	if(flag == '2')	// For Wallet
@@ -362,9 +363,9 @@ module.exports.secureRegister = function (req, res) {
                         // Making Object of myInfo
                         var myInfo = new userSchema({
                             _id: accountID,
-                            first_name : first_name,
-                            last_name : last_name,
-                            email : email,
+                            first_name : first_name.trim(),
+                            last_name : last_name.trim(),
+                            email : email.trim(),
                             password : password,
                             mobile_number : mobile_number,
                             ref_email : referred_person_email,
@@ -727,8 +728,15 @@ module.exports.secureLogin = function(req, res){
             return;
         }
 		
-		email = email.toLowerCase();
-    
+		if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com")
+		{
+			email = email;
+		}
+		else
+		{
+			email = email.toLowerCase();
+		}
+		
         userSchema.find({email:email}).lean().exec(function(err, results){
 
             if(err)
