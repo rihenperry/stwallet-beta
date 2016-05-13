@@ -1,12 +1,16 @@
 /* notification options for user model */
 var mongoose = require('mongoose')
 var async = require('async')
+var util = require('util')
 
 var Usr = mongoose.model('user')
 var NotifyOption = mongoose.model('NotifyOption')
 var BuyOption = mongoose.model('BuyKeywordsOption')
 var AskOption = mongoose.model('AskKeywordsOption')
 var BidOption = mongoose.model('BidKeywordsOption')
+var KwdLicenseOption = mongoose.model('KwdLicenseOption')
+var DepositOption = mongoose.model('DepositOption')
+var WithdrawalOption = mongoose.model('WithdrawalOption')
 var NotifyPerm = mongoose.model('NotifyPerm')
 
 var helpers = require('../helpers/utils')
@@ -50,6 +54,39 @@ var getAllSubOptions = function (req, res) {
             cb(null, container)
           })
       },
+      kwdlicense: function(cb) {
+        KwdLicenseOption
+                   .find()
+                   .exec(function (err, container) {
+                     if (err) {
+                       log.info({err: err})
+                       helpers.sendJsonResponse(res, 404, 5, err)
+                     }
+                     cb(null, container)
+                   })
+      },
+      deposit: function(cb) {
+        DepositOption
+                    .find()
+                    .exec(function (err, container) {
+                      if (err) {
+                        log.info({err: err})
+                        helpers.sendJsonResponse(res, 404, 5, err)
+                      }
+                      cb(null, container)
+                    })
+      },
+      withdrawal: function(cb) {
+        WithdrawalOption
+                       .find()
+                       .exec(function (err, container) {
+                         if (err) {
+                           log.info({err: err})
+                           helpers.sendJsonResponse(res, 404, 5, err)
+                         }
+                         cb(null, container)
+                       })
+      },
       perms: function (cb) {
         NotifyPerm
           .find()
@@ -80,7 +117,13 @@ var getUserSubOptions = function (req, res) {
     {path: 'notify_options_fk_key.ask_opt_container.option', model: 'AskKeywordsOption'},
     {path: 'notify_options_fk_key.ask_opt_container.permissions', model: 'NotifyPerm'},
     {path: 'notify_options_fk_key.bid_opt_container.option', model: 'BidKeywordsOption'},
-    {path: 'notify_options_fk_key.bid_opt_container.permissions', model: 'NotifyPerm'}
+    {path: 'notify_options_fk_key.bid_opt_container.permissions', model: 'NotifyPerm'},
+    {path: 'notify_options_fk_key.kwd_license_opt_container.option', model: 'KwdLicenseOption'},
+    {path: 'notify_options_fk_key.kwd_license_opt_container.permissions', model: 'NotifyPerm'},
+    {path: 'notify_options_fk_key.deposit_opt_container.option', model: 'DepositOption'},
+    {path: 'notify_options_fk_key.deposit_opt_container.permissions', model: 'NotifyPerm'},
+    {path: 'notify_options_fk_key.withdrawal_opt_container.option', model: 'WithdrawalOption'},
+    {path: 'notify_options_fk_key.withdrawal_opt_container.permissions', model:'NotifyPerm'}
   ]
 
   var id = req.params.id
@@ -152,12 +195,24 @@ var createUserSubOptions = function (req, res) {
   var id = req.params.id
   var publicKey = req.body.publicKey || req.query.publicKey
   var signature = req.body.signature || req.query.signature
+
   var buy_container = req.body.buy_container
-  var ask_container = req.body.ask_container
-  var bid_container = req.body.bid_container
   var buy_perm_code = req.body.buy_perm_code
+
+  var ask_container = req.body.ask_container
   var ask_perm_code = req.body.ask_perm_code
+
+  var bid_container = req.body.bid_container
   var bid_perm_code = req.body.bid_perm_code
+
+  var kwd_license_container = req.body.kwd_license_container
+  var kwd_license_perm_code = req.body.kwd_license_perm_code
+
+  var deposit_container = req.body.deposit_container
+  var deposit_perm_code = req.body.deposit_perm_code
+
+  var withdrawal_container = req.body.withdrawal_container
+  var withdrawal_perm_code = req.body.withdrawal_perm_code
 
   log.info('Id : ' + id)
   log.info('Public Key : ' + publicKey)
@@ -166,10 +221,16 @@ var createUserSubOptions = function (req, res) {
   log.info('Buy Options : ' + buy_container)
   log.info('Ask Options : ' + ask_container)
   log.info('Bid Options : ' + bid_container)
+  log.info('kwd license Options : ' + kwd_license_container)
+  log.info('deposit Options : ' + deposit_container)
+  log.info('withdrawal Options : ' + withdrawal_container)
 
   log.info('Buy perm : ' + buy_perm_code)
   log.info('Ask perm : ' + ask_perm_code)
   log.info('Bid perm : ' + bid_perm_code)
+  log.info('kwd license perm : ' + kwd_license_perm_code)
+  log.info('deposit perm : ' + deposit_perm_code)
+  log.info('withdrawal perm : ' + withdrawal_perm_code)
 
   // Validate Public Key
   if (!(master.validateParameter(publicKey, 'Public Key'))) {
@@ -186,7 +247,8 @@ var createUserSubOptions = function (req, res) {
   var query = {publicKey: publicKey}
   // var text  = 'id='+encodeURIComponent(id)+'&buy_container='+encodeURIComponent(buy_container)+'&ask_container='+encodeURIComponent(ask_container)+'&bid_container='+encodeURIComponent(bid_container)+'&publicKey='+encodeURIComponent(publicKey)
 
-  var text = 'id=' + id + '&buy_container=' + buy_container + '&ask_container=' + ask_container + '&bid_container=' + bid_container + '&buy_perm_code=' + buy_perm_code + '&ask_perm_code=' + ask_perm_code + '&bid_perm_code=' + bid_perm_code + '&publicKey=' + publicKey
+  var text = 'id=' + id + '&buy_container=' + buy_container + '&ask_container=' + ask_container + '&bid_container=' + bid_container + '&buy_perm_code=' + buy_perm_code + '&ask_perm_code=' + ask_perm_code + '&bid_perm_code=' + bid_perm_code +
+           '&kwd_license_container=' + kwd_license_container + '&deposit_container=' + deposit_container + '&withdrawal_container='+ withdrawal_container + '&kwd_license_perm_code='+ kwd_license_perm_code+'&deposit_perm_code='+ deposit_perm_code+'&withdrawal_perm_code='+ withdrawal_perm_code+'&publicKey=' + publicKey
 
   master.secureAuth(query, text, signature, function (result) {
     if (result[0].error == true || result[0].error == 'true') {
@@ -224,7 +286,7 @@ var createUserSubOptions = function (req, res) {
           var updateoptions = null
           var options = common.processOptions(req, updateoptions)
 
-          options.save(function (err) {
+          options.save(function (err, optionObj) {
             if (err) {
               log.error(err)
               helpers.sendJsonResponse(res, 404, 5, err)
@@ -232,7 +294,7 @@ var createUserSubOptions = function (req, res) {
             }
 
             /* update the notify options foreign key in users table */
-            updateuser.notify_options_fk_key = options._id
+            updateuser.notify_options_fk_key = optionObj._id
 
             updateuser.save(function (err, newuser) {
               if (err) {
@@ -257,7 +319,7 @@ var createUserSubOptions = function (req, res) {
  */
 var createUserDefaultNotifyObj = function (req, next) {
   /* initialize options for new user */
-  var updateOptions = null
+  var updateoptions = null
   var options = common.processOptions(req, updateOptions)
 
   options.save(function (err) {
@@ -276,13 +338,22 @@ var updateUserSubOptions = function (req, res) {
   var publicKey = req.body.publicKey || req.query.publicKey
   var signature = req.body.signature || req.query.signature
   var buy_container = req.body.buy_container
-  var ask_container = req.body.ask_container
-  var bid_container = req.body.bid_container
-
   var buy_perm_code = req.body.buy_perm_code
+
+  var ask_container = req.body.ask_container
   var ask_perm_code = req.body.ask_perm_code
+
+  var bid_container = req.body.bid_container
   var bid_perm_code = req.body.bid_perm_code
 
+  var kwd_license_container = req.body.kwd_license_container
+  var kwd_license_perm_code = req.body.kwd_license_perm_code
+
+  var deposit_container = req.body.deposit_container
+  var deposit_perm_code = req.body.deposit_perm_code
+
+  var withdrawal_container = req.body.withdrawal_container
+  var withdrawal_perm_code = req.body.withdrawal_perm_code
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
   log.info('user id: ' + id)
@@ -291,10 +362,17 @@ var updateUserSubOptions = function (req, res) {
   log.info('Buy Options : ' + buy_container)
   log.info('Ask Options : ' + ask_container)
   log.info('Bid Options : ' + bid_container)
+  log.info('kwd license Options : ' + kwd_license_container)
+  log.info('deposit Options : ' + deposit_container)
+  log.info('withdrawal Options : ' + withdrawal_container)
 
   log.info('Buy perm : ' + buy_perm_code)
   log.info('Ask perm : ' + ask_perm_code)
   log.info('Bid perm : ' + bid_perm_code)
+  log.info('kwd license perm : ' + kwd_license_perm_code)
+  log.info('deposit perm : ' + deposit_perm_code)
+  log.info('withdrawal perm : ' + withdrawal_perm_code)
+
   // Validate Public Key
   if (!(master.validateParameter(publicKey, 'Public Key'))) {
     master.sendResponse(req, res, 404, 1, 'Mandatory field not found')
@@ -323,7 +401,8 @@ var updateUserSubOptions = function (req, res) {
   var query = {publicKey: publicKey}
   // var text  = 'id='+encodeURIComponent(id)+'&optionid='+encodeURIComponent(optionid)+'&buy_container='+encodeURIComponent(buy_container)+'&ask_container='+encodeURIComponent(ask_container)+'&bid_container='+encodeURIComponent(bid_container)+'&publicKey='+encodeURIComponent(publicKey)
 
-  var text = 'id=' + id + '&optionid=' + optionid + '&buy_container=' + buy_container + '&ask_container=' + ask_container + '&bid_container=' + bid_container + '&buy_perm_code=' + buy_perm_code + '&ask_perm_code=' + ask_perm_code + '&bid_perm_code=' + bid_perm_code + '&publicKey=' + publicKey
+  var text = 'id=' + id + '&optionid=' + optionid + '&buy_container=' + buy_container + '&ask_container=' + ask_container + '&bid_container=' + bid_container + '&buy_perm_code=' + buy_perm_code + '&ask_perm_code=' + ask_perm_code + '&bid_perm_code=' + bid_perm_code + '&kwd_license_container=' + kwd_license_container + '&deposit_container=' + deposit_container + '&withdrawal_container='+ withdrawal_container + '&kwd_license_perm_code='+ kwd_license_perm_code+'&deposit_perm_code='+ deposit_perm_code+'&withdrawal_perm_code='+ withdrawal_perm_code+'&publicKey=' + publicKey
+
   master.secureAuth(query, text, signature, function (result) {
     if (result[0].error == true || result[0].error == 'true') {
       master.sendResponse(req, res, 404, result[0].errCode, result[0].message)
@@ -368,9 +447,6 @@ var updateUserSubOptions = function (req, res) {
               helpers.sendJsonResponse(res, 404, 5, err)
             }
 
-            updateNotifyObj.buy_opt_container = []
-            updateNotifyObj.ask_opt_container = []
-            updateNotifyObj.bid_opt_container = []
             updateNotifyObj.updated_on = Date.now()
 
             var options = common.processOptions(req, updateNotifyObj)
