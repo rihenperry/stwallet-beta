@@ -492,21 +492,21 @@ module.exports.getExpenceTransactions = function(req, res) {
 				// No Transaction
 				if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0)
 				{	
+					log.info('No Transactions');
+					master.sendResponse(req, res, 200, -1, 'No Transactions');
+					return;
+				}
+				
+				// Transactions Found
+				log.info('Transaction Found Successfully');
+				master.sendResponse(req, res, 200, -1, retTrans);
+				return;
+			
+			})
+		}
+    		
+	});
 
-        // No Transaction
-        if (retTrans === 'undefined' || retTrans == null || retTrans.length <= 0) {
-          log.info('No Transactions')
-          master.sendResponse(req, res, 200, -1, 'No Transactions')
-          return
-        }
-
-        // Transactions Found
-        log.info('Transaction Found Successfully')
-        master.sendResponse(req, res, 200, -1, retTrans)
-        return
-      })
-    }
-  })
 }
 
 /* Get Active Emails */
@@ -993,69 +993,71 @@ module.exports.setUserBalance = function (req, res) {
 }
 
 /* Get Email Type transaction */
-module.exports.getEmailTypeTransactions = function (req, res) {
-  log.info('Page Name: admin.js.')
-  log.info('API Name : getEmailTypeTransactions')
-  log.info('Email Type Transaction API Hitted')
-  log.info('Parameters Receiving...')
+module.exports.getEmailTypeTransactions = function(req, res){
 
-  var email = req.body.email
-  var type = req.body.type
-  var skip = req.body.skip
-  var publicKey = req.body.publicKey
-  var signature = req.body.signature
+	log.info('Page Name: admin.js.');
+	log.info('API Name : getEmailTypeTransactions');
+	log.info('Email Type Transaction API Hitted');
+	log.info('Parameters Receiving...');
 
-  log.info('Email : ' + email)
-  log.info('Type : ' + type)
-  log.info('Skip :' + skip)
-  log.info('Public Key : ' + publicKey)
-  log.info('Signature : ' + signature)
+	var email = req.body.email;
+	var type = req.body.type;
+	var skip = req.body.skip;
+	var publicKey = req.body.publicKey;
+	var signature = req.body.signature;
+	
+	log.info('Email : '+email);
+	log.info('Type : '+type);
+    log.info('Skip :'+skip);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
+	
+	// Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if(!(master.validateParameter(email, 'Email')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
 
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(master.validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(type, 'Type'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  var query = {'publicKey': publicKey}
-  // var text = "email="+encodeURIComponent(email)+"&type="+encodeURIComponent(type)+"&skip="+encodeURIComponent(skip)+"&publicKey="+encodeURIComponent(publicKey)
-  var text = 'email=' + email + '&type=' + type + '&skip=' + skip + '&publicKey=' + publicKey
-
-  master.secureAuth(query, text, signature, function (result) {
-    if (result[0].error == true || result[0].error == 'true') {
-      master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
-      return
+	if(!(master.validateEmail(email))) 
+	{
+		log.info('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
     }
 
-    if (type == 'All') {
-      var query = {$or: [{'sender': email}, {'receiver': email}]}
-    } else {
-      var query = {$and: [{$or: [{'sender': email}, {'receiver': email}]}, {'type': type}]}
-    }
+	// Validate Signature
+	if(!(master.validateParameter(type, 'Type')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	var query = {'publicKey': publicKey};
+	//var text = "email="+encodeURIComponent(email)+"&type="+encodeURIComponent(type)+"&skip="+encodeURIComponent(skip)+"&publicKey="+encodeURIComponent(publicKey);
+    var text = "email="+email+"&type="+type+"&skip="+skip+"&publicKey="+publicKey;
+	
+	master.secureAuth(query, text, signature, function (result){
+		
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
 
         if(type == "All")
         {
@@ -1093,7 +1095,7 @@ module.exports.getEmailTypeTransactions = function (req, res) {
         });
 			
     })
-  })
+		
 }
 
 /* Update User Status */

@@ -319,7 +319,7 @@ var createUserSubOptions = function (req, res) {
  */
 var createUserDefaultNotifyObj = function (req, next) {
   /* initialize options for new user */
-  var updateoptions = null
+  var updateOptions = null
   var options = common.processOptions(req, updateOptions)
 
   options.save(function (err) {

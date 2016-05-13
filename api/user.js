@@ -134,230 +134,149 @@ function resettedConfirmation (accountInfo) {
 /*============================= Register User =============================*/
 
 module.exports.secureRegister = function (req, res) {
-  log.info('Page Name : user.js')
-  log.info('API Name : secureRegister')
-  log.info('Secure Register API Hitted')
-  log.info('Parameters Receiving..')
+   
+    log.info('Page Name : user.js');
+	log.info('API Name : secureRegister');
+	log.info('Secure Register API Hitted');
+	log.info('Parameters Receiving..');
+    
+    var first_name         = req.body.first_name;
+    var last_name          = req.body.last_name;
+    var email              = req.body.email;
+    var password           = req.body.password;
+    var confirm_password   = req.body.confirm_password;
+    var country            = req.body.country;
+    var flag               = req.body.flag;
+    var mobile_number      = req.body.mobile_number;
+    var referral           = req.body.referral;
+	var rootUrl			   = req.body.rootUrl;
+    var publicKey          = req.body.publicKey;
+    var signature          = req.body.signature;
+        
+    var creationTime = Date.now();
+    var accountID;
+    var referred_person_email;
+    var stat;
+    var refcode;
+    var txt = "";
+    var salt = "";
+    var seed = crypt.hashIt(Math.random() * creationTime);
+    
+    log.info('First Name :' + first_name);
+	log.info('Last Name :' + last_name);
+	log.info('Email : ' + email);
+	log.info('Password : ' + password);
+    log.info('Confirm Password : ' + confirm_password);
+    log.info('Country :' + country);
+    log.info('Flag : ' + flag);
+    log.info('Mobile Number : ' + mobile_number);
+    log.info('Refferal : ' + referral);
+    log.info('URL : ' + rootUrl);
+    log.info('Public Key : '+publicKey);
+    log.info('Signature : '+signature);
+    
+    // Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
 
-  var first_name = req.body.first_name
-  var last_name = req.body.last_name
-  var email = req.body.email
-  var password = req.body.password
-  var confirm_password = req.body.confirm_password
-  var country = req.body.country
-  var flag = req.body.flag
-  var mobile_number = req.body.mobile_number
-  var referral = req.body.referral
-  var rootUrl = req.body.rootUrl
-  var publicKey = req.body.publicKey
-  var signature = req.body.signature
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if (!(master.validateParameter(email, 'Email')))
+    {
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
 
-  var creationTime = Date.now()
-  var accountID
-  var referred_person_email
-  var stat
-  var refcode
-  var txt = ''
-  var salt = ''
-  var seed = crypt.hashIt(Math.random() * creationTime)
-
-  log.info('First Name :' + first_name)
-  log.info('Last Name :' + last_name)
-  log.info('Email : ' + email)
-  log.info('Password : ' + password)
-  log.info('Confirm Password : ' + confirm_password)
-  log.info('Country :' + country)
-  log.info('Flag : ' + flag)
-  log.info('Mobile Number : ' + mobile_number)
-  log.info('Refferal : ' + referral)
-  log.info('URL : ' + rootUrl)
-  log.info('Public Key : ' + publicKey)
-  log.info('Signature : ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
-  // Validate Password And Repeat Password
-  if (password == '' || password == null || confirm_password == '' || confirm_password == null) {
-    log.info('Any of Password Field is Missing')
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  else if (password == confirm_password) {
-    if (password.length < 6) {
-      log.info('Your Password Is Less Than Six Characters')
-      master.sendResponse(req, res, 200, 20, 'Your password should be of minimum six characters')
-      return
-    } else {
-      // Use in Final Match
-      var chars = '0123456789abcdefghijklmnopqrstuvwxyz'
-      for (var i = 12; i > 0; --i) {
-        salt += chars[Math.round(Math.random() * (chars.length - 1))]
-      }
-
-      log.info('Salt :' + salt)
-      password = crypt.hashIt(salt + password)
+	if (!(validateEmail(email)))
+    {
+		log.info('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
     }
-  } else {
-    log.info('Passwords Are Not Matching')
-    master.sendResponse(req, res, 200, 6, 'Passwords Are Not Matching')
-    return
-  }
+    
+    // Validate Password And Repeat Password
+	if(password == "" || password == null || confirm_password == "" || confirm_password == null)
+	{
+		log.info('Any of Password Field is Missing');
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	else if(password == confirm_password)
+	{
+		if(password.length<6)
+		{
+			log.info('Your Password Is Less Than Six Characters');
+			master.sendResponse(req, res, 200, 20, "Your password should be of minimum six characters");
+			return;   
+		}
+		
+		else
+		{
+			// Use in Final Match
+			var chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+			for(var i = 12; i > 0; --i) 
+			{
+				salt += chars[Math.round(Math.random() * (chars.length - 1))];
+			}
+			
+			log.info('Salt :'+salt);
+			password = crypt.hashIt(salt+password);
+		}
+	}
+	else
+	{
+		log.info('Passwords Are Not Matching');
+		master.sendResponse(req, res, 200, 6, "Passwords Are Not Matching");
+		return;
+	}
+	
+	// Validate Country
+	if(country == "Select Country")
+	{
+		log.info('Country Not Selected');
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+    
+    var query = {publicKey:publicKey};
+    //var text  = 'first_name='+encodeURIComponent(first_name)+'&last_name='+encodeURIComponent(last_name)+'&email='+encodeURIComponent(email)+'&password='+encodeURIComponent(req.body.password)+'&confirm_password='+encodeURIComponent(confirm_password)+'&country='+encodeURIComponent(country)+'&mobile_number='+encodeURIComponent(mobile_number)+'&referral='+encodeURIComponent(referral)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey);
+    
+    var text  = 'first_name='+first_name+'&last_name='+last_name+'&email='+email+'&password='+req.body.password+'&confirm_password='+confirm_password+'&country='+country+'&mobile_number='+mobile_number+'&referral='+referral+'&flag='+flag+'&publicKey='+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
+         
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+    
+        email = email.toLowerCase();
+        
+        // Find Existance of User
+        userSchema.find({email:email}).lean().exec(function(err, result){
 
-  // Validate Country
-  if (country == 'Select Country') {
-    log.info('Country Not Selected')
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  var query = {publicKey: publicKey}
-  // var text  = 'first_name='+encodeURIComponent(first_name)+'&last_name='+encodeURIComponent(last_name)+'&email='+encodeURIComponent(email)+'&password='+encodeURIComponent(req.body.password)+'&confirm_password='+encodeURIComponent(confirm_password)+'&country='+encodeURIComponent(country)+'&mobile_number='+encodeURIComponent(mobile_number)+'&referral='+encodeURIComponent(referral)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey)
-
-  var text = 'first_name=' + first_name + '&last_name=' + last_name + '&email=' + email + '&password=' + req.body.password + '&confirm_password=' + confirm_password + '&country=' + country + '&mobile_number=' + mobile_number + '&referral=' + referral + '&flag=' + flag + '&publicKey=' + publicKey
-
-  master.secureAuth(query, text, signature, function (result) {
-    if (result[0].error == true || result[0].error == 'true') {
-      master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
-      return
-    }
-
-    email = email.toLowerCase()
-
-    // Find Existance of User
-    userSchema.find({email: email}).lean().exec(function (err, result) {
-      if (err) {
-        log.error(err)
-        master.sendResponse(req, res, 200, 5, 'Database Error')
-        return
-      }
-
-      log.info('Result : ' + result)
-
-      if (result.length > 0) // Already Exists
-      {
-        log.info(email + ' Already exists')
-        master.sendResponse(req, res, 200, 2, 'Email already in use')
-        return
-      } else // Fresh User
-      {
-        accountID = crypt.hashIt(email)
-        var referred_person_code = referral
-
-        userSchema.find({my_referral_id: referred_person_code}).lean().exec(function (err, result) {
-          if (err) {
-            log.error(err)
-            master.sendResponse(req, res, 200, 5, 'Database Error')
-            return
-          }
-
-          // Blank Referral
-          if (referred_person_code == '' || referred_person_code == null || referred_person_code == undefined) {
-            referred_person_email = ''
-            stat = 0
-          } else {
-            // If No Referred Email Found
-            if (result.length <= 0) {
-              // Wrong Refferal
-              log.info('Wrong Affiliate Ref Code Entered')
-              master.sendResponse(req, res, 200, 18, 'Wrong Affiliate Reference')
-              return
-            }
-
-            // If Referral Is Provided
-            else {
-              referred_person_email = result[0].email
-              stat = 1
-            }
-          }
-
-          // Checking length of fname (If first Name is of less than 4 letters)
-          if (first_name.length < 4) {
-            var charlist = 'abcdefghijklmnopqrstuvwxyz' // Character String Value need to generate Random Characters
-            var diff = 4 - first_name.length
-            var randchar = ''
-            for (var i = 0; i < diff; i++) {
-              randchar = randchar + charlist.charAt(Math.floor(Math.random() * charlist.length)) // Random Character function
-            }
-
-            refcode = first_name + randchar + last_name.substr(0, 1); // Referral Code Generated Here.... for firstname having less than 4 characters 	
-          }
-
-          // If length is Greter Or equal to 4
-          else {
-            refcode = first_name.substr(0, 4) + last_name.substr(0, 1); // Referral Code Generated Here.... for firstname having greater than or equal to 4 characters 
-          }
-
-          refcode = refcode.toLowerCase() // Convert Referral Code to LOWER CASE
-
-          userSchema.find({my_referral_id: {$regex: refcode}}).lean().exec(function (err, result) {
-            if (err) {
-              log.error(err)
-              master.sendResponse(req, res, 200, 5, 'Database Error')
-              return
-            }
-
-            if (result.length > 0) // no of Results with Same Refcode
+            if(err)
             {
-              refcode = refcode + result.length
-            } else // Fresh Refcode
-            {
-              refcode = refcode
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
             }
 
-            notify.createUserDefaultNotifyObj(req, function (err, optionID) {
-              if (err) {
-                log.error(err)
-                master.sendResponse(req, res, 200, 5, err)
-                return
-              } else {
-                // Making Object of myInfo
-                var myInfo = new userSchema({
-                  _id: accountID,
-                  first_name: first_name,
-                  last_name: last_name,
-                  email: email,
-                  password: password,
-                  mobile_number: mobile_number,
-                  ref_email: referred_person_email,
-                  my_referral_id: refcode,
-                  seed: seed,
-                  creationTime: creationTime,
-                  salt: salt,
-                  country: country,
-                  first_buy_status: stat,
-                  notify_options_fk_key: optionID
-                })
+            log.info('Result : '+result);
 
-                myInfo.save(function (err) {
-                  if (err) {
-                    log.error(err)
-                    master.sendResponse(req, res, 200, 5, 'Database Error')
-                    return
-                  }
-
+            if(result.length>0) // Already Exists
+            {
                 log.info(email+" Already exists");
                 master.sendResponse(req, res, 200, 2, "Email already in use");
                 return;
@@ -444,46 +363,60 @@ module.exports.secureRegister = function (req, res) {
                             refcode=refcode;
                         }
 
-                        // Making Object of myInfo
-                        var myInfo = new userSchema({
-                            _id: accountID,
-                            first_name : first_name.trim(),
-                            last_name : last_name.trim(),
-                            email : email.trim(),
-                            password : password,
-                            mobile_number : mobile_number,
-                            ref_email : referred_person_email,
-                            my_referral_id : refcode,
-                            seed : seed,
-                            creationTime : creationTime,
-                            salt : salt,
-                            country : country,
-                            first_buy_status: stat
-                        });
-
-
-                        myInfo.save(function(err){
-                            
-                            if(err)
-                            {
-                                log.error(err);
-                                master.sendResponse(req, res, 200, 5, "Database Error");
-                                return;
-                            }
+						notify.createUserDefaultNotifyObj(req, function (err, optionID) {
+						  if (err) {
+							log.error(err)
+							master.sendResponse(req, res, 200, 5, err)
+							return
+						  }
+						  
+						  // Making Object of myInfo
+							var myInfo = new userSchema({
+								_id: accountID,
+								first_name : first_name.trim(),
+								last_name : last_name.trim(),
+								email : email.trim(),
+								password : password,
+								mobile_number : mobile_number,
+								ref_email : referred_person_email,
+								my_referral_id : refcode,
+								seed : seed,
+								creationTime : creationTime,
+								salt : salt,
+								country : country,
+								first_buy_status: stat,
+								notify_options_fk_key: optionID
+							});
 							
-                            sendVerificationEmail(myInfo, flag, rootUrl);   // Send Email to Registered Email Address For Account Verification
+							
+							myInfo.save(function(err){
                             
+								if(err)
+								{
+									log.error(err);
+									master.sendResponse(req, res, 200, 5, "Database Error");
+									return;
+								}
+								
+								sendVerificationEmail(myInfo, flag, rootUrl);   // Send Email to Registered Email Address For Account Verification
+								
+								log.info('Saved SuccessFully');
+								master.sendResponse(req, res, 200, -1, "Success");
 
-                  log.info('Saved SuccessFully')
-                  master.sendResponse(req, res, 200, -1, 'Success')
+							});
+							
+						  
+						})
+
+                    })
+
                 })
-              }
-            })
-          })
+            }
+
         })
-      }
+        
     })
-  })
+    
 }
 
 /*============================= Verify =============================*/
@@ -697,60 +630,49 @@ exports.secureResendVerification = function (req, res) {
 
 /*============================= Secure Login =============================*/
 
-module.exports.secureLogin = function (req, res) {
-  log.info('Page Name : user.js')
-  log.info('API Name : secureLogin')
-  log.info('Secure Login API Hitted')
-  log.info('Parameters Receiving..')
+module.exports.secureLogin = function(req, res){
+    
+	log.info('Page Name : user.js');
+	log.info('API Name : secureLogin');
+	log.info('Secure Login API Hitted');
+	log.info('Parameters Receiving..');
+    
+    var email       = req.body.email;
+	var password    = req.body.password;
+	var publicKey   = req.body.publicKey;
+	var signature   = req.body.signature;
+    
+    log.info('Email : '+email);
+	log.info('Password : '+password);
+	log.info('Public Key : '+publicKey);
+	log.info('Signature : '+signature);
+    
+	// Validate Public Key
+	if(!(master.validateParameter(publicKey, 'Public Key')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
 
-  var email = req.body.email
-  var password = req.body.password
-  var publicKey = req.body.publicKey
-  var signature = req.body.signature
+	// Validate Signature
+	if(!(master.validateParameter(signature, 'Signature')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
+	
+	// Validate Email
+	if(!(master.validateParameter(email, 'Email')))
+	{
+		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+		return;
+	}
 
-  log.info('Email : ' + email)
-  log.info('Password : ' + password)
-  log.info('Public Key : ' + publicKey)
-  log.info('Signature : ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
-  // Validate Password
-  if (!(master.validateParameter(password, 'Password'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  var query = {publicKey: publicKey}
-  // var text  = "email="+encodeURIComponent(email)+"&password="+encodeURIComponent(password)+"&publicKey="+encodeURIComponent(publicKey)
-  var text = 'email=' + email + '&password=' + password + '&publicKey=' + publicKey
-
-  master.secureAuth(query, text, signature, function (result) {
-    if (result[0].error == true || result[0].error == 'true') {
-      master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
-      return
+	if(!(validateEmail(email))) 
+	{
+		log.info('Incorrect Email Format');
+		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
+		return;
     }
 	
 	// Validate Password
@@ -776,97 +698,116 @@ module.exports.secureLogin = function (req, res) {
 		{
 			email = email;
 		}
+		else
+		{
+			email = email.toLowerCase();
+		}
+		
+        userSchema.find({email:email}).lean().exec(function(err, results){
 
+            if(err)
+            {
+                log.error(err);
+                master.sendResponse(req, res, 200, 5, "Database Error");
+                return;
+            }
 
-    userSchema.find({email: email}).lean().exec(function (err, results) {
-      if (err) {
-        log.error(err)
-        master.sendResponse(req, res, 200, 5, 'Database Error')
-        return
-      }
+            if(results==null || results=="") // Email Not Found
+            {
+                log.info(email+" Not Registered");
+                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+                return;
+            }
 
-      if (results == null || results == '') // Email Not Found
-      {
-        log.info(email + ' Not Registered')
-        master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.')
-        return
-      } else {
-        var hashpass = crypt.hashIt((results[0].salt) + password)
-        if (hashpass === results[0].password) {
-          if (!results[0].active) {
-            log.info('Account is Not Active')
-            master.sendResponse(req, res, 200, 3, 'Account is not active')
-            return
-          }
+            else
+            {
+                var hashpass = crypt.hashIt((results[0].salt)+password);
 
-          var currentTIme = Date.now()
-
-          if (!results[0].notify_options_fk_key) {
-            notify.createUserDefaultNotifyObj(req, function (err, optionID) {
-              if (err) {
-                log.error(err)
-                master.sendResponse(req, res, 200, 5, err)
-                return
-              }
-
-              log.info('initializing default user preferences')
-              log.info('optionID ->', optionID)
-              userSchema.findOneAndUpdate({email: email}, {$set: {lastLogin: currentTIme, notify_options_fk_key: optionID}, $inc: {noOfLogins: 1}}, {new: true}).lean().exec(function (err, result) {
-                // userSchema.findOneAndUpdate({email:email},
-                //                             {$set:{lastLogin: currentTIme, notify_options_fk_key: optionID},
-                //                              $inc:{noOfLogins:1}},
-                //                             {new: true},
-                //                             function(err, result){
-                if (err) {
-                  log.error(err)
-                  master.sendResponse(req, res, 200, 5, 'Database Error')
-                  return
-                }
-
-                if (result == null || result == '') // Email Not Found
+                if(hashpass === results[0].password)
                 {
-                  log.info('Error In Login')
-                  master.sendResponse(req, res, 200, 5, 'Datbase Error')
-                  return
-                } else {
-                  log.info('Successfully Login')
-                  master.sendResponse(req, res, 200, -1, result)
-                  return
-                }
-              }) // endof userSchema.findOneAndUpdate
-            })
-          } else {
-            userSchema.findOneAndUpdate({email: email},
-              {$set: {lastLogin: currentTIme},
-              $inc: {noOfLogins: 1}},
-              {new: true},
-              function (err, result) {
-                if (err) {
-                  log.error(err)
-                  master.sendResponse(req, res, 200, 5, 'Database Error')
-                  return
+                    if (!results[0].active)
+                    {
+                        log.info('Account is Not Active');
+                        master.sendResponse(req, res, 200, 3, "Account is not active");
+                        return;
+                    }
+
+                    var currentTIme = Date.now();
+					
+					if (!results[0].notify_options_fk_key) 
+					{
+						notify.createUserDefaultNotifyObj(req, function (err, optionID){
+						
+							if (err) 
+							{
+								log.error(err)
+								master.sendResponse(req, res, 200, 5, err)
+								return
+							}
+
+							log.info('initializing default user preferences');
+							log.info('optionID ->', optionID);
+							
+							userSchema.findOneAndUpdate({email: email}, {$set: {lastLogin: currentTIme, notify_options_fk_key: optionID}, $inc: {noOfLogins: 1}}, {new: true}).lean().exec(function (err, result) {
+
+								if (err) {
+									log.error(err)
+									master.sendResponse(req, res, 200, 5, 'Database Error')
+									return
+								}
+							
+								log.info('Successfully Login');
+								master.sendResponse(req, res, 200, -1, result);
+								return;
+							
+							})
+							
+						})
+					}
+
+					else
+					{
+						userSchema.findOneAndUpdate({email:email},{$set:{lastLogin:currentTIme}, $inc:{noOfLogins:1}}).lean().exec(function(err, result){
+
+							if(err)
+							{
+								log.error(err);
+								master.sendResponse(req, res, 200, 5, "Database Error");
+								return;
+							}
+
+							if(result==null || result=="") // Email Not Found
+							{
+								log.info('Error In Login');
+								master.sendResponse(req, res, 200, 5, 'Datbase Error');
+								return;
+							}
+
+							else
+							{   
+								log.info('Successfully Login');
+								master.sendResponse(req, res, 200, -1, result);
+								return;
+							}
+
+						})
+					}
+
                 }
 
-                if (result == null || result == '') // Email Not Found
+                else
                 {
-                  log.info('Error In Login')
-                  master.sendResponse(req, res, 200, 5, 'Datbase Error')
-                  return
-                } else {
-                  log.info('Successfully Login')
-                  master.sendResponse(req, res, 200, -1, result)
-                  return
+                    log.info('Email Password Combination is Incorrect');
+                    master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
+                    return;
                 }
-              }) // endof userSchema.findOneAndUpdate
-          }
-        } else {
-          log.info('Email Password Combination is Incorrect')
-          master.sendResponse(req, res, 200, 6, 'Email/password is incorrect')
-          return
-        }
-      }
+
+            }
+
+        })
+    
     })
-  })
+    
 }
 
 /*============================= Get Details =============================*/
@@ -2936,176 +2877,210 @@ module.exports.deductBlockedForBids = function (req, res) {
 
 /*============================= Reject Blocked Bids =============================*/
 
-module.exports.rejectBlockedBids = function (req, res) {
-  log.info('Page Name : user.js')
-  log.info('API Name : rejectBlockedBids')
-  log.info('Reject Blocked Bids API Hitted')
-  log.info('Parameter Receiving..')
+module.exports.rejectBlockedBids = function(req, res){
+    
+    log.info('Page Name : user.js');
+    log.info('API Name : rejectBlockedBids')
+    log.info('Reject Blocked Bids API Hitted');
+    log.info('Parameter Receiving..');
+    
+    // Require Modules
+    var http = require('http');
+    var https = require('https');
+    var async = require('async');
+    
+    // Storing Parameters
+    var reject_bids_json 	= req.body.reject_bids_json;  
+    var publicKey 			= req.body.publicKey;
+    var signature 			= req.body.signature;
+    var rootUrl            	= req.body.rootUrl;
+	
+	var filterUrl = rootUrl.replace(/^https?\:\/\//i, "");
+	var hostUrl	= filterUrl.split('/');
+	var pathUrl = filterUrl.replace(hostUrl[0], "");
+	var bidJsonPath = pathUrl+'keywords/active_bids/'+reject_bids_json+'.json';
+ 
+    var json = '';
+    var length = '';
+    var value = '';
+    var emailValue = '';
 
-  // Require Modules
-  var http = require('http')
-  var https = require('https')
-  var async = require('async')
-
-  // Storing Parameters
-  var reject_bids_json = req.body.reject_bids_json
-  var publicKey = req.body.publicKey
-  var signature = req.body.signature
-  var rootUrl = req.body.rootUrl
-
-  var filterUrl = rootUrl.replace(/^https?\:\/\//i, '')
-  var hostUrl = filterUrl.split('/')
-  var pathUrl = filterUrl.replace(hostUrl[0], '')
-  var bidJsonPath = pathUrl + 'keywords/active_bids/' + reject_bids_json + '.json'
-
-  var json = ''
-  var length = ''
-  var value = ''
-  var emailValue = ''
-
-  log.info('Json File : ' + reject_bids_json)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (reject_bids_json == '' && reject_bids_json == null) {
-    log.info('Reject Bids Json Missing')
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  var options = {
-    host: hostUrl[0],
-    path: bidJsonPath
-  }
-
-  var query = {publicKey: publicKey}
-  // var text = 'reject_bids_json='+encodeURIComponent(reject_bids_json)+'&publicKey='+encodeURIComponent(publicKey)
-  var text = 'reject_bids_json=' + reject_bids_json + '&publicKey=' + publicKey
-
-  master.secureAuth(query, text, signature, function (result) {
-    if (result[0].error == true || result[0].error == 'true') {
-      master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
-      return
+    log.info('Json File : '+reject_bids_json);
+    
+    // Validate Public Key
+    if(!(master.validateParameter(publicKey, 'Public Key')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
     }
 
-    async.series([
+    // Validate Signature
+    if(!(master.validateParameter(signature, 'Signature')))
+    {
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+    
+    if(reject_bids_json == "" && reject_bids_json == null)
+    {
+        log.info('Reject Bids Json Missing');
+        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
+        return;
+    }
+    
+    var options = {
+        host: hostUrl[0],
+        path: bidJsonPath
+    };   
+	
+    var query = {publicKey:publicKey};
+    //var text = 'reject_bids_json='+encodeURIComponent(reject_bids_json)+'&publicKey='+encodeURIComponent(publicKey);
+    var text = 'reject_bids_json='+reject_bids_json+'&publicKey='+publicKey;
+    
+    master.secureAuth(query, text, signature, function (result){
+        
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
+	
+        async.series([
 
-      // Function For Phase 1
-      function (callback) {
-        // Collecting Data From Json File
-        https.get(options, function (res) {
-          // Receiving Data In Chunk
-          res.on('data', function (chunk) {
-            log.info('Chunk Started')
+            // Function For Phase 1
+            function (callback)
+            {
+                //Collecting Data From Json File;
+                https.get(options, function(res){
+				
+                    // Receiving Data In Chunk
+                    res.on('data', function(chunk){
 
-            json = chunk.toString()
-            json = json.replace(/\[/g, '')
-            json = json.replace(/\]/g, '')
-            json = json.replace(/\\/g, '')
-            json = json.split(',')
-          })
+                        log.info('Chunk Started');
 
-          // After Receiving All Data Calling callback Function
-          res.on('end', function () {
-            callback()
-          })
-        })
-      },
+                        json = chunk.toString();
+                        json = json.replace(/\[/g,"");
+                        json = json.replace(/\]/g,"");
+                        json = json.replace(/\\/g,"");
+                        json = json.split(",");
+                    });
 
-      // Function For Phase 2
-      // Holding Return Bid Functionality 
-      function (callback) {
-        if (json == '' || json == null || json == undefined) {
-          value = 'Success'
-          callback()
-        } else {
-          length = json.length
+                    // After Receiving All Data Calling callback Function
+                    res.on('end', function(){
 
-          // Loop To Fetch Records From Received Json File Data
-          for (var i = 0; i < length; i++) {
-            var singleJson = json[i].split('/')
+                        callback();
 
-            var bidRetEmail = singleJson[1] // Storing Email 
+                    });
 
-            var bidRetAmount = singleJson[3] // Storing Amount
+                })
+            },
 
-            var commission = singleJson[4] // Storing Comision
 
-            var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission) // Calculating Total Amount
-            // var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8)    // Calculating Total Amount
-
-            var query = {'email': bidRetEmail}
-
-            // Updating Blocked Bid Amount
-            userSchema.findOneAndUpdate(query, {$inc: {blocked_for_bids: -totalAmount}}, function (err, val) {
-              if (err) {
-                log.error(err)
-                master.sendResponse(req, res, 200, 5, 'Database Error')
-                return
-              }
-
-              // Error In Updating Blocked Bids
-              if (!val) {
-                value = i
-                emailValue = bidRetEmail
-                callback()
-              } else {
-                if (value == length - i) {
-                  value = 'Success'
-                  callback()
+            // Function For Phase 2
+            // Holding Return Bid Functionality 
+            function (callback)
+            {   
+                if(json == "" || json == null || json == 'null' || json == undefined || json == 'undefined')
+                {
+                    value = "Success";
+                    callback();
                 }
-              }
-            })
-          }
-        }
-      },
-
-      // Function For Phase 3
-      // Depends On Results of Phase 2
-      // Holding Cancel Bid Functionality in 'else' part
-      function callback () {
-        // Return Bid Functionality of Phase 2 Successfully Done
-        if (value == 'Success') {
-          master.sendResponse(req, res, 200, -1, 'Success')
-          return
-        }
-
-        // Error Returning Bid Functionality of Phase 2 
-        else {
-          log.info('Error In Updating Blocked Bids At:' + value + ' For Email: ' + bidRetEmail)
-
-          for (var j = 0; j < value; j++) {
-            var singleJson = json[j].split('/')
+                
+                else
+                {
+                    length = json.length; 
+                
+                    // Loop To Fetch Records From Received Json File Data
+                    for(var i=0; i<length; i++)
+                    {
+                        var singleJson = json[i].split("/");    
 
                         var bidRetEmail = singleJson[1];        // Storing Email 
 
-            var bidRetAmount = singleJson[3] // Storing Amount
+                        var bidRetAmount = singleJson[3];       // Storing Amount
 
-            var commission = singleJson[4] // Storing Comision
+                        var commission = singleJson[4];         // Storing Comision
 
-            var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission) // Calculating Total Amount
-            // var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8)    // Calculating Total Amount
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        // var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
+                        
+                        var query = {"email": bidRetEmail};
 
-            var query = {'email': bidRetEmail}
+                        // Updating Blocked Bid Amount
+                        userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:-totalAmount}},function(err, val){
+                        
+                            if (err)
+                            {
+                                log.error(err);
+                                master.sendResponse(req, res, 200, 5, "Database Error");
+                                return;
+                            }
 
-            // Updating Blocked Bid Amount
-            userSchema.findOneAndUpdate(query, {$inc: {blocked_for_bids: totalAmount}}, function (err, val) {
-              if (err) {
-                log.error(err)
-                master.sendResponse(req, res, 200, 5, 'Database Error')
-                return
-              }
+                            // Error In Updating Blocked Bids
+                            if(!val)
+                            {
+                                value = i;
+                                emailValue = bidRetEmail;
+                                callback();
+                            }
 
+                            else
+                            {
+                                if(value == length-i)
+                                {
+                                    value = "Success";
+                                    callback();
+                                }
+                            }
+
+                        });
+                    }
+                    
+                }
+            },
+
+
+            // Function For Phase 3
+            // Depends On Results of Phase 2
+            // Holding Cancel Bid Functionality in 'else' part
+            function callback()
+            {
+                // Return Bid Functionality of Phase 2 Successfully Done
+                if(value == "Success")
+                {
+                    master.sendResponse(req, res, 200, -1, "Success");
+                    return;
+                }
+
+                // Error Returning Bid Functionality of Phase 2 
+                else
+                {
+                    log.info('Error In Updating Blocked Bids At:'+value+' For Email: '+bidRetEmail);
+
+                    for(var j=0; j<value; j++)
+                    {
+                        var singleJson = json[j].split("/");    
+
+                        var bidRetEmail = singleJson[1];        // Storing Email 
+
+                        var bidRetAmount = singleJson[3];       // Storing Amount
+
+                        var commission = singleJson[4];         // Storing Comision
+
+                        var totalAmount = parseFloat(bidRetAmount) + parseFloat(commission);    // Calculating Total Amount
+                        // var totalAmount = parseFloat(bidRetAmount).toFixed(8) + parseFloat(commission).toFixed(8);    // Calculating Total Amount
+
+                        var query = {"email": bidRetEmail};
+
+                        // Updating Blocked Bid Amount
+                        userSchema.findOneAndUpdate(query,{$inc:{blocked_for_bids:totalAmount}},function(err, val){
+
+                            if (err)
+                            {
+                                log.error(err);
+                                master.sendResponse(req, res, 200, 5, "Database Error");
+                                return;
+                            }
                         
                             // Error In Updating Blocked Bids
                             if(!val)
@@ -3125,28 +3100,33 @@ module.exports.rejectBlockedBids = function (req, res) {
                             }
 
                         });
+                    }
                 }
-              }
-            })
-          }
-        }
-      },
 
-      // Function For Phase 4
-      // Depends On Results of Phase 3
-      // Holding Cancel Bid Functionality in 'else' part
-      function callback () {
-        if (value == 'Success') {
-          log.info('Cancelled All Reject Bids Successfully')
-          master.sendResponse(req, res, 200, 5, 'Database Error')
-        } else {
-          log.info('Error In Cancellation At:' + value + ' For Email: ' + bidRetEmail)
-          master.sendResponse(req, res, 200, 5, 'Database Error')
-        }
-      }
+            },
 
-    ])
-  })
+
+            // Function For Phase 4
+            // Depends On Results of Phase 3
+            // Holding Cancel Bid Functionality in 'else' part
+            function callback()
+            {
+                if(value == "Success")
+                {
+                    log.info('Cancelled All Reject Bids Successfully');
+                    master.sendResponse(req, res, 200, 5, "Database Error");
+                }
+
+                else
+                {
+                    log.info('Error In Cancellation At:'+value+' For Email: '+bidRetEmail);
+                    master.sendResponse(req, res, 200, 5, "Database Error");
+                }
+            }
+
+        ])
+            
+    })
 }
 
 module.exports.refCode = function (req, res) {
