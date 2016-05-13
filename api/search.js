@@ -497,7 +497,14 @@ module.exports.checkExistanceEmail = function(req, res){
             return;
         }
       
-		email = email.toLowerCase();
+		if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com")
+		{
+			email = email;
+		}
+		else
+		{
+			email = email.toLowerCase();
+		}
 	  
         // Get Data From User
         userSchema.find({email:email}).lean().exec(function(err, result){
