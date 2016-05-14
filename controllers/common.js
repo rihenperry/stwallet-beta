@@ -40,6 +40,7 @@ var processOptions = function (req, updateoptions) {
         var permIterator = 0
         var processBox = updateoptions === null? [1,2,3]: unProcessedBox[key]
         options.buy_opt_container = unProcessedBox[key].length? []: options.buy_opt_container
+        options.buy_opt_container = JSON.parse(req.body.buy_container).length === 0? []: options.buy_opt_container
         async.each(processBox, function (elem, cb) {
           var obj = {
             option: elem,
@@ -57,6 +58,7 @@ var processOptions = function (req, updateoptions) {
         var permIterator = 0
         var processBox = updateoptions === null? [1,2,3]: unProcessedBox[key]
         options.ask_opt_container = unProcessedBox[key].length? []: options.ask_opt_container
+        options.ask_opt_container = JSON.parse(req.body.ask_container).length === 0? []: options.ask_opt_container
         async.each(processBox, function (elem, cb) {
           var obj = {
             option: elem,
@@ -75,6 +77,7 @@ var processOptions = function (req, updateoptions) {
         var permIterator = 0
         var processBox = updateoptions === null? [1,2,3,4]: unProcessedBox[key]
         options.bid_opt_container = unProcessedBox[key].length? []: options.bid_opt_container
+        options.bid_opt_container = JSON.parse(req.body.bid_container).length === 0? []: options.bid_opt_container
         async.each(processBox, function (elem, cb) {
           var obj = {
             option: elem,
@@ -92,6 +95,8 @@ var processOptions = function (req, updateoptions) {
         var permIterator = 0
         var processBox = updateoptions === null? [1,2]: unProcessedBox[key]
         options.kwd_license_opt_container = unProcessedBox[key].length? []: options.kwd_license_opt_container
+        options.kwd_license_opt_container = JSON.parse(req.body.kwd_license_container).length === 0?
+                                            []: options.kwd_license_opt_container
         async.each(processBox, function(elem, cb) {
           var obj = {
             option: elem,
@@ -109,6 +114,7 @@ var processOptions = function (req, updateoptions) {
         var permIterator = 0
         var processBox = updateoptions === null? [1]: unProcessedBox[key]
         options.deposit_opt_container = unProcessedBox[key].length? []: options.deposit_opt_container
+        options.deposit_opt_container = JSON.parse(req.body.deposit_container).length === 0? []: options.deposit_opt_container
         async.each(processBox, function(elem, cb) {
           var obj = {
             option: elem,
@@ -126,6 +132,8 @@ var processOptions = function (req, updateoptions) {
         var permIterator = 0
         var processBox = updateoptions === null? [1,2]: unProcessedBox[key]
         options.withdrawal_opt_container = unProcessedBox[key].length? []: options.withdrawal_opt_container
+        options.withdrawal_opt_container = JSON.parse(req.body.withdrawal_container).length === 0?
+                                           []: options.withdrawal_opt_container
         async.each(processBox, function(elem, cb) {
           var obj = {
             option: elem,
