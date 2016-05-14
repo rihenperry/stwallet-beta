@@ -73,6 +73,6 @@ module.exports = {
   alphaNumr: randomString,
   inPermCodeFormat: inPermCodeFormat,
   permCodeBatch: permCodeBatch,
-  permArrayToObj: permArrayToObj
+  permArrayToObj: permArrayToObj,
   validateEmail: validateEmail
 }

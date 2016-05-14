@@ -60,7 +60,7 @@ router1.post('/deductBlockedForBids', user.deductBlockedForBids);			// Deduct Bl
 router1.post('/rejectBlockedBids', user.rejectBlockedBids);            // Reject Blocked Bids API (In cases of Accept bid and Buy now)
 //router.post('/secure/updateNotificationStatus', user.updateNotificationStatus);  // Update User's Notification Status API
 //router.post('/secure/getNotificationStatus', user.getNotificationStatus);       // Get Notification Status
-router.post('/setFavouriteAppIds', user.setFavouriteAppIds); // Set User's Favourite App Id
-router.post('/refCode', user.refCode)
+router1.post('/setFavouriteAppIds', user.setFavouriteAppIds); // Set User's Favourite App Id
+router1.post('/refCode', user.refCode)
 
 module.exports = router1;

@@ -561,12 +561,12 @@ module.exports.secureLogin = function(req, res){
 	log.info('Secure Login API Hitted');
 	log.info('Parameters Receiving..');
     
-    var email       = req.body.email;
+  var email       = req.body.email;
 	var password    = req.body.password;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
     
-    log.info('Email : '+email);
+  log.info('Email : '+email);
 	log.info('Password : '+password);
 	log.info('Public Key : '+publicKey);
 	log.info('Signature : '+signature);
@@ -590,61 +590,58 @@ module.exports.secureLogin = function(req, res){
             return;
         }
 		
-		if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com")
-		{
-			email = email;
-		}
-		else
-		{
-			email = email.toLowerCase();
-		}
-		
-        userSchema.find({email:email}).lean().exec(function(err, results){
+		  if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com"){
+			  email = email;
+		  } else{
+			  email = email.toLowerCase();
+		  }
 
-            if(err)
+      userSchema.find({email:email}).lean().exec(function(err, results){
+
+        if(err)
+        {
+          log.error(err);
+          master.sendResponse(req, res, 200, 5, "Database Error");
+          return;
+        }
+        
+        if(results==null || results=="") // Email Not Found
+        {
+          log.info(email+" Not Registered");
+          master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+          return;
+        }
+        
+        else
+        {
+          var hashpass = crypt.hashIt((results[0].salt)+password);
+          
+          if(hashpass === results[0].password)
+          {
+            if (!results[0].active)
             {
-                log.error(err);
-                master.sendResponse(req, res, 200, 5, "Database Error");
-                return;
+              log.info('Account is Not Active');
+              master.sendResponse(req, res, 200, 3, "Account is not active");
+              return;
             }
-
-            if(results==null || results=="") // Email Not Found
-            {
-                log.info(email+" Not Registered");
-                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
-                return;
-            }
-
-            else
-            {
-                var hashpass = crypt.hashIt((results[0].salt)+password);
-
-                if(hashpass === results[0].password)
-                {
-                    if (!results[0].active)
-                    {
-                        log.info('Account is Not Active');
-                        master.sendResponse(req, res, 200, 3, "Account is not active");
-                        return;
-                    }
-
-                    var currentTIme = Date.now();
-					
-					if (!results[0].notify_options_fk_key) 
-					{
-						notify.createUserDefaultNotifyObj(req, function (err, optionID){
-						
-							if (err) 
-							{
-								log.error(err)
-								master.sendResponse(req, res, 200, 5, err)
-								return
-							}
-
-							log.info('initializing default user preferences');
-							log.info('optionID ->', optionID);
-							
-							userSchema.findOneAndUpdate({email: email}, {$set: {lastLogin: currentTIme, notify_options_fk_key: optionID}, $inc: {noOfLogins: 1}}, {new: true}).lean().exec(function (err, result) {
+            
+            var currentTIme = Date.now();
+					  
+					  if (!results[0].notify_options_fk_key) 
+					  {
+						  notify.createUserDefaultNotifyObj(req, function (err, optionID){
+						    
+							  if (err) 
+							  {
+								  log.error(err)
+								  master.sendResponse(req, res, 200, 5, err)
+								  return
+							  }
+                
+							  log.info('initializing default user preferences');
+							  log.info('optionID ->', optionID);
+							  
+							  userSchema.findOneAndUpdate({email: email}, {$set: {lastLogin: currentTIme, notify_options_fk_key: optionID}, $inc: {noOfLogins: 1}}, {new: true}).lean().exec(function (err, result) {
 
 								if (err) {
 									log.error(err)
@@ -652,65 +649,21 @@ module.exports.secureLogin = function(req, res){
 									return
 								}
 							
-								log.info('Successfully Login');
-								master.sendResponse(req, res, 200, -1, result);
-								return;
-							
-							})
-							
-						})
-					}
-
-					else
-					{
-						userSchema.findOneAndUpdate({email:email},{$set:{lastLogin:currentTIme}, $inc:{noOfLogins:1}}).lean().exec(function(err, result){
-
-							if(err)
-							{
-								log.error(err);
-								master.sendResponse(req, res, 200, 5, "Database Error");
-								return;
-							}
-
-							if(result==null || result=="") // Email Not Found
-							{
-								log.info('Error In Login');
-								master.sendResponse(req, res, 200, 5, 'Datbase Error');
-								return;
-							}
-
-							else
-							{   
-								log.info('Successfully Login');
-								master.sendResponse(req, res, 200, -1, result);
-								return;
-							}
-
-						})
-					}
-
-                }
-
-                else
-                {
-                    log.info('Email Password Combination is Incorrect');
-                    master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
-                    return;
-                }
-
+								  log.info('Successfully Login');
+								  master.sendResponse(req, res, 200, -1, result);
+								  return;
+						    })
+					    })
             }
-
-        })
-    
-
-            }
-
+          } else {
+            log.info('Email Password Combination is Incorrect');
+            master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
+            return;
+          }
+        }
+      })
     })
-    
-    })
-    
 }
-
 /*============================= Get Details =============================*/
 
 module.exports.getDetails = function (req, res) {
@@ -736,7 +689,6 @@ module.exports.getDetails = function (req, res) {
       master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
       return
     }
->>>>>>> develop
 
     userSchema.find({email: email}, {'recent_searches': 0}).lean().exec(function (err, userdata) {
       if (err) {
