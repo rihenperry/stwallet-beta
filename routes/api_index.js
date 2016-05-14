@@ -1,9 +1,25 @@
 var express = require('express')
 var router = express.Router()
 
-var ctrlUser = require('../controllers/user')
-var ctrlNotify = require('../controllers/notify')
-var ctrlUserSub = require('../controllers/usersub')
+var mw = require('../config/middleware');
+
+var ctrlUser = require('../controllers/user');
+var ctrlNotify = require('../controllers/notify');
+var ctrlUserSub = require('../controllers/usersub');
+
+//router.use(function(req, res, next) {
+//  // exempt this api from email middleware check
+//  log.info(req.path);
+//  if (req.path.match(/^\/notifyoptionslist/) !== null) {
+//    next();
+//  } else {
+//    mw.checkPubKey(req, res, next);
+//    mw.checkSignature(req, res, next);
+//    next();
+//  }
+//});
+//router.use(mw.checkPubKey);
+//router.use(mw.checkSignature);
 
 /* api routes */
 /* user apis */
@@ -16,12 +32,12 @@ var ctrlUserSub = require('../controllers/usersub')
 // router.get('/users/:id/subnotify', ctrlNotify.isUserNotifiable)
 
 /* user notification control api */
-router.get('/notifyoptionslist', ctrlNotify.getAllSubOptions)
-router.get('/users/:id/notifyoptions', ctrlNotify.getUserSubOptions)
-// router.get('/users/:id/notifyoptions/:optionid'. ctrlNotify.getUserSubOpt)
-router.post('/users/:id/notifyoptions', ctrlNotify.createUserSubOptions)
-router.put('/users/:id/notifyoptions/:optionid', ctrlNotify.updateUserSubOptions)
-router.delete('/users/:id/notifyoptions', ctrlNotify.deleteUserSubOptions)
+router.get('/notifyoptionslist', ctrlNotify.getAllSubOptions);
+router.get('/users/:id/notifyoptions', mw.checkPubSignKey, ctrlNotify.getUserSubOptions);
+//router.get('/users/:id/notifyoptions/:optionid'. ctrlNotify.getUserSubOpt);
+router.post('/users/:id/notifyoptions', mw.checkPubSignKey, ctrlNotify.createUserSubOptions);
+router.put('/users/:id/notifyoptions/:optionid', mw.checkPubSignKey, ctrlNotify.updateUserSubOptions);
+router.delete('/users/:id/notifyoptions', mw.checkPubSignKey, ctrlNotify.deleteUserSubOptions);
 
 /* following are user notification subscriptions*/
 /* purchase/buy keyword api */

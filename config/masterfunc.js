@@ -106,50 +106,50 @@ module.exports.validation = function (req, cb) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(validate(publicKey, 'Public Key'))) {
-    var retVal = [{
-      'message': 'Mandatory field not found',
-      'errCode': 1,
-      'error': 'true'
-    }]
-    cb(retVal)
-    return
-  }
-
-  // Validate Signature
-  if (!(validate(signature, 'Signature'))) {
-    var retVal = [{
-      'message': 'Mandatory field not found',
-      'errCode': 1,
-      'error': 'true'
-    }]
-    cb(retVal)
-    return
-  }
-
-  // Validate Email
-  if (!(validate(email, 'Email'))) {
-    var retVal = [{
-      'message': 'Mandatory field not found',
-      'errCode': 1,
-      'error': 'true'
-    }]
-    cb(retVal)
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.error('Incorrect Email Format')
-    var retVal = [{
-      'message': 'Incorrect email id format',
-      'errCode': 7,
-      'error': 'true'
-    }]
-    cb(retVal)
-    return
-  }
-
+    //// Validate Public Key
+    //if(!(validate(publicKey, 'Public Key'))){
+    //    var retVal = [{
+    //        "message" : "Mandatory field not found",
+    //        "errCode" : 1,
+    //        "error" : "true"
+    //    }];
+    //    cb(retVal);
+    //    return;
+    //}
+    //
+    //// Validate Signature
+    //if(!(validate(signature, 'Signature'))){
+    //    var retVal = [{
+    //        "message" : "Mandatory field not found",
+    //        "errCode" : 1,
+    //        "error" : "true"
+    //    }];
+    //    cb(retVal);
+    //    return;
+    //}
+    //
+    //// Validate Email
+    //if(!(validate(email, 'Email'))){
+    //    var retVal = [{
+    //        "message" : "Mandatory field not found",
+    //        "errCode" : 1,
+    //        "error" : "true"
+    //    }];
+    //    cb(retVal);
+    //    return;
+    //}
+    //
+    //if(!(validateEmail(email))){
+    //    log.error('Incorrect Email Format');
+    //    var retVal = [{
+    //        "message" : "Incorrect email id format",
+    //        "errCode" : 7,
+    //        "error" : "true"
+    //    }];
+    //    cb(retVal);
+    //    return;
+    //}
+    
   // Validate Amount
   if (!(validate(amount, 'Amount')) || isNaN(amount)) {
     if (isNaN(amount)) {

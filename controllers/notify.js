@@ -134,18 +134,6 @@ var getUserSubOptions = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 404, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 404, 1, 'Mandatory field not found')
-    return
-  }
-
   var query = {publicKey: publicKey}
   // var text  = 'id='+encodeURIComponent(id)+'&publicKey='+encodeURIComponent(publicKey)
 
@@ -232,18 +220,6 @@ var createUserSubOptions = function (req, res) {
   log.info('deposit perm : ' + deposit_perm_code)
   log.info('withdrawal perm : ' + withdrawal_perm_code)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 404, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 404, 1, 'Mandatory field not found')
-    return
-  }
-
   var query = {publicKey: publicKey}
   // var text  = 'id='+encodeURIComponent(id)+'&buy_container='+encodeURIComponent(buy_container)+'&ask_container='+encodeURIComponent(ask_container)+'&bid_container='+encodeURIComponent(bid_container)+'&publicKey='+encodeURIComponent(publicKey)
 
@@ -319,7 +295,7 @@ var createUserSubOptions = function (req, res) {
  */
 var createUserDefaultNotifyObj = function (req, next) {
   /* initialize options for new user */
-  var updateoptions = null
+  var updateOptions = null
   var options = common.processOptions(req, updateOptions)
 
   options.save(function (err) {
@@ -373,12 +349,6 @@ var updateUserSubOptions = function (req, res) {
   log.info('deposit perm : ' + deposit_perm_code)
   log.info('withdrawal perm : ' + withdrawal_perm_code)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 404, 1, 'Mandatory field not found')
-    return
-  }
-
   if ((!req.params.id) || (!req.params.optionid) || (!req.params)) {
     helpers.sendJsonResponse(res, 404, {
       'message': 'No args in request'
@@ -391,12 +361,6 @@ var updateUserSubOptions = function (req, res) {
   //	})
   //  return
   // }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 404, 1, 'Mandatory field not found')
-    return
-  }
 
   var query = {publicKey: publicKey}
   // var text  = 'id='+encodeURIComponent(id)+'&optionid='+encodeURIComponent(optionid)+'&buy_container='+encodeURIComponent(buy_container)+'&ask_container='+encodeURIComponent(ask_container)+'&bid_container='+encodeURIComponent(bid_container)+'&publicKey='+encodeURIComponent(publicKey)
@@ -471,18 +435,6 @@ var deleteUserSubOptions = function (req, res) {
   log.info('Id : ' + id)
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 404, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 404, 1, 'Mandatory field not found')
-    return
-  }
 
   var query = {publicKey: publicKey}
   // var text  = 'id='+encodeURIComponent(id)+'&publicKey='+encodeURIComponent(publicKey)

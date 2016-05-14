@@ -3,39 +3,40 @@
 'use strict'
 
 // Framwork
-var express = require('express'),
-  helmet = require('helmet'),
-  nunjucks = require('nunjucks'),
-  path = require('path'),
-  favicon = require('favicon'),
-  logger = require('morgan'),
-  cookieParser = require('cookie-parser'),
-  nconf = require('nconf'),
-  fs = require('fs'),
-  request = require('request'),
-  jsonfile = require('jsonfile'),
-  bodyParser = require('body-parser'),
-  debug = require('debug')('Express4'),
-  util = require('util'),
-  bformat = require('bunyan-format')
-
-var log = require('./config/w_config')() // bunyan logger to organize logging
+var  express     	   = require('express'),
+     helmet          = require('helmet'),
+     nunjucks        = require('nunjucks'),
+     path            = require('path'),
+     favicon         = require('favicon'),
+     logger          = require('morgan'),
+     cookieParser    = require('cookie-parser'),
+	   nconf 	    	   = require('nconf'),
+	   fs         	   = require('fs'),
+	   request 		     = require('request'),
+     jsonfile        = require('jsonfile'),
+     bodyParser      = require('body-parser'),
+     debug           = require('debug')('Express4'),
+     //util            = require('util'),
+     bformat         = require('bunyan-format');
+     // Packages
+var helpers         = require('./helpers/utils');
+var log             = require('./config/w_config.js')();
 
 require('dotenv').config() // loads project specific process.env settings from .env
-require('./models/db') // keep the connection open to db when app boots/reboots
+require('./models/db');// keep the connection open to db when app boots/reboots
 
-var routesUserApi = require('./routes/api_user'), // User API
-  routesDeviceApi = require('./routes/api_device'), // Device API
-  routesSearchApi = require('./routes/api_search'), // Search API
-  routesPoolApi = require('./routes/api_pool'), // Get Pool API
-  routesWtransactionApi = require('./routes/api_transaction'),
-  routesAdminApi = require('./routes/api_admin'),
-  cron_api = require('./api/cron_api.js') // Get Admin API
+var	 routesUserApi   = require('./routes/api_user'),                 // User API
+	   routesDeviceApi = require('./routes/api_device'),               // Device API
+	   routesSearchApi = require('./routes/api_search'),               // Search API
+	   routesPoolApi   = require('./routes/api_pool'),                    // Get Pool API
+     routesWtransactionApi = require('./routes/api_transaction'),
+     routesAdminApi = require('./routes/api_admin'),
+     cron_api    	   = require("./api/cron_api.js");    	     // Get Admin API
 
-var routesNotificationApi = require('./routes/api_notification')
-var routesMailApi = require('./routes/api_mail')
-var routes = require('./routes/index')
-var routesUserPrefApi = require('./routes/api_index')
+var routesNotificationApi = require('./routes/api_notification');
+var routesMailApi       = require('./routes/api_mail');
+var routeWelcome              = require('./routes/index');
+var routesUserPrefApi           = require('./routes/api_index');
 
 /* create http server and pass the express appln to it */
 var app = require('express')()
@@ -64,16 +65,11 @@ app.use(cookieParser())
 app.use(express.static(__dirname + '/public'))
 app.use(express.static(__dirname + '/bower_components'))
 
-app.use('/', routes) // normal html view request
+app.use('/', routeWelcome);       // normal html view request
 app.use('/api', routesUserPrefApi); // add prefex 'api' to access the api like http://localhost:port:/api/*
 
 /*============================== Device Related API ==================================*/
-app.use('/api', routesDeviceApi)
-/*============================== User Related API ==================================*/
-
-app.use('/', routesUserApi)
-// Reject Blocked Bids API (In cases of Accept bid and Buy now)
-
+app.use('/api', routesDeviceApi);
 /*============================== Pool Related API ==================================*/
 app.use('/secure', routesPoolApi)
 /*============================== Transactions Related API ==================================*/
@@ -81,7 +77,9 @@ app.use('/secure', routesWtransactionApi)
 /*============================== Search Related API ==================================*/
 app.use('/secure/search', routesSearchApi)
 /*============================== Admin Related API ==================================*/
-app.use('/secure/admin', routesAdminApi)
+app.use('/secure/admin', routesAdminApi);
+/*============================== User Related API ==================================*/
+app.use('/secure', routesUserApi);
 /*=============================== send email API==============*/
 app.use('/secure', routesNotificationApi)
 app.use('/secure', routesMailApi)
