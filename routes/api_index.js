@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express')
+var router = express.Router()
 
 var mw = require('../config/middleware');
 
@@ -23,13 +23,13 @@ var ctrlUserSub = require('../controllers/usersub');
 
 /* api routes */
 /* user apis */
-router.get('/users', ctrlUser.userList);
-router.get('/users/:id', ctrlUser.getUser);
-router.post('/users', ctrlUser.createUser);
-router.put('/users/:id', ctrlUser.updateUser);
+//router.get('/users', ctrlUser.userList)
+//router.get('/users/:id', ctrlUser.getUser)
+//router.post('/users', ctrlUser.createUser)
+//router.put('/users/:id', ctrlUser.updateUser)
 
 /* user notification subscription flag api */
-//router.get('/users/:id/subnotify', ctrlNotify.isUserNotifiable);
+// router.get('/users/:id/subnotify', ctrlNotify.isUserNotifiable)
 
 /* user notification control api */
 router.get('/notifyoptionslist', ctrlNotify.getAllSubOptions);
@@ -41,20 +41,20 @@ router.delete('/users/:id/notifyoptions', mw.checkPubSignKey, ctrlNotify.deleteU
 
 /* following are user notification subscriptions*/
 /* purchase/buy keyword api */
-//router.get('/users/:id/subbuykwd', ctrlUserSub.getUserSubPurchasedKeywords);
-//router.get('/users/:id/subbuykwd/trade', ctrlUserSub.getUserSubPurchasedKeywordsByTrade);
-//router.get('/users/:id/subbuykwd/trade/highbid', ctrlUserSub.getUserSubPurchasedKeywordsByTradeonHgBid);
-//router.get('/users/:id/subbuykwd/trade/onask', ctrlUserSub.getUserSubPurchasedKeywordsByTradeonAsk);
+// router.get('/users/:id/subbuykwd', ctrlUserSub.getUserSubPurchasedKeywords)
+// router.get('/users/:id/subbuykwd/trade', ctrlUserSub.getUserSubPurchasedKeywordsByTrade)
+// router.get('/users/:id/subbuykwd/trade/highbid', ctrlUserSub.getUserSubPurchasedKeywordsByTradeonHgBid)
+// router.get('/users/:id/subbuykwd/trade/onask', ctrlUserSub.getUserSubPurchasedKeywordsByTradeonAsk)
 
 /* ask keyword api */
-//router.get('/users/:id/subsetask', ctrlUserSub.getUserSubSoldKeywords);
-//router.get('/users/:id/subeditask', ctrlUserSub.getUserSubSoldKeywords);
-//router.get('/users/:id/subdelask', ctrlUserSub.getUserSubSoldKeywords);
+// router.get('/users/:id/subsetask', ctrlUserSub.getUserSubSoldKeywords)
+// router.get('/users/:id/subeditask', ctrlUserSub.getUserSubSoldKeywords)
+// router.get('/users/:id/subdelask', ctrlUserSub.getUserSubSoldKeywords)
 
 /* bid keyword api */
-//router.get('/users/:id/subsetbid', ctrlUserSub.getUserSubBidKeywords);
-//router.get('/users/:id/subeditbid', ctrlUserSub.getUserSubBidKeywords);
-//router.get('/users/:id/subdelbid', ctrlUserSub.getUserSubBidKeywords);
-router.get('/subrejectbid/users', ctrlUserSub.getUserSubRejectBidKeywords);
+// router.get('/users/:id/subsetbid', ctrlUserSub.getUserSubBidKeywords)
+// router.get('/users/:id/subeditbid', ctrlUserSub.getUserSubBidKeywords)
+// router.get('/users/:id/subdelbid', ctrlUserSub.getUserSubBidKeywords)
+router.get('/subrejectbid/users', ctrlUserSub.getUserSubRejectBidKeywords)
 
-module.exports = router;
+module.exports = router

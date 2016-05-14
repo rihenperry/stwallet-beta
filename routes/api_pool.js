@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express')
+var router = express.Router()
 
 var mw = require('../config/middleware');
 var pool = require('../api/pool');
@@ -36,4 +36,4 @@ router.post('/getPoolStats', pool.getPoolStats);                                
 router.post('/addTotalRenewalFees', pool.addTotalRenewalFees);								// Add Total Renewal Fees API
 router.post('/deductTotalRenewalFees', pool.deductTotalRenewalFees);						// Deduct Total Renewal Fees API
 
-module.exports = router;
+module.exports = router

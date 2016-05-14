@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express')
+var router = express.Router()
 
 var mw = require('../config/middleware');
 var search = require('../api/search');
@@ -12,4 +12,4 @@ router.post('/updateLastHourValue', mw.checkEmail, search.updateLastHourValue);	
 router.post('/recentSearches', mw.checkEmail, search.recentSearches); // Add Recent Searches For User API
 router.post('/checkExistanceEmail', mw.checkEmail, search.checkExistanceEmail);						// Check Email Existance API
 
-module.exports = router;
+module.exports = router

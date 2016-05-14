@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express')
+var router = express.Router()
 
 var mw = require('../config/middleware');
 var admin = require('../api/admin');
@@ -22,4 +22,4 @@ router.post('/totalCount', admin.totalCount);           // Count By Type and Pay
 router.post('/userBalanceCalc', mw.checkEmail, admin.userBalanceCalc);// User Balance Calculation By Email
 router.post('/allUsersBalance', admin.allUsersBalance);                               // All User's Total Balance
 
-module.exports = router;
+module.exports = router
