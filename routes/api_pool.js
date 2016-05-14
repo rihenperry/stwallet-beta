@@ -7,7 +7,8 @@ var pool = require('../api/pool');
 router.use(function(req, res, next) {
   //exempt this api from passing through defined middleware
   log.info('URL path ->'+ req.path);
-  if (req.path.match(/^\/admin\/resetQualifiedSearches/) !== null) {
+  if (((req.path.match(/^\/admin\/resetQualifiedSearches/)) ||
+      (req.path.match(/^\/refCode/))) !== null) {
     next();
   } else {
     mw.checkPubSignKey(req, res, next);

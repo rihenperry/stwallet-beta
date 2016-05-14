@@ -8,7 +8,8 @@ var user = require('../api/user')
 router1.use(function(req, res, next) {
   // exempt this api from email middleware check
   log.info(req.path);
-  if (req.path.match(/^\/rejectBlockedBids/) !== null) {
+  if (((req.path.match(/^\/rejectBlockedBids/)) ||
+      (req.path.match(/^\/refCode/)))  !== null) {
     next();
   } else {
     mw.checkEmail(req, res, next);
