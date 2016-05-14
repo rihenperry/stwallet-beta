@@ -1335,18 +1335,6 @@ module.exports.setFavouriteAppIds = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
   // Validate Email
   if (!(master.validateParameter(email, 'Email'))) {
     master.sendResponse(req, res, 200, 1, 'Mandatory field not found')

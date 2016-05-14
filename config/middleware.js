@@ -3,17 +3,17 @@ var helpers = require('../helpers/utils');
 
 var checkPubSignKey = function(req, res, next) {
   var pubKey = req.query.publicKey || req.body.publicKey;
-  log.info('public key middleware check->'+ pubKey);
+  log.info('public key middleware check '+ pubKey);
 
   var signature = req.query.signature || req.body.signature;
-  log.info('signature middleware check->'+ signature);
+  log.info('signature middleware check '+ signature);
 
   if(!master.validateParameter(pubKey, 'Public Key')) {
-    log.warn('public key error ->'+ pubKey);
+    log.warn('public key error '+ pubKey);
     master.sendResponse(req, res, 403, 1, "Mandatory field not found");
     return;
   } else if (!master.validateParameter(signature, 'Signature')) {
-    log.warn('signature absent ->'+ signature);
+    log.warn('signature absent '+ signature);
     master.sendResponse(req, res, 403, 1, "Mandatory field not found");
     return;
   } else {
@@ -23,10 +23,10 @@ var checkPubSignKey = function(req, res, next) {
 
 var checkFlag = function(req, res, next) {
   var flag = req.query.flag || req.body.flag;
-  log.info('flag middleware check ->'+ flag);
+  log.info('flag middleware check '+ flag);
 
   if(!(master.validateParameter(flag, 'flag'))) {
-    log.warn('flag absent->'+ flag);
+    log.warn('flag absent '+ flag);
 		master.sendResponse(req, res, 403, 1, "Mandatory field not found");
 		return;
 	} else {
@@ -36,10 +36,10 @@ var checkFlag = function(req, res, next) {
 
 var checkEmail = function(req, res, next) {
   var email = req.body.email;
-  log.info('email middleware check ->'+ email);
+  log.info('email middleware check '+ email);
 
   if (!(master.validateParameter(email, 'Email'))) {
-    log.warn('mail absent->'+ email);
+    log.warn('mail absent '+ email);
 		master.sendResponse(req, res, 403, 1, "Mandatory field not found");
 		return;
 	} else if (!(helpers.validateEmail(email))) {

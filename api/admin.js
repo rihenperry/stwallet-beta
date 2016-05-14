@@ -151,6 +151,7 @@ module.exports.userManage = function (req, res){
 	var skip       = req.body.skip;
 	var order      = req.body.order;
 	var column     = req.body.column;
+	var flag       = req.body.flag;
     var publicKey  = req.body.publicKey;
     var signature  = req.body.signature;
 
@@ -289,14 +290,14 @@ module.exports.getExpenceTransactions = function(req, res) {
 	log.info('Get Expence Transaction Accessed');
 	log.info('Parameters Receiving..');
 
-	var vars = req.body;
-	var email = req.body.email;
-	var from = req.body.from;
-	var to = req.body.to;
-	var n = req.body.number;
-	var publicKey = req.body.publicKey;
-	var signature = req.body.signature;
-	var type = vars.type;
+	var vars		= req.body;
+	var email 		= req.body.email;
+	var from 		= req.body.from;
+	var to 			= req.body.to;
+	var n 			= req.body.number;
+	var publicKey 	= req.body.publicKey;
+	var signature 	= req.body.signature;
+	var type 		= req.body.type;
 	
 	log.info('Email : '+email);
 	log.info('From Date : '+from);
