@@ -174,35 +174,7 @@ module.exports.secureRegister = function (req, res) {
     log.info('URL : ' + rootUrl);
     log.info('Public Key : '+publicKey);
     log.info('Signature : '+signature);
-    
-    // Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
 
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-	
-	// Validate Email
-	if (!(master.validateParameter(email, 'Email')))
-    {
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	if (!(validateEmail(email)))
-    {
-		log.info('Incorrect Email Format');
-		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
-		return;
-    }
-    
     // Validate Password And Repeat Password
 	if(password == "" || password == null || confirm_password == "" || confirm_password == null)
 	{
@@ -439,30 +411,6 @@ module.exports.verifyAccount = function (req, res) {
 
   // auth=auth.replace(/\ /g,'+')
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   var query = {publicKey: publicKey}
   // var text  = 'email='+encodeURIComponent(email)+'&auth='+encodeURIComponent(auth)+'&publicKey='+encodeURIComponent(publicKey)
   var text = 'email=' + email + '&auth=' + auth + '&publicKey=' + publicKey
@@ -572,30 +520,6 @@ exports.secureResendVerification = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   var query = {publicKey: publicKey}
   // var text  = 'email='+encodeURIComponent(email)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey)
   var text = 'email=' + email + '&flag=' + flag + '&publicKey=' + publicKey
@@ -637,44 +561,16 @@ module.exports.secureLogin = function(req, res){
 	log.info('Secure Login API Hitted');
 	log.info('Parameters Receiving..');
     
-    var email       = req.body.email;
+  var email       = req.body.email;
 	var password    = req.body.password;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
     
-    log.info('Email : '+email);
+  log.info('Email : '+email);
 	log.info('Password : '+password);
 	log.info('Public Key : '+publicKey);
 	log.info('Signature : '+signature);
     
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-	
-	// Validate Email
-	if(!(master.validateParameter(email, 'Email')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	if(!(validateEmail(email))) 
-	{
-		log.info('Incorrect Email Format');
-		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
-		return;
-    }
-	
 	// Validate Password
 	if(!(master.validateParameter(password, 'Password')))
 	{
@@ -694,61 +590,58 @@ module.exports.secureLogin = function(req, res){
             return;
         }
 		
-		if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com")
-		{
-			email = email;
-		}
-		else
-		{
-			email = email.toLowerCase();
-		}
-		
-        userSchema.find({email:email}).lean().exec(function(err, results){
+		  if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com"){
+			  email = email;
+		  } else{
+			  email = email.toLowerCase();
+		  }
 
-            if(err)
+      userSchema.find({email:email}).lean().exec(function(err, results){
+
+        if(err)
+        {
+          log.error(err);
+          master.sendResponse(req, res, 200, 5, "Database Error");
+          return;
+        }
+        
+        if(results==null || results=="") // Email Not Found
+        {
+          log.info(email+" Not Registered");
+          master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+          return;
+        }
+        
+        else
+        {
+          var hashpass = crypt.hashIt((results[0].salt)+password);
+          
+          if(hashpass === results[0].password)
+          {
+            if (!results[0].active)
             {
-                log.error(err);
-                master.sendResponse(req, res, 200, 5, "Database Error");
-                return;
+              log.info('Account is Not Active');
+              master.sendResponse(req, res, 200, 3, "Account is not active");
+              return;
             }
-
-            if(results==null || results=="") // Email Not Found
-            {
-                log.info(email+" Not Registered");
-                master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
-                return;
-            }
-
-            else
-            {
-                var hashpass = crypt.hashIt((results[0].salt)+password);
-
-                if(hashpass === results[0].password)
-                {
-                    if (!results[0].active)
-                    {
-                        log.info('Account is Not Active');
-                        master.sendResponse(req, res, 200, 3, "Account is not active");
-                        return;
-                    }
-
-                    var currentTIme = Date.now();
-					
-					if (!results[0].notify_options_fk_key) 
-					{
-						notify.createUserDefaultNotifyObj(req, function (err, optionID){
-						
-							if (err) 
-							{
-								log.error(err)
-								master.sendResponse(req, res, 200, 5, err)
-								return
-							}
-
-							log.info('initializing default user preferences');
-							log.info('optionID ->', optionID);
-							
-							userSchema.findOneAndUpdate({email: email}, {$set: {lastLogin: currentTIme, notify_options_fk_key: optionID}, $inc: {noOfLogins: 1}}, {new: true}).lean().exec(function (err, result) {
+            
+            var currentTIme = Date.now();
+					  
+					  if (!results[0].notify_options_fk_key) 
+					  {
+						  notify.createUserDefaultNotifyObj(req, function (err, optionID){
+						    
+							  if (err) 
+							  {
+								  log.error(err)
+								  master.sendResponse(req, res, 200, 5, err)
+								  return
+							  }
+                
+							  log.info('initializing default user preferences');
+							  log.info('optionID ->', optionID);
+							  
+							  userSchema.findOneAndUpdate({email: email}, {$set: {lastLogin: currentTIme, notify_options_fk_key: optionID}, $inc: {noOfLogins: 1}}, {new: true}).lean().exec(function (err, result) {
 
 								if (err) {
 									log.error(err)
@@ -756,60 +649,21 @@ module.exports.secureLogin = function(req, res){
 									return
 								}
 							
-								log.info('Successfully Login');
-								master.sendResponse(req, res, 200, -1, result);
-								return;
-							
-							})
-							
-						})
-					}
-
-					else
-					{
-						userSchema.findOneAndUpdate({email:email},{$set:{lastLogin:currentTIme}, $inc:{noOfLogins:1}}).lean().exec(function(err, result){
-
-							if(err)
-							{
-								log.error(err);
-								master.sendResponse(req, res, 200, 5, "Database Error");
-								return;
-							}
-
-							if(result==null || result=="") // Email Not Found
-							{
-								log.info('Error In Login');
-								master.sendResponse(req, res, 200, 5, 'Datbase Error');
-								return;
-							}
-
-							else
-							{   
-								log.info('Successfully Login');
-								master.sendResponse(req, res, 200, -1, result);
-								return;
-							}
-
-						})
-					}
-
-                }
-
-                else
-                {
-                    log.info('Email Password Combination is Incorrect');
-                    master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
-                    return;
-                }
-
+								  log.info('Successfully Login');
+								  master.sendResponse(req, res, 200, -1, result);
+								  return;
+						    })
+					    })
             }
-
-        })
-    
+          } else {
+            log.info('Email Password Combination is Incorrect');
+            master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
+            return;
+          }
+        }
+      })
     })
-    
 }
-
 /*============================= Get Details =============================*/
 
 module.exports.getDetails = function (req, res) {
@@ -825,30 +679,6 @@ module.exports.getDetails = function (req, res) {
   log.info('Email : ' + email)
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
 
   var query = {'publicKey': publicKey}
   // var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey)
@@ -936,30 +766,6 @@ module.exports.setUserDetails = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   // Valiadte Mobile Number
   if (mobile_number != '' && isNaN(mobile_number)) {
     log.info('Invalid Mobile')
@@ -1038,30 +844,6 @@ module.exports.currencyPrefrence = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   var query = {publicKey: publicKey}
   // var text  = 'email='+encodeURIComponent(email)+'&currency_code='+encodeURIComponent(currency_code)+'&publicKey='+encodeURIComponent(publicKey)
   var text = 'email=' + email + '&currency_code=' + currency_code + '&publicKey=' + publicKey
@@ -1118,30 +900,6 @@ exports.secureForgotPassword = function (req, res) {
   log.info('Flag : ' + flag)
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
 
   var query = {publicKey: publicKey}
   // var text  = 'email='+encodeURIComponent(email)+'&flag='+encodeURIComponent(flag)+'&publicKey='+encodeURIComponent(publicKey)
@@ -1203,33 +961,9 @@ module.exports.resetpassword = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
   // Validate Authentication
   if (!(master.validateParameter(auth, 'Authentication'))) {
     master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
     return
   }
 
@@ -1369,30 +1103,6 @@ module.exports.changePassword = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   // Validate Old Password
   if (!(master.validateParameter(old_pass, 'Old Password'))) {
     master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
@@ -1516,30 +1226,6 @@ module.exports.setAppId = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   // Validate App Id
   if (!(master.validateParameter(appId, 'App ID'))) {
     master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
@@ -1601,30 +1287,6 @@ module.exports.getAppId = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   var query = {publicKey: publicKey}
   // var text  = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey)
   var text = 'email=' + email + '&publicKey=' + publicKey
@@ -1672,18 +1334,6 @@ module.exports.setFavouriteAppIds = function (req, res) {
   log.info('Favourite Apps : ' + favouriteApps)
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
 
   // Validate Email
   if (!(master.validateParameter(email, 'Email'))) {
@@ -1752,18 +1402,6 @@ module.exports.editProfilePic = function (req, res) {
   var mediumPath = imageUploadUrl + 'medium/'
   var smallPath = imageUploadUrl + 'small/'
 
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   // Validate DataImage
   if (!(master.validateParameter(dataImage, 'dataImage'))) {
     master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
@@ -1772,18 +1410,6 @@ module.exports.editProfilePic = function (req, res) {
 
   // Validate Extension
   if (!(master.validateParameter(extension, 'Extension'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
     master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
     return
   }
@@ -2906,21 +2532,7 @@ module.exports.rejectBlockedBids = function(req, res){
     var emailValue = '';
 
     log.info('Json File : '+reject_bids_json);
-    
-    // Validate Public Key
-    if(!(master.validateParameter(publicKey, 'Public Key')))
-    {
-        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-        return;
-    }
 
-    // Validate Signature
-    if(!(master.validateParameter(signature, 'Signature')))
-    {
-        master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-        return;
-    }
-    
     if(reject_bids_json == "" && reject_bids_json == null)
     {
         log.info('Reject Bids Json Missing');

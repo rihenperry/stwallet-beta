@@ -29,28 +29,6 @@ var poolvalidate = function (req, cb) {
   log.info('PublicKey  : ' + publicKey)
   log.info('Signature  : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    var retVal = [{
-      'message': 'Mandatory field not found',
-      'errCode': 1,
-      'error': 'true'
-    }]
-    cb(retVal)
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    var retVal = [{
-      'message': 'Mandatory field not found',
-      'errCode': 1,
-      'error': 'true'
-    }]
-    cb(retVal)
-    return
-  }
-
   // Amount Validation
   if (amount == '' || isNaN(amount)) {
     log.info('Invalid Amount')

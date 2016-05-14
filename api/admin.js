@@ -138,52 +138,41 @@ module.exports.resetTotalNumberOfQualifiedSearches = function (req, res) {
 }
 
 /* User Manage */
-module.exports.userManage = function (req, res) {
-  log.info('Page Name: admin.js')
-  log.info('API Name : userManage')
-  log.info('User Manage API Hitted')
-  log.info('No Parameters Receiving...')
+module.exports.userManage = function (req, res){
+	
+	log.info('Page Name: admin.js');
+	log.info('API Name : userManage');	
+	log.info('User Manage API Hitted');
+	log.info('No Parameters Receiving...');
+	
+	var email      = req.body.email;
+	var first_name = req.body.first_name;
+	var last_name  = req.body.last_name;
+	var skip       = req.body.skip;
+	var order      = req.body.order;
+	var column     = req.body.column;
+	var flag       = req.body.flag;
+    var publicKey  = req.body.publicKey;
+    var signature  = req.body.signature;
 
-  var email = req.body.email
-  var first_name = req.body.first_name
-  var last_name = req.body.last_name
-  var skip = req.body.skip
-  var order = req.body.order
-  var column = req.body.column
-  var flag = req.body.flag
-  var publicKey = req.body.publicKey
-  var signature = req.body.signature
+	log.info('Email : '+email);
+	log.info('First Name : '+first_name);
+	log.info('Last Name : '+last_name);
+	log.info('Skip : '+skip);
+	log.info('Order : '+order);
+	log.info('column : '+column);
 
-  log.info('PublicKey  : ' + publicKey)
-  log.info('Signature  : ' + signature)
-  log.info('Email : ' + email)
-  log.info('First Name : ' + first_name)
-  log.info('Last Name : ' + last_name)
-  log.info('Skip : ' + skip)
-  log.info('Order : ' + order)
-  log.info('Column : ' + column)
-  log.info('Flag : ' + flag)
-
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  var query = {'publicKey': publicKey}
-  // var text = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey)
-  var text = 'email=' + email + '&first_name=' + first_name + '&last_name=' + last_name + '&publicKey=' + publicKey
-
-  // Validate Signature
-  master.secureAuth(query, text, signature, function (result) {
-    if (result[0].error == true || result[0].error == 'true') {
-      master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
-      return
-    }
+	var query = {'publicKey': publicKey};
+    //var text = 'email='+encodeURIComponent(email)+'&publicKey='+encodeURIComponent(publicKey);
+    var text = 'email='+email+'&first_name='+first_name+'&last_name='+last_name+'&publicKey='+publicKey;
+    
+	// Validate Signature
+	master.secureAuth(query, text, signature, function (result){
+        if(result[0].error == true || result[0].error == 'true')
+        {
+            master.sendResponse(req, res, 200, result[0].errCode, result[0].message);
+            return;
+        }
 
     if (email == '' || email == undefined || email == null) {
       if (first_name == '' || first_name == undefined || first_name == null) {
@@ -301,14 +290,14 @@ module.exports.getExpenceTransactions = function(req, res) {
 	log.info('Get Expence Transaction Accessed');
 	log.info('Parameters Receiving..');
 
-	var vars = req.body;
-	var email = req.body.email;
-	var from = req.body.from;
-	var to = req.body.to;
-	var n = req.body.number;
-	var publicKey = req.body.publicKey;
-	var signature = req.body.signature;
-	var type = vars.type;
+	var vars		= req.body;
+	var email 		= req.body.email;
+	var from 		= req.body.from;
+	var to 			= req.body.to;
+	var n 			= req.body.number;
+	var publicKey 	= req.body.publicKey;
+	var signature 	= req.body.signature;
+	var type 		= req.body.type;
 	
 	log.info('Email : '+email);
 	log.info('From Date : '+from);
@@ -318,20 +307,6 @@ module.exports.getExpenceTransactions = function(req, res) {
 	log.info('Public Key :'+publicKey);
 	log.info('Signature :'+signature);
 	
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
 	// Checking Transaction Numbers	
 	if(n=="" || n==undefined)
 	{
@@ -515,36 +490,20 @@ module.exports.getActiveEmails = function (req, res) {
   log.info('API Name : getActiveEmails')
   log.info('Get All Transactions API Hitted')
   log.info('Parameters Receiving...')
+	
+	var flag = req.body.flag;
+	var publicKey = req.body.publicKey;
+	var signature = req.body.signature;
 
-  var flag = req.body.flag
-  var publicKey = req.body.publicKey
-  var signature = req.body.signature
+	var query = {'publicKey':publicKey};
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
+	//var text = "flag="+encodeURIComponent(flag)+"&publicKey="+encodeURIComponent(publicKey);
+    var text = "flag="+flag+"&publicKey="+publicKey;
 
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
+	master.secureAuth(query, text, signature, function (result){
 
-  // Validate Flag
-  if (!(master.validateParameter(flag, 'flag'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  var query = {'publicKey': publicKey}
-
-  // var text = "flag="+encodeURIComponent(flag)+"&publicKey="+encodeURIComponent(publicKey)
-  var text = 'flag=' + flag + '&publicKey=' + publicKey
-
-  master.secureAuth(query, text, signature, function (result) {
-    if (result[0].error == true || result[0].error == 'true') {
+		if(result[0].error == true || result[0].error == 'true')
+        {
       master.sendResponse(req, res, 200, result[0].errCode, result[0].message)
       return
     }
@@ -669,18 +628,6 @@ module.exports.getIncomeTransactions = function (req, res) {
   log.info('Public Key :' + publicKey)
   log.info('Signature :' + signature)
   log.info('Payment Mode : ' + payment_mode)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
 
   // Checking Transaction Value
   if (n == '' || n == undefined) {
@@ -832,25 +779,13 @@ module.exports.paymentModeCount = function (req, res) {
   log.info('Payment Mode Count Accessed')
   log.info('Parameters Receiving..')
 
-  var publicKey = req.body.publicKey
-  var signature = req.body.signature
-  var mode = req.body.mode
-
-  log.info('Payment Mode : ' + mode)
-  log.info('Public Key :' + publicKey)
-  log.info('Signature :' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
+	var publicKey  = req.body.publicKey;
+	var signature  = req.body.signature;
+	var mode       = req.body.mode;
+	
+	log.info('Payment Mode : '+mode);
+    log.info('Public Key :' + publicKey)
+    log.info('Signature :' + signature)
 
   var query = {'publicKey': publicKey}
   // var text = "mode="+encodeURIComponent(mode)+"&publicKey="+encodeURIComponent(publicKey)
@@ -903,30 +838,6 @@ module.exports.setUserBalance = function (req, res) {
   log.info('Approved Withdrawal : ' + approved_withdrawal)
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(master.validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
 
   // Validate Deposit
   if (!(master.validateParameter(deposit, 'Deposit Amount'))) {
@@ -1011,35 +922,6 @@ module.exports.getEmailTypeTransactions = function(req, res){
     log.info('Skip :'+skip);
 	log.info('Public Key : '+publicKey);
 	log.info('Signature : '+signature);
-	
-	// Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-	
-	// Validate Email
-	if(!(master.validateParameter(email, 'Email')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	if(!(master.validateEmail(email))) 
-	{
-		log.info('Incorrect Email Format');
-		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
-		return;
-    }
-
 	// Validate Signature
 	if(!(master.validateParameter(type, 'Type')))
 	{
@@ -1115,30 +997,6 @@ module.exports.updateUserStatus = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(master.validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   var query = {'publicKey': publicKey}
   // var text = "email="+encodeURIComponent(email)+"&status="+encodeURIComponent(status)+"&publicKey="+encodeURIComponent(publicKey)
   var text = 'email=' + email + '&status=' + status + '&publicKey=' + publicKey
@@ -1184,18 +1042,6 @@ module.exports.latestDeposit = function (req, res) {
   var publicKey = req.body.publicKey
   var signature = req.body.signature
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
   var query = {'publicKey': publicKey}
   // var text = "publicKey="+encodeURIComponent(publicKey)
   var text = 'publicKey=' + publicKey
@@ -1237,18 +1083,6 @@ module.exports.totalCount = function (req, res) {
 
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
 
   var query = {'publicKey': publicKey}
 
@@ -1377,30 +1211,6 @@ module.exports.userBalanceCalc = function (req, res) {
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(master.validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   var query = {'publicKey': publicKey}
 
   // var text = "email="+email+"&publicKey="+encodeURIComponent(publicKey)
@@ -1467,18 +1277,6 @@ module.exports.allUsersBalance = function (req, res) {
 
   log.info('Public Key : ' + publicKey)
   log.info('Signature : ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
 
   var query = {'publicKey': publicKey}
 

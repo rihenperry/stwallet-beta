@@ -191,30 +191,6 @@ module.exports.updateLastHourValue = function (req, res) {
   log.info('Public Key: ' + publicKey)
   log.info('Signature: ' + signature)
 
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(master.validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
-
   var query = {publicKey: publicKey}
   // var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey)
   var text = 'email=' + email + '&publicKey=' + publicKey
@@ -265,30 +241,6 @@ module.exports.recentSearches = function (req, res) {
   log.info('Searches (Last Search Record): ' + searches)
   log.info('Public Key: ' + publicKey)
   log.info('Signature: ' + signature)
-
-  // Validate Public Key
-  if (!(master.validateParameter(publicKey, 'Public Key'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Signature
-  if (!(master.validateParameter(signature, 'Signature'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  // Validate Email
-  if (!(master.validateParameter(email, 'Email'))) {
-    master.sendResponse(req, res, 200, 1, 'Mandatory field not found')
-    return
-  }
-
-  if (!(master.validateEmail(email))) {
-    log.info('Incorrect Email Format')
-    master.sendResponse(req, res, 200, 7, 'Incorrect email id format')
-    return
-  }
 
   var query = {publicKey: publicKey}
   // var text  = "email="+encodeURIComponent(email)+"&searches="+encodeURIComponent(searches)+"&publicKey="+encodeURIComponent(publicKey)
@@ -373,35 +325,7 @@ module.exports.checkExistanceEmail = function(req, res){
     log.info('Email: '+email);
 	log.info('Public Key: '+publicKey);
 	log.info('Signature: '+signature);
-
-    // Validate Public Key
-	if(!(master.validateParameter(publicKey, 'Public Key')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	// Validate Signature
-	if(!(master.validateParameter(signature, 'Signature')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
 	
-	// Validate Email
-	if(!(master.validateParameter(email, 'Email')))
-	{
-		master.sendResponse(req, res, 200, 1, "Mandatory field not found");
-		return;
-	}
-
-	if(!(master.validateEmail(email))) 
-	{
-		log.info('Incorrect Email Format');
-		master.sendResponse(req, res, 200, 7, "Incorrect email id format");
-		return;
-    }
-    
     var query = {publicKey:publicKey};
     //var text  = "email="+encodeURIComponent(email)+"&publicKey="+encodeURIComponent(publicKey);
     var text  = "email="+email+"&publicKey="+publicKey;
