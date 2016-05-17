@@ -7,6 +7,8 @@ var ctrlUser = require('../controllers/user');
 var ctrlNotify = require('../controllers/notify');
 var ctrlUserSub = require('../controllers/usersub');
 
+var pref = require('../controllers/setpreferences.js');
+
 //router.use(function(req, res, next) {
 //  // exempt this api from email middleware check
 //  log.info(req.path);
@@ -38,6 +40,9 @@ router.get('/users/:id/notifyoptions', mw.checkPubSignKey, ctrlNotify.getUserSub
 router.post('/users/:id/notifyoptions', mw.checkPubSignKey, ctrlNotify.createUserSubOptions);
 router.put('/users/:id/notifyoptions/:optionid', mw.checkPubSignKey, ctrlNotify.updateUserSubOptions);
 router.delete('/users/:id/notifyoptions', mw.checkPubSignKey, ctrlNotify.deleteUserSubOptions);
+
+router.post('/setSocialPreference', mw.checkPubSignKey, mw.checkEmail, pref.setSocialPreference);
+router.get('/getSocialPreference/:userid', pref.getSocialPreference);
 
 /* following are user notification subscriptions*/
 /* purchase/buy keyword api */
