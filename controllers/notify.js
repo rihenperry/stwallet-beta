@@ -254,32 +254,38 @@ var createUserSubOptions = function (req, res) {
 
           if (updateuser.notify_options_fk_key) {
             log.info('user already exits', updateuser.notify_options_fk_key)
-            helpers.sendJsonResponse(res, 404, 51, 'User Preferences Already Exist')
+            helpers.sendJsonResponse(res, 403, 51, 'User Preferences Already Exist')
             return
           }
 
-          /* just accept the notify options params*/
-          var updateoptions = null
-          var options = common.processOptions(req, updateoptions)
-
-          options.save(function (err, optionObj) {
+          helpers.validateOptsPerms(req, function(err) {
             if (err) {
-              log.error(err)
-              helpers.sendJsonResponse(res, 404, 5, err)
-              return
+              helpers.sendJsonResponse(res, 403, 52, err)
+            } else {
+              /* just accept the notify options params*/
+              var updateoptions = null
+              var options = common.processOptions(req, updateoptions)
+
+              options.save(function (err, optionObj) {
+                if (err) {
+                  log.error(err)
+                  helpers.sendJsonResponse(res, 404, 5, err)
+                  return
+                }
+
+                /* update the notify options foreign key in users table */
+                updateuser.notify_options_fk_key = optionObj._id
+
+                updateuser.save(function (err, newuser) {
+                  if (err) {
+                    log.error(err)
+                    helpers.sendJsonResponse(res, 404, 5, err)
+                    return
+                  }
+                  helpers.sendJsonResponse(res, 201, -1, 'Success')
+                })
+              })
             }
-
-            /* update the notify options foreign key in users table */
-            updateuser.notify_options_fk_key = optionObj._id
-
-            updateuser.save(function (err, newuser) {
-              if (err) {
-                log.error(err)
-                helpers.sendJsonResponse(res, 404, 5, err)
-                return
-              }
-              helpers.sendJsonResponse(res, 201, -1, 'Success')
-            })
           })
         })
     } else {
@@ -409,17 +415,25 @@ var updateUserSubOptions = function (req, res) {
             if (err) {
               log.error(err)
               helpers.sendJsonResponse(res, 404, 5, err)
+              return
             }
 
-            updateNotifyObj.updated_on = Date.now()
-
-            var options = common.processOptions(req, updateNotifyObj)
-            options.save(function (err, updated) {
+            helpers.validateOptsPerms(req, function(err) {
               if (err) {
-                log.error(err)
-                helpers.sendJsonResponse(res, 404, 5, err)
+                helpers.sendJsonResponse(res, 403, 51, err)
+                return
               } else {
-                helpers.sendJsonResponse(res, 200, -1, 'Success')
+                updateNotifyObj.updated_on = Date.now()
+
+                var options = common.processOptions(req, updateNotifyObj)
+                options.save(function (err, updated) {
+                  if (err) {
+                    log.error(err)
+                    helpers.sendJsonResponse(res, 404, 5, err)
+                  } else {
+                    helpers.sendJsonResponse(res, 200, -1, 'Success')
+                  }
+                })
               }
             })
           }) // end of NotifyOption
