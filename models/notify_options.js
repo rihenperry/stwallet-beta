@@ -34,32 +34,38 @@ var withdrawalOptionsSchema = new mongoose.Schema({
 
 var buyContainerSchema = new mongoose.Schema({
   option: {type: mongoose.Schema.Types.Number, refPath: 'BuyKeywordsOption._id', min: 1, max: 3},
-  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7}
+  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7},
+  social_permissions: {type: mongoose.Schema.Types.String, default: 'u', enum: ['u', 'f', 'g']}
 })
 
 var askContainerSchema = new mongoose.Schema({
   option: {type: mongoose.Schema.Types.Number, refPath: 'AskKeywordsOption._id', min: 1, max: 3},
-  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7}
+  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7},
+  social_permissions: {type: mongoose.Schema.Types.String, default: 'u', enum: ['u', 'f', 'g']}
 })
 
 var bidContainerSchema = new mongoose.Schema({
   option: {type: mongoose.Schema.Types.Number, refPath: 'BidKeywordsOption._id', min: 1, max: 4},
-  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7}
+  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7},
+  social_permissions: {type: mongoose.Schema.Types.String, default: 'u', enum: ['u', 'f', 'g']}
 })
 
 var kwdLicenseContainerSchema = new mongoose.Schema({
   option: {type: mongoose.Schema.Types.Number, refPath: 'KwdLicenseOption._id', min:1, max: 2},
-  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7}
+  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7},
+  social_permissions: {type: mongoose.Schema.Types.String, default: 'u', enum: ['u', 'f', 'g']}
 })
 
 var depositContainerSchema = new mongoose.Schema({
   option: {type: mongoose.Schema.Types.Number, refPath: 'DepositOption._id', min:1, max: 1},
-  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7}
+  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7},
+  social_permissions: {type: mongoose.Schema.Types.String, default: 'u', enum: ['u', 'f', 'g']}
 })
 
 var withdrawalContainerSchema = new mongoose.Schema({
   option: {type: mongoose.Schema.Types.Number, refPath: 'WithdrwalOption._id', min:1, max: 2},
-  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7}
+  permissions: {type: mongoose.Schema.Types.Number, refPath: 'NotifyPerm._id', min: 0, max: 7},
+  social_permissions: {type: mongoose.Schema.Types.String, default: 'u', enum: ['u', 'f', 'g']}
 })
 
 var notifyOptionsSchema = new mongoose.Schema({
