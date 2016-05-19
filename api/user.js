@@ -4,31 +4,23 @@
 var util = require('util')
 
 // Pages
-var poolSchema = require('../models/poolSchema.js'), // Pool Schema
-  userSchema = require('../models/userSchema.js'), // User Schema
-  transactionSchema = require('../models/transaction_Schema.js'), // Transaction Schema
-  master = require('../config/masterfunc.js'), // Master Functions
-  crypt = require('../config/crypt.js'), // Crypt/Signature Related Functionality
-  mailer = require('../config/mail.js'), // Mail Functionality
+var poolSchema	  	    = require('../models/poolSchema.js'),           // Pool Schema
+    userSchema          = require('../models/userSchema.js'),           // User Schema
+    transactionSchema   = require('../models/transaction_Schema.js'),   // Transaction Schema
+	socialNotiPrefModel = require('../models/socialNotificationSchema.js'),
+    master              = require('../config/masterfunc.js'),           // Master Functions
+    crypt               = require('../config/crypt.js'),                // Crypt/Signature Related Functionality
+    mailer              = require('../config/mail.js'),                 // Mail Functionality
+	notify				= require('../controllers/notify.js'),			
+	socialpref			= require('../controllers/setpreferences.js'),			
+    protocol 		    = 'http',
+    fs 				    = require('fs'), 
+    im 				    = require('imagemagick'),
+    logger              = require('../config/w_config.js'),
+    request             = require('request'),
+    log                 = logger();
 
-  notify = require('../controllers/notify.js'),
-  protocol = 'http',
-  fs = require('fs'),
-  im = require('imagemagick'),
-
-  logger = require('../config/w_config.js'),
-
-  // Packages
-  fs = require('fs'), // To Handle File Functionality            
-  im = require('imagemagick'), // To Handle Image Processing
-  request = require('request'), // For Request 
-  os = require('os'),
-
-  // Variales and Functions
-  // protocol 		    = 'http',
-  log = logger() // Looger Function to see logs                             
-
-// ========================= Page Functions ========================= //
+//========================= Page Functions ========================= //
 
 // Email Validation
 function validateEmail (email) {
@@ -336,18 +328,19 @@ module.exports.secureRegister = function (req, res) {
                         }
 
 						notify.createUserDefaultNotifyObj(req, function (err, optionID) {
-						  if (err) {
-							log.error(err)
-							master.sendResponse(req, res, 200, 5, err)
-							return
-						  }
 						  
-						  // Making Object of myInfo
+							if (err) {
+								log.error(err)
+								master.sendResponse(req, res, 200, 5, err)
+								return
+							}
+
+							// Making Object of myInfo
 							var myInfo = new userSchema({
 								_id: accountID,
-								first_name : first_name.trim(),
-								last_name : last_name.trim(),
-								email : email.trim(),
+								first_name : first_name,
+								last_name : last_name,
+								email : email,
 								password : password,
 								mobile_number : mobile_number,
 								ref_email : referred_person_email,
@@ -359,34 +352,54 @@ module.exports.secureRegister = function (req, res) {
 								first_buy_status: stat,
 								notify_options_fk_key: optionID
 							});
-							
-							
+
+
 							myInfo.save(function(err){
-                            
+								
 								if(err)
 								{
 									log.error(err);
 									master.sendResponse(req, res, 200, 5, "Database Error");
 									return;
 								}
-								
-								sendVerificationEmail(myInfo, flag, rootUrl);   // Send Email to Registered Email Address For Account Verification
-								
-								log.info('Saved SuccessFully');
-								master.sendResponse(req, res, 200, -1, "Success");
+									
+								sendVerificationEmail(myInfo, flag);   // Send Email to Registered Email Address For Account Verification
 
-							});
-							
-						  
+								myInfo.save(function(err){
+								
+									if(err)
+									{
+										log.error(err);
+										master.sendResponse(req, res, 200, 5, "Database Error");
+										return;
+									}
+									
+									socialpref.setSocialDefaultPreference(myInfo._id, function(result){
+									
+										if(result)
+										{
+											log.info('Saved SuccessFully');
+											master.sendResponse(req, res, 200, -1, "Success");
+											return;
+										}										
+										
+										master.sendResponse(req, res, 200, 5, "Database Error");
+										
+									})
+
+								});
+								
+							})
+								
 						})
 
                     })
 
                 })
             }
-
-        })
         
+		})
+		
     })
     
 }
@@ -561,12 +574,12 @@ module.exports.secureLogin = function(req, res){
 	log.info('Secure Login API Hitted');
 	log.info('Parameters Receiving..');
     
-  var email       = req.body.email;
+	var email       = req.body.email;
 	var password    = req.body.password;
 	var publicKey   = req.body.publicKey;
 	var signature   = req.body.signature;
     
-  log.info('Email : '+email);
+	log.info('Email : '+email);
 	log.info('Password : '+password);
 	log.info('Public Key : '+publicKey);
 	log.info('Signature : '+signature);
@@ -590,58 +603,63 @@ module.exports.secureLogin = function(req, res){
             return;
         }
 		
-		  if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com"){
+		if(email=="searchUser@searchtrade.com" || email=="appDeveloper@searchtrade.com")
+		{
 			  email = email;
-		  } else{
-			  email = email.toLowerCase();
-		  }
+		}
+		else
+		{
+			email = email.toLowerCase();
+		}
 
-      userSchema.find({email:email}).lean().exec(function(err, results){
+		userSchema.find({email:email}).lean().exec(function(err, results){
 
-        if(err)
-        {
-          log.error(err);
-          master.sendResponse(req, res, 200, 5, "Database Error");
-          return;
-        }
+			if(err)
+			{
+				log.error(err);
+				master.sendResponse(req, res, 200, 5, "Database Error");
+				return;
+			}
         
-        if(results==null || results=="") // Email Not Found
-        {
-          log.info(email+" Not Registered");
-          master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
-          return;
-        }
+			if(results==null || results=="") // Email Not Found
+			{
+				log.info(email+" Not Registered");
+				master.sendResponse(req, res, 200, 4, 'There is no user registered with that email address.');
+				return;
+			}
         
-        else
-        {
-          var hashpass = crypt.hashIt((results[0].salt)+password);
+			else
+			{
+				var hashpass = crypt.hashIt((results[0].salt)+password);
           
-          if(hashpass === results[0].password)
-          {
-            if (!results[0].active)
-            {
-              log.info('Account is Not Active');
-              master.sendResponse(req, res, 200, 3, "Account is not active");
-              return;
-            }
+				if(hashpass === results[0].password)
+				{
+					if (!results[0].active)
+					{
+						log.info('Account is Not Active');
+						master.sendResponse(req, res, 200, 3, "Account is not active");
+						return;
+					}
             
-            var currentTIme = Date.now();
+					var currentTIme = Date.now();
 					  
-					  if (!results[0].notify_options_fk_key) 
-					  {
-						  notify.createUserDefaultNotifyObj(req, function (err, optionID){
+					if(!results[0].notify_options_fk_key) 
+					{
+						console.log('Hello');
+						
+						notify.createUserDefaultNotifyObj(req, function (err, optionID){
 						    
-							  if (err) 
-							  {
-								  log.error(err)
-								  master.sendResponse(req, res, 200, 5, err)
-								  return
-							  }
+							if (err) 
+							{
+								log.error(err)
+								master.sendResponse(req, res, 200, 5, err)
+								return
+							}
                 
-							  log.info('initializing default user preferences');
-							  log.info('optionID ->', optionID);
+							log.info('initializing default user preferences');
+							log.info('optionID ->', optionID);
 							  
-							  userSchema.findOneAndUpdate({email: email}, {$set: {lastLogin: currentTIme, notify_options_fk_key: optionID}, $inc: {noOfLogins: 1}}, {new: true}).lean().exec(function (err, result) {
+							userSchema.findOneAndUpdate({email: email}, {$set: {lastLogin: currentTIme, notify_options_fk_key: optionID}, $inc: {noOfLogins: 1}}, {new: true}).lean().exec(function (err, result) {
 
 								if (err) {
 									log.error(err)
@@ -649,19 +667,65 @@ module.exports.secureLogin = function(req, res){
 									return
 								}
 							
-								  log.info('Successfully Login');
-								  master.sendResponse(req, res, 200, -1, result);
-								  return;
+								console.log('Notify Options Key Saved');
+								
 						    })
+							
 					    })
-            }
-          } else {
-            log.info('Email Password Combination is Incorrect');
-            master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
-            return;
-          }
-        }
-      })
+					}
+					
+					if(!results[0].social_pref_status)
+					{
+						socialpref.setSocialDefaultPreference(results[0]._id, function(ret){
+					
+							if(!ret)
+							{
+								log.info('Preferences not setted');
+								master.sendResponse(req, res, 200, 5, "Database Error");
+								return
+							}				
+
+							else
+							{
+								log.info('Successfully Login');
+								
+								userSchema
+								.findOneAndUpdate({email:email},{social_pref_status:true})
+								.exec(function(err, response){
+								
+									if (err) {
+										log.error(err)
+										master.sendResponse(req, res, 200, 5, 'Database Error')
+										return
+									}
+								
+									log.info('Successfully Login');
+									master.sendResponse(req, res, 200, -1, results);
+									return;
+									
+								})
+							
+							}
+							
+						})
+					}
+							
+					else
+					{
+						log.info('Successfully Login');
+						master.sendResponse(req, res, 200, -1, results);
+						return;
+					}					
+				} 
+				
+				else 
+				{
+					log.info('Email Password Combination is Incorrect');
+					master.sendResponse(req, res, 200, 6, 'Email/password is incorrect');
+					return;
+				}
+			}
+		})
     })
 }
 /*============================= Get Details =============================*/

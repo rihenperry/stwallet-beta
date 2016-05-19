@@ -4,6 +4,7 @@ var router1 = express.Router();
 var mw = require('../config/middleware');
 
 var user = require('../api/user')
+// var pref = require('../controllers/setpreferences.js');
 
 router1.use(function(req, res, next) {
   // exempt this api from email middleware check
@@ -63,5 +64,8 @@ router1.post('/rejectBlockedBids', user.rejectBlockedBids);            // Reject
 //router.post('/secure/getNotificationStatus', user.getNotificationStatus);       // Get Notification Status
 router1.post('/setFavouriteAppIds', user.setFavouriteAppIds); // Set User's Favourite App Id
 router1.post('/refCode', user.refCode)
+
+// router1.post('/setSocialPreference', pref.setSocialPreference);
+// router1.get('/getSocialPreference/:userid', pref.getSocialPreference);
 
 module.exports = router1;

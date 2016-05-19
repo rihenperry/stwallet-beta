@@ -3,22 +3,22 @@
 'use strict'
 
 // Framwork
-var  express     	   = require('express'),
-     helmet          = require('helmet'),
-     nunjucks        = require('nunjucks'),
-     path            = require('path'),
-     favicon         = require('favicon'),
-     logger          = require('morgan'),
-     cookieParser    = require('cookie-parser'),
-	   nconf 	    	   = require('nconf'),
-	   fs         	   = require('fs'),
-	   request 		     = require('request'),
-     jsonfile        = require('jsonfile'),
-     bodyParser      = require('body-parser'),
-     debug           = require('debug')('Express4'),
-     //util            = require('util'),
-     bformat         = require('bunyan-format');
-     // Packages
+var express     	= require('express'),
+	helmet          = require('helmet'),
+	nunjucks        = require('nunjucks'),
+	path            = require('path'),
+	favicon         = require('favicon'),
+	logger          = require('morgan'),
+	cookieParser    = require('cookie-parser'),
+	nconf 	    	= require('nconf'),
+	fs         	   	= require('fs'),
+	request 		= require('request'),
+    jsonfile        = require('jsonfile'),
+    bodyParser      = require('body-parser'),
+    debug           = require('debug')('Express4'),
+    //util            = require('util'),
+    bformat         = require('bunyan-format');
+    // Packages
 var helpers         = require('./helpers/utils');
 var log             = require('./config/w_config.js')();
 
@@ -37,6 +37,7 @@ var routesNotificationApi = require('./routes/api_notification');
 var routesMailApi       = require('./routes/api_mail');
 var routeWelcome              = require('./routes/index');
 var routesUserPrefApi           = require('./routes/api_index');
+//var pref 				= require('./controllers/setpreferences.js');
 
 /* create http server and pass the express appln to it */
 var app = require('express')()
@@ -83,6 +84,8 @@ app.use('/secure', routesUserApi);
 /*=============================== send email API==============*/
 app.use('/secure', routesNotificationApi)
 app.use('/secure', routesMailApi)
+
+//app.post('/secure/setSocialPreference', pref.setSocialPreference)
 
 app.post('/secure/cron', cron_api.cron)
 
