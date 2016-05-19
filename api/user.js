@@ -374,8 +374,6 @@ module.exports.secureRegister = function (req, res) {
 										return;
 									}
 									
-									sendVerificationEmail(myInfo, flag, rootUrl);   // Send Email to Registered Email Address For Account Verification
-									
 									socialpref.setSocialDefaultPreference(myInfo._id, function(result){
 									
 										if(result)
@@ -669,95 +667,55 @@ module.exports.secureLogin = function(req, res){
 									return
 								}
 							
-								// socialNotiPrefModel.find({userid:results._id}).lean().exec(function(err, retVal){
-								
-									// if(err)
-									// {
-										// log.error(err)
-										// master.sendResponse(req, res, 200, 5, err)
-										// return
-									// }
-									
-									// if(retVal==null || retVal== undefined || retVal=="" || retVal.length<=0)
-									// {
-										// socialpref.setSocialDefaultPreference(results._id, function(ret){
-									
-											// if(!ret)
-											// {
-												// log.info('Preferences not setted');
-												// master.sendResponse(req, res, 200, 5, "Database Error");
-												// return
-											// }				
-
-											// else
-											// {
-												// log.info('Successfully Login');
-												// master.sendResponse(req, res, 200, -1, result);
-												// return;
-											// }
-											
-										// })
-									// }
-									
-									// else
-									// {
-										// log.info('Successfully Login');
-										// master.sendResponse(req, res, 200, -1, result);
-										// return;
-									// }
-								
-								// })
+								console.log('Notify Options Key Saved');
 								
 						    })
 							
 					    })
 					}
 					
-					// else
-					// {
-						socialNotiPrefModel.find({userid:results[0]._id}).lean().exec(function(err, retVal){
-								
-							if(err)
+					if(!results[0].social_pref_status)
+					{
+						socialpref.setSocialDefaultPreference(results[0]._id, function(ret){
+					
+							if(!ret)
 							{
-								log.error(err)
-								master.sendResponse(req, res, 200, 5, err)
+								log.info('Preferences not setted');
+								master.sendResponse(req, res, 200, 5, "Database Error");
 								return
-							}
-							
-							console.log(retVal);
-							
-							if(retVal==null || retVal== undefined || retVal=="" || retVal.length<=0)
-							{
-								socialpref.setSocialDefaultPreference(results[0]._id, function(ret){
-							
-									if(!ret)
-									{
-										log.info('Preferences not setted');
-										master.sendResponse(req, res, 200, 5, "Database Error");
-										return
-									}				
+							}				
 
-									else
-									{
-										log.info('Successfully Login');
-										master.sendResponse(req, res, 200, -1, results);
-										return;
-									}
-									
-								})
-							}
-							
 							else
 							{
 								log.info('Successfully Login');
-								master.sendResponse(req, res, 200, -1, results);
-								return;
+								
+								userSchema
+								.findOneAndUpdate({email:email},{social_pref_status:true})
+								.exec(function(err, response){
+								
+									if (err) {
+										log.error(err)
+										master.sendResponse(req, res, 200, 5, 'Database Error')
+										return
+									}
+								
+									log.info('Successfully Login');
+									master.sendResponse(req, res, 200, -1, results);
+									return;
+									
+								})
+							
 							}
-						
+							
 						})
-						
-					// }
-					
+					}
+							
+					else
+					{
+						log.info('Successfully Login');
+						master.sendResponse(req, res, 200, -1, results);
+						return;
+					}					
 				} 
 				
 				else 

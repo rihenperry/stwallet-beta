@@ -52,7 +52,7 @@ var userDetails = mongoose.Schema({
   search_affiliate_earnings: {type: Number, default: 0}, // Total Search Affiliate Earn
   total_qualified_searches: {type: Number, default: 0}, // No of Paid Searches
   renewal_fees: {type: Number, default: 0}, // Renewal Fees
-  notification_status: {type: Boolean, default: false}, // User Notification Status
+  social_pref_status: {type: Boolean, default: true}, // User Notification Status
   gender: {type: String, default: ''}, // Gender
   country: {type: String, default: ''}, // Country
   state: {type: String, default: ''}, // State
