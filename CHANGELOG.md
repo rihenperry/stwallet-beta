@@ -1,5 +1,9 @@
 # Change Log
 ## [Unreleased]
+## [2.0.0] - 2016-05-20
+### Changed
+- changed route routes/api_device.js to add check constraint for token
+
 ## [2.0.0] - 2016-04-21
 ### Changed
 - removed hardcoded connection strings from multiple modules and replaced it with .env
